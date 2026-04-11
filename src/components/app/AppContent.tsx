@@ -8,6 +8,7 @@ import { useDeviceSettings } from '../../hooks/useDeviceSettings';
 import { useSessionProtection } from '../../hooks/useSessionProtection';
 import { useProjectsState } from '../../hooks/useProjectsState';
 import { useDashboardApi } from '../dashboard/hooks/useDashboardApi';
+import CommandPalette from '../command-palette/CommandPalette';
 
 export default function AppContent() {
   const navigate = useNavigate();
@@ -225,6 +226,11 @@ export default function AppContent() {
         />
       </div>
 
+      <CommandPalette
+        projects={projects}
+        onProjectSelect={(project) => { setActiveDashboardId(null); setSingleProjectMode(true); handleProjectSelect(project); }}
+        onSessionSelect={(session) => { setActiveDashboardId(null); setSingleProjectMode(true); navigate(`/session/${session.id}`); }}
+      />
     </div>
   );
 }
