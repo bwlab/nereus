@@ -29,6 +29,7 @@ export default function AppContent() {
   const {
     selectedProject,
     selectedSession,
+    isNewSession,
     activeTab,
     sidebarOpen,
     isLoadingProjects,
@@ -161,6 +162,7 @@ export default function AppContent() {
         <MainContent
           selectedProject={selectedProject}
           selectedSession={selectedSession}
+          isNewSession={isNewSession}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           ws={ws}

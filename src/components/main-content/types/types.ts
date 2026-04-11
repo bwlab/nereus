@@ -35,6 +35,7 @@ export type PrdFile = {
 export type MainContentProps = {
   selectedProject: Project | null;
   selectedSession: ProjectSession | null;
+  isNewSession: boolean;
   activeTab: AppTab;
   setActiveTab: Dispatch<SetStateAction<AppTab>>;
   ws: WebSocket | null;

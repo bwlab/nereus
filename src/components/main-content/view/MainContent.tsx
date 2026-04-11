@@ -31,6 +31,7 @@ type TasksSettingsContextValue = {
 function MainContent({
   selectedProject,
   selectedSession,
+  isNewSession,
   activeTab,
   setActiveTab,
   ws,
@@ -112,7 +113,7 @@ function MainContent({
         <div className={`flex min-h-0 min-w-[200px] flex-col overflow-hidden ${editorExpanded ? 'hidden' : ''} flex-1`}>
           <div className={`h-full ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
             <ErrorBoundary showDetails>
-              {selectedSession ? (
+              {(selectedSession || isNewSession) ? (
                 <ChatInterface
                   selectedProject={selectedProject}
                   selectedSession={selectedSession}

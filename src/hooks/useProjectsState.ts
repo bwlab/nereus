@@ -136,6 +136,7 @@ export function useProjectsState({
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [selectedSession, setSelectedSession] = useState<ProjectSession | null>(null);
+  const [isNewSession, setIsNewSession] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>(readPersistedTab);
 
   useEffect(() => {
@@ -387,6 +388,7 @@ export function useProjectsState({
   const handleSessionSelect = useCallback(
     (session: ProjectSession) => {
       setSelectedSession(session);
+      setIsNewSession(false);
 
       if (activeTab === 'tasks' || activeTab === 'preview') {
         setActiveTab('chat');
@@ -415,6 +417,7 @@ export function useProjectsState({
     (project: Project) => {
       setSelectedProject(project);
       setSelectedSession(null);
+      setIsNewSession(true);
       setActiveTab('chat');
       navigate('/');
 
@@ -546,6 +549,7 @@ export function useProjectsState({
     projects,
     selectedProject,
     selectedSession,
+    isNewSession,
     activeTab,
     sidebarOpen,
     isLoadingProjects,
