@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import ChatInterface from '../../chat/view/ChatInterface';
 import SessionKanban from '../../session-kanban/view/SessionKanban';
 import DashboardView from '../../dashboard/view/DashboardView';
+import ClaudeTasksPanel from '../../claude-tasks/view/ClaudeTasksPanel';
 import FileTree from '../../file-tree/view/FileTree';
 import StandaloneShell from '../../standalone-shell/view/StandaloneShell';
 import GitPanel from '../../git-panel/view/GitPanel';
@@ -194,6 +195,12 @@ function MainContent({
           )}
 
           {shouldShowTasksTab && <TaskMasterPanel isVisible={activeTab === 'tasks'} />}
+
+          {activeTab === 'claude-tasks' && selectedProject && (
+            <div className="h-full overflow-hidden">
+              <ClaudeTasksPanel project={selectedProject} isVisible={activeTab === 'claude-tasks'} />
+            </div>
+          )}
 
           <div className={`h-full overflow-hidden ${activeTab === 'preview' ? 'block' : 'hidden'}`} />
 

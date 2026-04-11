@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Check, X } from 'lucide-react';
 import type { Project } from '../../../../types/app';
 import type { Raccoglitore } from '../../types/dashboard';
+import type { ClaudeTaskSummaryByProject } from '../../../claude-tasks/types/claude-tasks';
 import { getIconComponent } from '../../utils/getIconComponent';
 import DashboardProjectCard from './DashboardProjectCard';
 import ProjectAssignmentDialog from './ProjectAssignmentDialog';
@@ -16,6 +17,7 @@ type DashboardGridViewProps = {
   onAssignProject: (rid: number, projectName: string) => void;
   onRemoveProject: (rid: number, projectName: string) => void;
   allProjects: Project[];
+  taskSummary: ClaudeTaskSummaryByProject;
 };
 
 export default function DashboardGridView({
@@ -26,6 +28,7 @@ export default function DashboardGridView({
   onAssignProject,
   onRemoveProject,
   allProjects,
+  taskSummary,
 }: DashboardGridViewProps) {
   const [assignRid, setAssignRid] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -57,7 +60,7 @@ export default function DashboardGridView({
               {projects.length > 0 ? (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {projects.map((p) => (
-                    <DashboardProjectCard key={p.name} project={p} onClick={onProjectClick} />
+                    <DashboardProjectCard key={p.name} project={p} onClick={onProjectClick} taskSummary={taskSummary[p.path || p.fullPath || '']} />
                   ))}
                 </div>
               ) : (

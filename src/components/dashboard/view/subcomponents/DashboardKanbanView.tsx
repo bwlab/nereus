@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Check, X } from 'lucide-react';
 import type { Project } from '../../../../types/app';
 import type { Raccoglitore } from '../../types/dashboard';
+import type { ClaudeTaskSummaryByProject } from '../../../claude-tasks/types/claude-tasks';
 import RaccoglitoreHeader from './RaccoglitoreHeader';
 import DashboardProjectCard from './DashboardProjectCard';
 import ProjectAssignmentDialog from './ProjectAssignmentDialog';
@@ -16,6 +17,7 @@ type DashboardKanbanViewProps = {
   onAssignProject: (rid: number, projectName: string) => void;
   onRemoveProject: (rid: number, projectName: string) => void;
   allProjects: Project[];
+  taskSummary: ClaudeTaskSummaryByProject;
 };
 
 export default function DashboardKanbanView({
@@ -28,6 +30,7 @@ export default function DashboardKanbanView({
   onAssignProject,
   onRemoveProject,
   allProjects,
+  taskSummary,
 }: DashboardKanbanViewProps) {
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColName, setNewColName] = useState('');
@@ -56,7 +59,7 @@ export default function DashboardKanbanView({
               />
               <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-2" style={{ minHeight: '100px' }}>
                 {projects.map((project) => (
-                  <DashboardProjectCard key={project.name} project={project} onClick={onProjectClick} />
+                  <DashboardProjectCard key={project.name} project={project} onClick={onProjectClick} taskSummary={taskSummary[project.path || project.fullPath || '']} />
                 ))}
               </div>
             </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronRight, Plus, Check, X } from 'lucide-react';
 import type { Project } from '../../../../types/app';
 import type { Raccoglitore } from '../../types/dashboard';
+import type { ClaudeTaskSummaryByProject } from '../../../claude-tasks/types/claude-tasks';
 import { getIconComponent } from '../../utils/getIconComponent';
 import DashboardProjectCard from './DashboardProjectCard';
 import ProjectAssignmentDialog from './ProjectAssignmentDialog';
@@ -16,6 +17,7 @@ type DashboardAccordionViewProps = {
   onAssignProject: (rid: number, projectName: string) => void;
   onRemoveProject: (rid: number, projectName: string) => void;
   allProjects: Project[];
+  taskSummary: ClaudeTaskSummaryByProject;
 };
 
 export default function DashboardAccordionView({
@@ -26,6 +28,7 @@ export default function DashboardAccordionView({
   onAssignProject,
   onRemoveProject,
   allProjects,
+  taskSummary,
 }: DashboardAccordionViewProps) {
   const [expanded, setExpanded] = useState<Set<number>>(() => new Set(raccoglitori.map((r) => r.id)));
   const [assignRid, setAssignRid] = useState<number | null>(null);
@@ -72,7 +75,7 @@ export default function DashboardAccordionView({
               {isOpen && projects.length > 0 && (
                 <div className="grid grid-cols-1 gap-2 border-t border-border/50 p-3 sm:grid-cols-2 lg:grid-cols-3">
                   {projects.map((p) => (
-                    <DashboardProjectCard key={p.name} project={p} onClick={onProjectClick} />
+                    <DashboardProjectCard key={p.name} project={p} onClick={onProjectClick} taskSummary={taskSummary[p.path || p.fullPath || '']} />
                   ))}
                 </div>
               )}

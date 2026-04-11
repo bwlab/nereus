@@ -22,7 +22,8 @@
     "shell": "Shell",
     "files": "Files",
     "git": "Source Control",
-    "tasks": "Tasks"
+    "tasks": "Tasks",
+    "claudeTasks": "Claude Tasks"
   },
   "status": {
     "loading": "Loading...",

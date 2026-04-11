@@ -1,9 +1,11 @@
-import { Clock, MessageSquare, Folder } from 'lucide-react';
+import { Clock, MessageSquare, Folder, PlayCircle, CheckCircle2, CircleDot } from 'lucide-react';
 import type { Project } from '../../../../types/app';
+import type { ClaudeTaskSummary } from '../../../claude-tasks/types/claude-tasks';
 
 type DashboardProjectCardProps = {
   project: Project;
   onClick: (project: Project) => void;
+  taskSummary?: ClaudeTaskSummary;
 };
 
 function getSessionCount(project: Project): number {
@@ -50,7 +52,7 @@ function getProviders(project: Project): string[] {
   return providers;
 }
 
-export default function DashboardProjectCard({ project, onClick }: DashboardProjectCardProps) {
+export default function DashboardProjectCard({ project, onClick, taskSummary }: DashboardProjectCardProps) {
   const sessionCount = getSessionCount(project);
   const lastActivity = getLastActivity(project);
   const providers = getProviders(project);
@@ -96,6 +98,26 @@ export default function DashboardProjectCard({ project, onClick }: DashboardProj
               {p}
             </span>
           ))}
+        </div>
+      )}
+
+      {taskSummary && (taskSummary.pending + taskSummary.inProgress + taskSummary.completed > 0) && (
+        <div className="mt-2 flex items-center gap-2 border-t border-border/40 pt-2">
+          {taskSummary.inProgress > 0 && (
+            <span className="flex items-center gap-0.5 text-[10px] font-medium text-primary">
+              <PlayCircle className="h-3 w-3" /> {taskSummary.inProgress}
+            </span>
+          )}
+          {taskSummary.pending > 0 && (
+            <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+              <CircleDot className="h-3 w-3" /> {taskSummary.pending}
+            </span>
+          )}
+          {taskSummary.completed > 0 && (
+            <span className="flex items-center gap-0.5 text-[10px] text-green-600 dark:text-green-400">
+              <CheckCircle2 className="h-3 w-3" /> {taskSummary.completed}
+            </span>
+          )}
         </div>
       )}
     </button>

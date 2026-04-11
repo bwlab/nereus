@@ -1,6 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { Project } from '../../../types/app';
 import { useDashboardState } from '../hooks/useDashboardState';
+import { useClaudeTasksApi } from '../../claude-tasks/hooks/useClaudeTasksApi';
+import type { ClaudeTaskSummaryByProject } from '../../claude-tasks/types/claude-tasks';
 import DashboardKanbanView from './subcomponents/DashboardKanbanView';
 import DashboardAccordionView from './subcomponents/DashboardAccordionView';
 import DashboardTabsView from './subcomponents/DashboardTabsView';
@@ -15,6 +18,12 @@ type DashboardViewProps = {
 
 export default function DashboardView({ dashboardId, projects, onProjectClick }: DashboardViewProps) {
   const state = useDashboardState(dashboardId, projects);
+  const tasksApi = useClaudeTasksApi();
+  const [taskSummary, setTaskSummary] = useState<ClaudeTaskSummaryByProject>({});
+
+  useEffect(() => {
+    tasksApi.getSummary().then(setTaskSummary);
+  }, [tasksApi]);
 
   if (state.loading) {
     return (
@@ -42,6 +51,7 @@ export default function DashboardView({ dashboardId, projects, onProjectClick }:
     onAssignProject: state.assignProject,
     onRemoveProject: state.removeProject,
     allProjects: projects,
+    taskSummary,
   };
 
   return (
