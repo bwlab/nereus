@@ -23,38 +23,38 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --background: 30 25% 97%;
+    --foreground: 25 20% 12%;
+    --card: 30 20% 99%;
+    --card-foreground: 25 20% 12%;
+    --popover: 30 20% 99%;
+    --popover-foreground: 25 20% 12%;
+    --primary: 17 64% 60%;
+    --primary-foreground: 30 25% 98%;
+    --secondary: 28 20% 93%;
+    --secondary-foreground: 25 20% 15%;
+    --muted: 28 18% 94%;
+    --muted-foreground: 20 10% 48%;
+    --accent: 28 20% 93%;
+    --accent-foreground: 25 20% 15%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --destructive-foreground: 30 25% 98%;
+    --border: 28 18% 88%;
+    --input: 28 18% 88%;
+    --ring: 17 64% 60%;
     --radius: 0.5rem;
 
     /* Nav design tokens */
-    --nav-glass-bg: 0 0% 100% / 0.7;
+    --nav-glass-bg: 30 25% 97% / 0.7;
     --nav-glass-blur: 20px;
     --nav-glass-saturate: 1.8;
-    --nav-tab-glow: 221.2 83.2% 53.3% / 0.18;
-    --nav-tab-ring: 221.2 83.2% 53.3% / 0.10;
-    --nav-float-shadow: 0 0% 0% / 0.06;
-    --nav-float-ring: 214.3 31.8% 91.4% / 0.5;
-    --nav-divider-color: 214.3 31.8% 91.4% / 0.5;
-    --nav-input-bg: 210 40% 96.1% / 0.5;
-    --nav-input-focus-ring: 221.2 83.2% 53.3% / 0.22;
+    --nav-tab-glow: 17 64% 60% / 0.18;
+    --nav-tab-ring: 17 64% 60% / 0.10;
+    --nav-float-shadow: 25 15% 20% / 0.06;
+    --nav-float-ring: 28 18% 88% / 0.5;
+    --nav-divider-color: 28 18% 88% / 0.5;
+    --nav-input-bg: 28 18% 94% / 0.5;
+    --nav-input-focus-ring: 17 64% 60% / 0.22;
 
     /* Safe area CSS variables */
     --safe-area-inset-top: env(safe-area-inset-top);
@@ -85,37 +85,37 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 217.2 91.2% 8%;
-    --card-foreground: 210 40% 98%;
-    --popover: 217.2 91.2% 8%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 25 15% 8%;
+    --foreground: 30 20% 92%;
+    --card: 25 15% 11%;
+    --card-foreground: 30 20% 92%;
+    --popover: 25 15% 11%;
+    --popover-foreground: 30 20% 92%;
+    --primary: 17 64% 65%;
+    --primary-foreground: 25 15% 10%;
+    --secondary: 25 12% 18%;
+    --secondary-foreground: 30 20% 92%;
+    --muted: 25 12% 18%;
+    --muted-foreground: 25 12% 62%;
+    --accent: 25 12% 18%;
+    --accent-foreground: 30 20% 92%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 220 13% 46%;
-    --ring: 217.2 91.2% 59.8%;
+    --destructive-foreground: 30 20% 92%;
+    --border: 25 12% 18%;
+    --input: 25 10% 35%;
+    --ring: 17 64% 65%;
 
     /* Nav design tokens — dark overrides */
-    --nav-glass-bg: 217.2 91.2% 8% / 0.55;
+    --nav-glass-bg: 25 15% 8% / 0.55;
     --nav-glass-blur: 24px;
     --nav-glass-saturate: 1.6;
-    --nav-tab-glow: 217.2 91.2% 59.8% / 0.25;
-    --nav-tab-ring: 217.2 91.2% 59.8% / 0.15;
+    --nav-tab-glow: 17 64% 65% / 0.25;
+    --nav-tab-ring: 17 64% 65% / 0.15;
     --nav-float-shadow: 0 0% 0% / 0.35;
-    --nav-float-ring: 217.2 32.6% 17.5% / 0.3;
-    --nav-divider-color: 217.2 32.6% 17.5% / 0.5;
-    --nav-input-bg: 217.2 32.6% 17.5% / 0.5;
-    --nav-input-focus-ring: 217.2 91.2% 59.8% / 0.25;
+    --nav-float-ring: 25 12% 18% / 0.3;
+    --nav-divider-color: 25 12% 18% / 0.5;
+    --nav-input-bg: 25 12% 18% / 0.5;
+    --nav-input-focus-ring: 17 64% 65% / 0.25;
   }
 }
 
