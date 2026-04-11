@@ -66,6 +66,7 @@ import codexRoutes from './routes/codex.js';
 import geminiRoutes from './routes/gemini.js';
 import pluginsRoutes from './routes/plugins.js';
 import messagesRoutes from './routes/messages.js';
+import kanbanRoutes from './routes/kanban.js';
 import { createNormalizedMessage } from './providers/types.js';
 import { startEnabledPluginServers, stopAllPlugins, getPluginPort } from './utils/plugin-process-manager.js';
 import { initializeDatabase, sessionNamesDb, applyCustomSessionNames } from './database/db.js';
@@ -400,6 +401,9 @@ app.use('/api/plugins', authenticateToken, pluginsRoutes);
 
 // Unified session messages route (protected)
 app.use('/api/sessions', authenticateToken, messagesRoutes);
+
+// Kanban board routes (protected)
+app.use('/api/kanban', authenticateToken, kanbanRoutes);
 
 // Agent API Routes (uses API key authentication)
 app.use('/api/agent', agentRoutes);
