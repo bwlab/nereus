@@ -48,6 +48,8 @@ function MainContent({
   processingSessions,
   onReplaceTemporarySession,
   onNavigateToSession,
+  onNewSession,
+  onBackToKanban,
   onShowSettings,
   externalMessageUpdate,
 }: MainContentProps) {
@@ -107,6 +109,7 @@ function MainContent({
         shouldShowTasksTab={shouldShowTasksTab}
         isMobile={isMobile}
         onMenuClick={onMenuClick}
+        onBackToKanban={(selectedSession || isNewSession) ? onBackToKanban : undefined}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -137,11 +140,13 @@ function MainContent({
                   sendByCtrlEnter={sendByCtrlEnter}
                   externalMessageUpdate={externalMessageUpdate}
                   onShowAllTasks={tasksEnabled ? () => setActiveTab('tasks') : null}
+                  onBackToKanban={onBackToKanban}
                 />
               ) : (
                 <SessionKanban
                   project={selectedProject}
                   onSessionClick={(session) => onNavigateToSession(session.id)}
+                  onNewSession={onNewSession}
                 />
               )}
             </ErrorBoundary>

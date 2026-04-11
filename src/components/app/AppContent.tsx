@@ -40,6 +40,8 @@ export default function AppContent() {
     setShowSettings,
     openSettings,
     refreshProjectsSilently,
+    handleNewSession,
+    handleBackToKanban,
     sidebarSharedProps,
   } = useProjectsState({
     sessionId,
@@ -179,6 +181,8 @@ export default function AppContent() {
           processingSessions={processingSessions}
           onReplaceTemporarySession={replaceTemporarySession}
           onNavigateToSession={(targetSessionId: string) => navigate(`/session/${targetSessionId}`)}
+          onNewSession={() => selectedProject && handleNewSession(selectedProject)}
+          onBackToKanban={handleBackToKanban}
           onShowSettings={() => setShowSettings(true)}
           externalMessageUpdate={externalMessageUpdate}
         />

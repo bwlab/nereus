@@ -39,6 +39,7 @@ type KanbanBoardProps = {
   onCreateLabel: (name: string, color: string) => void;
   onEditLabel: (labelId: number, name: string, color: string) => void;
   onDeleteLabel: (labelId: number) => void;
+  onNewSession: () => void;
 };
 
 export default function KanbanBoard({
@@ -59,6 +60,7 @@ export default function KanbanBoard({
   onCreateLabel,
   onEditLabel,
   onDeleteLabel,
+  onNewSession,
 }: KanbanBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -165,6 +167,7 @@ export default function KanbanBoard({
                 onCreateLabel={onCreateLabel}
                 onEditLabel={onEditLabel}
                 onDeleteLabel={onDeleteLabel}
+                onNewSession={column.is_default ? onNewSession : undefined}
               />
             );
           })}

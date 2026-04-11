@@ -7,9 +7,10 @@ import KanbanBoard from './subcomponents/KanbanBoard';
 type SessionKanbanProps = {
   project: Project;
   onSessionClick: (session: ProjectSession) => void;
+  onNewSession: () => void;
 };
 
-export default function SessionKanban({ project, onSessionClick }: SessionKanbanProps) {
+export default function SessionKanban({ project, onSessionClick, onNewSession }: SessionKanbanProps) {
   const [currentTime] = useState(() => new Date());
 
   const allSessions = useMemo(() => {
@@ -64,6 +65,7 @@ export default function SessionKanban({ project, onSessionClick }: SessionKanban
           onCreateLabel={kanban.addLabel}
           onEditLabel={kanban.editLabel}
           onDeleteLabel={kanban.removeLabel}
+          onNewSession={onNewSession}
         />
       </div>
     </div>

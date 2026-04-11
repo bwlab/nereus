@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
+import { LayoutGrid } from 'lucide-react';
 import type { MainContentHeaderProps } from '../../types/types';
 import MobileMenuButton from './MobileMenuButton';
 import MainContentTabSwitcher from './MainContentTabSwitcher';
@@ -12,6 +13,7 @@ export default function MainContentHeader({
   shouldShowTasksTab,
   isMobile,
   onMenuClick,
+  onBackToKanban,
 }: MainContentHeaderProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -45,6 +47,17 @@ export default function MainContentHeader({
             shouldShowTasksTab={shouldShowTasksTab}
           />
         </div>
+
+        {onBackToKanban && (
+          <button
+            type="button"
+            onClick={onBackToKanban}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            title="Kanban"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+        )}
 
         <div className="relative min-w-0 flex-shrink overflow-hidden sm:flex-shrink-0">
           {canScrollLeft && (

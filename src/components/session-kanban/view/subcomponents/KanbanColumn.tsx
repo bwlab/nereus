@@ -21,6 +21,7 @@ type KanbanColumnProps = {
   onCreateLabel: (name: string, color: string) => void;
   onEditLabel: (labelId: number, name: string, color: string) => void;
   onDeleteLabel: (labelId: number) => void;
+  onNewSession?: () => void;
 };
 
 export default function KanbanColumn({
@@ -38,6 +39,7 @@ export default function KanbanColumn({
   onCreateLabel,
   onEditLabel,
   onDeleteLabel,
+  onNewSession,
 }: KanbanColumnProps) {
   const {
     attributes,
@@ -70,6 +72,7 @@ export default function KanbanColumn({
         dragHandleProps={listeners}
         onRename={onRenameColumn}
         onDelete={onDeleteColumn}
+        onNewSession={onNewSession}
       />
 
       <div

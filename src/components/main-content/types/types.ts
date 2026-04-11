@@ -52,6 +52,8 @@ export type MainContentProps = {
   processingSessions: Set<string>;
   onReplaceTemporarySession: SessionLifecycleHandler;
   onNavigateToSession: (targetSessionId: string) => void;
+  onNewSession: () => void;
+  onBackToKanban: () => void;
   onShowSettings: () => void;
   externalMessageUpdate: number;
 };
@@ -64,6 +66,7 @@ export type MainContentHeaderProps = {
   shouldShowTasksTab: boolean;
   isMobile: boolean;
   onMenuClick: () => void;
+  onBackToKanban?: () => void;
 };
 
 export type MainContentStateViewProps = {

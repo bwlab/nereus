@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GripVertical, Pencil, Trash2, Check, X } from 'lucide-react';
+import { GripVertical, Pencil, Trash2, Check, X, Plus } from 'lucide-react';
 import type { KanbanColumn } from '../../types/kanban';
 
 type KanbanColumnHeaderProps = {
@@ -8,6 +8,7 @@ type KanbanColumnHeaderProps = {
   dragHandleProps?: Record<string, unknown>;
   onRename: (columnId: number, name: string) => void;
   onDelete: (columnId: number) => void;
+  onNewSession?: () => void;
 };
 
 export default function KanbanColumnHeader({
@@ -16,6 +17,7 @@ export default function KanbanColumnHeader({
   dragHandleProps,
   onRename,
   onDelete,
+  onNewSession,
 }: KanbanColumnHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(column.column_name);
@@ -58,6 +60,16 @@ export default function KanbanColumnHeader({
           <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
             {sessionCount}
           </span>
+          {onNewSession && (
+            <button
+              type="button"
+              onClick={onNewSession}
+              className="rounded p-0.5 text-primary transition-colors hover:bg-primary/10"
+              title="Nuova sessione"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setIsEditing(true)}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { LayoutGrid } from 'lucide-react';
 import type { PermissionMode, Provider } from '../../types/types';
 import ThinkingModeSelector from './ThinkingModeSelector';
 import TokenUsagePie from './TokenUsagePie';
@@ -18,6 +19,7 @@ interface ChatInputControlsProps {
   isUserScrolledUp: boolean;
   hasMessages: boolean;
   onScrollToBottom: () => void;
+  onBackToKanban?: () => void;
 }
 
 export default function ChatInputControls({
@@ -34,6 +36,7 @@ export default function ChatInputControls({
   isUserScrolledUp,
   hasMessages,
   onScrollToBottom,
+  onBackToKanban,
 }: ChatInputControlsProps) {
   const { t } = useTranslation('chat');
 
@@ -130,6 +133,17 @@ export default function ChatInputControls({
           <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
+        </button>
+      )}
+
+      {onBackToKanban && (
+        <button
+          type="button"
+          onClick={onBackToKanban}
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground sm:h-8 sm:w-8"
+          title="Kanban"
+        >
+          <LayoutGrid className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
       )}
     </div>

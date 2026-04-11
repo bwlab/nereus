@@ -428,6 +428,13 @@ export function useProjectsState({
     [isMobile, navigate],
   );
 
+  const handleBackToKanban = useCallback(() => {
+    setSelectedSession(null);
+    setIsNewSession(false);
+    setActiveTab('chat');
+    navigate('/');
+  }, [navigate]);
+
   const handleSessionDelete = useCallback(
     (sessionIdToDelete: string) => {
       if (selectedSession?.id === sessionIdToDelete) {
@@ -569,6 +576,7 @@ export function useProjectsState({
     handleProjectSelect,
     handleSessionSelect,
     handleNewSession,
+    handleBackToKanban,
     handleSessionDelete,
     handleProjectDelete,
     handleSidebarRefresh,
