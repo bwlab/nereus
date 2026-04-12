@@ -54,6 +54,8 @@ export type MainContentProps = {
   onNavigateToSession: (targetSessionId: string) => void;
   onNewSession: () => void;
   onBackToKanban: () => void;
+  onSessionUpdated: () => void;
+  onSessionDeleted: (sessionId: string) => void;
   onShowSettings: () => void;
   externalMessageUpdate: number;
   activeDashboardId: number | null;

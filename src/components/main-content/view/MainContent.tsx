@@ -52,6 +52,8 @@ function MainContent({
   onNavigateToSession,
   onNewSession,
   onBackToKanban,
+  onSessionUpdated,
+  onSessionDeleted,
   onShowSettings,
   externalMessageUpdate,
   activeDashboardId,
@@ -166,6 +168,8 @@ function MainContent({
                   project={selectedProject!}
                   onSessionClick={(session) => onNavigateToSession(session.id)}
                   onNewSession={onNewSession}
+                  onSessionUpdated={onSessionUpdated}
+                  onSessionDeleted={onSessionDeleted}
                 />
               )}
             </ErrorBoundary>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { Project, ProjectSession } from '../../../types/app';
 import { useKanbanState } from '../hooks/useKanbanState';
@@ -8,10 +8,17 @@ type SessionKanbanProps = {
   project: Project;
   onSessionClick: (session: ProjectSession) => void;
   onNewSession: () => void;
+  onSessionUpdated: () => void;
+  onSessionDeleted: (sessionId: string) => void;
 };
 
-export default function SessionKanban({ project, onSessionClick, onNewSession }: SessionKanbanProps) {
-  const [currentTime] = useState(() => new Date());
+export default function SessionKanban({ project, onSessionClick, onNewSession, onSessionUpdated, onSessionDeleted }: SessionKanbanProps) {
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+
+  useEffect(() => {
+    const t = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(t);
+  }, []);
 
   const allSessions = useMemo(() => {
     const sessions: ProjectSession[] = [];
@@ -66,6 +73,9 @@ export default function SessionKanban({ project, onSessionClick, onNewSession }:
           onEditLabel={kanban.editLabel}
           onDeleteLabel={kanban.removeLabel}
           onNewSession={onNewSession}
+          projectName={project.name}
+          onSessionUpdated={onSessionUpdated}
+          onSessionDeleted={onSessionDeleted}
         />
       </div>
     </div>

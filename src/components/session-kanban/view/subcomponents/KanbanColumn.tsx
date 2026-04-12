@@ -22,6 +22,9 @@ type KanbanColumnProps = {
   onEditLabel: (labelId: number, name: string, color: string) => void;
   onDeleteLabel: (labelId: number) => void;
   onNewSession?: () => void;
+  projectName: string;
+  onSessionUpdated: () => void;
+  onSessionDeleted: (sessionId: string) => void;
 };
 
 export default function KanbanColumn({
@@ -40,6 +43,9 @@ export default function KanbanColumn({
   onEditLabel,
   onDeleteLabel,
   onNewSession,
+  projectName,
+  onSessionUpdated,
+  onSessionDeleted,
 }: KanbanColumnProps) {
   const {
     attributes,
@@ -95,6 +101,9 @@ export default function KanbanColumn({
               onCreateLabel={onCreateLabel}
               onEditLabel={onEditLabel}
               onDeleteLabel={onDeleteLabel}
+              projectName={projectName}
+              onSessionUpdated={onSessionUpdated}
+              onSessionDeleted={onSessionDeleted}
             />
           ))}
         </SortableContext>

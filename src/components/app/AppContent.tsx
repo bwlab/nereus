@@ -46,6 +46,7 @@ export default function AppContent() {
     handleNewSession,
     handleBackToKanban,
     handleProjectSelect,
+    handleSessionDelete,
     sidebarSharedProps,
   } = useProjectsState({
     sessionId,
@@ -216,6 +217,8 @@ export default function AppContent() {
           onNavigateToSession={(targetSessionId: string) => navigate(`/session/${targetSessionId}`)}
           onNewSession={() => selectedProject && handleNewSession(selectedProject)}
           onBackToKanban={handleBackToKanban}
+          onSessionUpdated={() => { void refreshProjectsSilently(); }}
+          onSessionDeleted={(sessionId) => { handleSessionDelete(sessionId); void refreshProjectsSilently(); }}
           onShowSettings={() => setShowSettings(true)}
           externalMessageUpdate={externalMessageUpdate}
           activeDashboardId={activeDashboardId}
