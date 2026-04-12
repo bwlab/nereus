@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { X, FileText, ChevronDown, ChevronRight, Loader2, AlertCircle, User, Folder, Lock } from 'lucide-react';
+import { X, FileText, ChevronDown, ChevronRight, Loader2, AlertCircle, User, Folder, Lock, Info, MessageSquare } from 'lucide-react';
 import { authenticatedFetch } from '../../../../utils/api';
+import { Markdown } from './Markdown';
 
 type ClaudeMdFile = {
   scope: 'user' | 'project' | 'local';
@@ -11,7 +12,7 @@ type ClaudeMdFile = {
   exists: boolean;
 };
 
-type InitialPrompt = {
+type UserMessage = {
   role: string;
   text: string;
   createdAt: string | null;
@@ -22,7 +23,7 @@ type SessionContextData = {
   projectPath: string | null;
   jsonlPath: string | null;
   claudeMdFiles: ClaudeMdFile[];
-  initialPrompt: InitialPrompt | null;
+  firstUserMessage: UserMessage | null;
 };
 
 type SessionContextPanelProps = {
@@ -50,7 +51,8 @@ export default function SessionContextPanel({ isOpen, onClose, sessionId, projec
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedScopes, setExpandedScopes] = useState<Set<string>>(new Set());
-  const [promptExpanded, setPromptExpanded] = useState(true);
+  const [systemPromptExpanded, setSystemPromptExpanded] = useState(true);
+  const [userMsgExpanded, setUserMsgExpanded] = useState(true);
 
   useEffect(() => {
     if (!isOpen || !sessionId) return;
@@ -130,84 +132,101 @@ export default function SessionContextPanel({ isOpen, onClose, sessionId, projec
 
           {!loading && !error && data && (
             <div className="space-y-6">
-              {/* Initial prompt */}
+              {/* System prompt (ricostruito) */}
               <section>
                 <button
                   type="button"
-                  onClick={() => setPromptExpanded(!promptExpanded)}
+                  onClick={() => setSystemPromptExpanded(!systemPromptExpanded)}
                   className="mb-2 flex w-full items-center gap-2 text-left"
                 >
-                  {promptExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-                  <h3 className="text-sm font-semibold text-foreground">Testo iniziale</h3>
-                  {data.initialPrompt && (
+                  {systemPromptExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                  <h3 className="text-sm font-semibold text-foreground">System prompt (ricostruito)</h3>
+                </button>
+
+                {systemPromptExpanded && (
+                  <>
+                    <div className="mb-3 flex items-start gap-2 rounded-lg border border-border/50 bg-muted/20 p-2.5 text-xs text-muted-foreground">
+                      <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span>
+                        Il <strong>system prompt preset di Claude Code</strong> (~5-10 kB di istruzioni tool) non è leggibile direttamente.
+                        Mostriamo i file <strong>CLAUDE.md</strong> concatenati a quel preset dall&apos;SDK secondo <code className="rounded bg-muted px-1 py-0.5 text-[10px]">settingSources: [project, user, local]</code>.
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {data.claudeMdFiles.map((file) => {
+                        const meta = scopeMeta[file.scope];
+                        const ScopeIcon = meta.icon;
+                        const isExpanded = expandedScopes.has(file.scope);
+
+                        return (
+                          <div key={file.scope} className={`rounded-lg border ${file.exists ? 'border-border bg-card' : 'border-dashed border-border/50 bg-muted/10'}`}>
+                            <button
+                              type="button"
+                              onClick={() => file.exists && toggleScope(file.scope)}
+                              disabled={!file.exists}
+                              className="flex w-full items-center gap-2 px-3 py-2 text-left"
+                            >
+                              {file.exists && (isExpanded ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />)}
+                              <ScopeIcon className={`h-4 w-4 ${meta.color}`} />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-foreground">{meta.label}</span>
+                                  {file.exists ? (
+                                    <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                                      {formatBytes(file.size)}
+                                    </span>
+                                  ) : (
+                                    <span className="rounded bg-muted/50 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                                      non presente
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="truncate font-mono text-[10px] text-muted-foreground">{file.path}</p>
+                              </div>
+                            </button>
+
+                            {file.exists && isExpanded && file.content && (
+                              <div className="max-h-96 overflow-auto border-t border-border/50 bg-background p-3 text-sm">
+                                <Markdown>{file.content}</Markdown>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </section>
+
+              {/* First user message */}
+              <section>
+                <button
+                  type="button"
+                  onClick={() => setUserMsgExpanded(!userMsgExpanded)}
+                  className="mb-2 flex w-full items-center gap-2 text-left"
+                >
+                  {userMsgExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">Primo messaggio della sessione</h3>
+                  {data.firstUserMessage && (
                     <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-                      {data.initialPrompt.role}
+                      {data.firstUserMessage.role}
                     </span>
                   )}
                 </button>
 
-                {promptExpanded && (
-                  data.initialPrompt && typeof data.initialPrompt.text === 'string' ? (
-                    <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-border bg-muted/30 p-3 font-mono text-xs text-foreground">
-                      {data.initialPrompt.text}
-                    </pre>
+                {userMsgExpanded && (
+                  data.firstUserMessage && typeof data.firstUserMessage.text === 'string' ? (
+                    <div className="max-h-96 overflow-auto rounded-lg border border-border bg-background p-3 text-sm">
+                      <Markdown>{data.firstUserMessage.text}</Markdown>
+                    </div>
                   ) : (
                     <p className="rounded-lg border border-dashed border-border py-4 text-center text-xs text-muted-foreground">
-                      Nessun prompt iniziale disponibile per questa sessione
+                      Nessun messaggio iniziale trovato nel log
                     </p>
                   )
                 )}
-              </section>
-
-              {/* CLAUDE.md files */}
-              <section>
-                <h3 className="mb-2 text-sm font-semibold text-foreground">File CLAUDE.md caricati</h3>
-                <p className="mb-3 text-xs text-muted-foreground">
-                  Questi file vengono concatenati nel system prompt dall&apos;SDK quando la sessione parte.
-                </p>
-
-                <div className="space-y-2">
-                  {data.claudeMdFiles.map((file) => {
-                    const meta = scopeMeta[file.scope];
-                    const ScopeIcon = meta.icon;
-                    const isExpanded = expandedScopes.has(file.scope);
-
-                    return (
-                      <div key={file.scope} className={`rounded-lg border ${file.exists ? 'border-border bg-card' : 'border-dashed border-border/50 bg-muted/10'}`}>
-                        <button
-                          type="button"
-                          onClick={() => file.exists && toggleScope(file.scope)}
-                          disabled={!file.exists}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left"
-                        >
-                          {file.exists && (isExpanded ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />)}
-                          <ScopeIcon className={`h-4 w-4 ${meta.color}`} />
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-foreground">{meta.label}</span>
-                              {file.exists ? (
-                                <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                                  {formatBytes(file.size)}
-                                </span>
-                              ) : (
-                                <span className="rounded bg-muted/50 px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                                  non presente
-                                </span>
-                              )}
-                            </div>
-                            <p className="truncate font-mono text-[10px] text-muted-foreground">{file.path}</p>
-                          </div>
-                        </button>
-
-                        {file.exists && isExpanded && file.content && (
-                          <pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words border-t border-border/50 bg-muted/20 p-3 font-mono text-xs text-foreground">
-                            {file.content}
-                          </pre>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
               </section>
 
               {/* Metadata footer */}

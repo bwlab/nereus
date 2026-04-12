@@ -178,7 +178,7 @@ router.get('/:sessionId', (req, res) => {
 
     const claudeMdFiles = loadClaudeMdFiles(projectPath);
     const jsonlPath = findSessionJsonlPath(sessionId);
-    const initialPrompt = extractInitialPrompt(jsonlPath);
+    const firstUserMessage = extractInitialPrompt(jsonlPath);
 
     res.json({
       success: true,
@@ -186,7 +186,7 @@ router.get('/:sessionId', (req, res) => {
       projectPath,
       jsonlPath,
       claudeMdFiles,
-      initialPrompt,
+      firstUserMessage,
     });
   } catch (error) {
     console.error('Error loading session context:', error);
