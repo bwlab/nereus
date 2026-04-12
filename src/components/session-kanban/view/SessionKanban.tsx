@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Terminal, Wrench, Plug } from 'lucide-react';
 import type { Project, ProjectSession } from '../../../types/app';
 import { useKanbanState } from '../hooks/useKanbanState';
 import KanbanBoard from './subcomponents/KanbanBoard';
+import ProjectSettingsPanel, { type ProjectSettingsTab } from '../../project-settings/view/ProjectSettingsPanel';
 
 type SessionKanbanProps = {
   project: Project;
@@ -14,6 +15,7 @@ type SessionKanbanProps = {
 
 export default function SessionKanban({ project, onSessionClick, onNewSession, onSessionUpdated, onSessionDeleted }: SessionKanbanProps) {
   const [currentTime, setCurrentTime] = useState(() => new Date());
+  const [settingsTab, setSettingsTab] = useState<ProjectSettingsTab | null>(null);
 
   useEffect(() => {
     const t = setInterval(() => setCurrentTime(new Date()), 60000);
@@ -50,8 +52,34 @@ export default function SessionKanban({ project, onSessionClick, onNewSession, o
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-border px-4 py-2">
+      <div className="flex items-center justify-between border-b border-border px-4 py-2">
         <h2 className="text-sm font-semibold text-foreground">Sessioni — {project.displayName || project.name}</h2>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setSettingsTab('commands')}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            title="Comandi di progetto"
+          >
+            <Terminal className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSettingsTab('skills')}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            title="Skills"
+          >
+            <Wrench className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSettingsTab('mcp')}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            title="MCP Tools"
+          >
+            <Plug className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
       <div className="flex-1 overflow-hidden">
         <KanbanBoard
@@ -78,6 +106,15 @@ export default function SessionKanban({ project, onSessionClick, onNewSession, o
           onSessionDeleted={onSessionDeleted}
         />
       </div>
+
+      <ProjectSettingsPanel
+        isOpen={settingsTab !== null}
+        onClose={() => setSettingsTab(null)}
+        projectName={project.name}
+        projectDisplayName={project.displayName}
+        activeTab={settingsTab ?? 'commands'}
+        onChangeTab={(tab) => setSettingsTab(tab)}
+      />
     </div>
   );
 }

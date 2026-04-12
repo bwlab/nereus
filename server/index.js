@@ -70,6 +70,9 @@ import kanbanRoutes from './routes/kanban.js';
 import dashboardRoutes from './routes/dashboards.js';
 import claudeTasksRoutes from './routes/claude-tasks.js';
 import sessionContextRoutes from './routes/session-context.js';
+import projectCommandsRoutes from './routes/project-commands.js';
+import projectSkillsRoutes from './routes/project-skills.js';
+import projectMcpRoutes from './routes/project-mcp.js';
 import { createNormalizedMessage } from './providers/types.js';
 import { startEnabledPluginServers, stopAllPlugins, getPluginPort } from './utils/plugin-process-manager.js';
 import { initializeDatabase, sessionNamesDb, applyCustomSessionNames } from './database/db.js';
@@ -410,6 +413,9 @@ app.use('/api/kanban', authenticateToken, kanbanRoutes);
 app.use('/api/dashboards', authenticateToken, dashboardRoutes);
 app.use('/api/claude-tasks', authenticateToken, claudeTasksRoutes);
 app.use('/api/session-context', authenticateToken, sessionContextRoutes);
+app.use('/api/project-commands', authenticateToken, projectCommandsRoutes);
+app.use('/api/project-skills', authenticateToken, projectSkillsRoutes);
+app.use('/api/project-mcp', authenticateToken, projectMcpRoutes);
 
 // Agent API Routes (uses API key authentication)
 app.use('/api/agent', agentRoutes);

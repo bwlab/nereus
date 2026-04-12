@@ -447,6 +447,25 @@ async function loadMcpConfig(cwd) {
       }
     }
 
+    // Apply per-project disabled list from .claude/settings.local.json
+    if (cwd) {
+      try {
+        const localSettingsPath = path.join(cwd, '.claude', 'settings.local.json');
+        const localRaw = await fs.readFile(localSettingsPath, 'utf8').catch(() => null);
+        if (localRaw) {
+          const local = JSON.parse(localRaw);
+          const disabled = local?.cloudcli?.disabledMcpServers;
+          if (Array.isArray(disabled)) {
+            for (const name of disabled) {
+              if (name in mcpServers) delete mcpServers[name];
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to apply disabledMcpServers filter:', err?.message || err);
+      }
+    }
+
     // Return null if no servers found
     if (Object.keys(mcpServers).length === 0) {
       return null;
