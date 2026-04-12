@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Loader2, Terminal, Wrench, Plug } from 'lucide-react';
+import { Loader2, Terminal, Wrench, Plug, FolderOpen } from 'lucide-react';
 import type { Project, ProjectSession } from '../../../types/app';
+import { authenticatedFetch } from '../../../utils/api';
 import { useKanbanState } from '../hooks/useKanbanState';
 import KanbanBoard from './subcomponents/KanbanBoard';
 import ProjectSettingsPanel, { type ProjectSettingsTab } from '../../project-settings/view/ProjectSettingsPanel';
@@ -53,7 +54,30 @@ export default function SessionKanban({ project, onSessionClick, onNewSession, o
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-border px-4 py-2">
-        <h2 className="text-sm font-semibold text-foreground">Sessioni — {project.displayName || project.name}</h2>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-sm font-semibold text-foreground">Sessioni — {project.displayName || project.name}</h2>
+          {(project.fullPath || project.path) && (
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const res = await authenticatedFetch(`/api/project-open/${encodeURIComponent(project.name)}/in-file-manager`, { method: 'POST' });
+                  if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    alert(data.error || 'Impossibile aprire il file manager');
+                  }
+                } catch (err) {
+                  alert((err as Error).message);
+                }
+              }}
+              className="mt-0.5 flex items-center gap-1 truncate font-mono text-[10px] text-muted-foreground transition-colors hover:text-primary"
+              title="Apri nel file manager"
+            >
+              <FolderOpen className="h-3 w-3 shrink-0" />
+              <span className="truncate">{project.fullPath || project.path}</span>
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-1">
           <button
             type="button"

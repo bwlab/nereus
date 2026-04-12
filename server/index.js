@@ -73,6 +73,7 @@ import sessionContextRoutes from './routes/session-context.js';
 import projectCommandsRoutes from './routes/project-commands.js';
 import projectSkillsRoutes from './routes/project-skills.js';
 import projectMcpRoutes from './routes/project-mcp.js';
+import projectOpenRoutes from './routes/project-open.js';
 import { createNormalizedMessage } from './providers/types.js';
 import { startEnabledPluginServers, stopAllPlugins, getPluginPort } from './utils/plugin-process-manager.js';
 import { initializeDatabase, sessionNamesDb, applyCustomSessionNames } from './database/db.js';
@@ -416,6 +417,7 @@ app.use('/api/session-context', authenticateToken, sessionContextRoutes);
 app.use('/api/project-commands', authenticateToken, projectCommandsRoutes);
 app.use('/api/project-skills', authenticateToken, projectSkillsRoutes);
 app.use('/api/project-mcp', authenticateToken, projectMcpRoutes);
+app.use('/api/project-open', authenticateToken, projectOpenRoutes);
 
 // Agent API Routes (uses API key authentication)
 app.use('/api/agent', agentRoutes);
