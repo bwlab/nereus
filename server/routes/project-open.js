@@ -1,12 +1,34 @@
 import express from 'express';
 import fs from 'fs';
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import { extractProjectDirectory } from '../projects.js';
 import { appConfigDb } from '../database/db.js';
 
 const router = express.Router();
 
 const DEFAULT_IDE_COMMAND = 'code';
+
+function detectLinuxTerminal() {
+  // 1. User preference from DB
+  const stored = appConfigDb.get('terminal_command');
+  if (stored) return stored.trim();
+  // 2. $TERMINAL env var
+  if (process.env.TERMINAL) return process.env.TERMINAL;
+  // 3. Debian/Ubuntu alternatives system
+  try {
+    const w = spawnSync('which', ['x-terminal-emulator']);
+    if (w.status === 0) return 'x-terminal-emulator';
+  } catch { /* ignore */ }
+  // 4. Detection list
+  const candidates = ['tilix', 'konsole', 'xfce4-terminal', 'alacritty', 'kitty', 'gnome-terminal', 'xterm'];
+  for (const c of candidates) {
+    try {
+      const w = spawnSync('which', [c]);
+      if (w.status === 0) return c;
+    } catch { /* continue */ }
+  }
+  return null;
+}
 
 // GET /api/project-open/config/ide
 router.get('/config/ide', (_req, res) => {
@@ -26,6 +48,27 @@ router.put('/config/ide', (req, res) => {
   } catch (error) {
     console.error('Error saving ide command:', error);
     res.status(500).json({ error: 'Failed to save ide command' });
+  }
+});
+
+// GET /api/project-open/config/terminal
+router.get('/config/terminal', (_req, res) => {
+  const stored = appConfigDb.get('terminal_command');
+  res.json({ success: true, command: stored || '' });
+});
+
+// PUT /api/project-open/config/terminal (accept empty string to reset to auto-detect)
+router.put('/config/terminal', (req, res) => {
+  try {
+    const { command } = req.body || {};
+    if (typeof command !== 'string') {
+      return res.status(400).json({ error: 'command must be a string' });
+    }
+    appConfigDb.set('terminal_command', command.trim());
+    res.json({ success: true, command: command.trim() });
+  } catch (error) {
+    console.error('Error saving terminal command:', error);
+    res.status(500).json({ error: 'Failed to save terminal command' });
   }
 });
 
@@ -175,16 +218,8 @@ router.post('/:projectName/in-terminal-with-claude', async (req, res) => {
       return res.json({ success: true, platform, command: claudeCmd, path: cwd });
     }
 
-    // Linux — pick a terminal
-    const { spawnSync } = await import('child_process');
-    const candidates = ['gnome-terminal', 'konsole', 'xfce4-terminal', 'tilix', 'alacritty', 'kitty', 'xterm'];
-    let chosen = null;
-    for (const c of candidates) {
-      try {
-        const which = spawnSync('which', [c]);
-        if (which.status === 0) { chosen = c; break; }
-      } catch { /* continue */ }
-    }
+    // Linux — pick a terminal (user pref, $TERMINAL, x-terminal-emulator, detection)
+    const chosen = detectLinuxTerminal();
     if (!chosen) return res.status(500).json({ error: 'Nessun terminale trovato' });
 
     const args = buildLinuxTerminalArgs(chosen, cwd, claudeCmd);
@@ -195,66 +230,6 @@ router.post('/:projectName/in-terminal-with-claude', async (req, res) => {
     res.json({ success: true, platform, terminal: chosen, command: claudeCmd, path: cwd });
   } catch (error) {
     console.error('Error opening terminal with claude:', error);
-    res.status(500).json({ error: 'Failed to open terminal' });
-  }
-});
-
-// POST /api/project-open/:projectName/in-terminal
-router.post('/:projectName/in-terminal', async (req, res) => {
-  try {
-    const cwd = await extractProjectDirectory(req.params.projectName);
-    if (!cwd || !fs.existsSync(cwd)) {
-      return res.status(404).json({ error: 'Project path not found' });
-    }
-
-    const platform = process.platform;
-    let command;
-    let args = [];
-
-    if (platform === 'darwin') {
-      command = 'open';
-      args = ['-a', 'Terminal', cwd];
-    } else if (platform === 'win32') {
-      command = 'cmd';
-      args = ['/c', 'start', 'cmd', '/K', `cd /d "${cwd}"`];
-    } else {
-      // Linux — try common terminals in order
-      const candidates = [
-        { cmd: 'gnome-terminal', buildArgs: (d) => ['--working-directory', d] },
-        { cmd: 'konsole', buildArgs: (d) => ['--workdir', d] },
-        { cmd: 'xfce4-terminal', buildArgs: (d) => ['--working-directory', d] },
-        { cmd: 'tilix', buildArgs: (d) => ['--working-directory', d] },
-        { cmd: 'alacritty', buildArgs: (d) => ['--working-directory', d] },
-        { cmd: 'kitty', buildArgs: (d) => ['--directory', d] },
-        { cmd: 'xterm', buildArgs: (d) => ['-e', `cd "${d}" && bash`] },
-      ];
-      let chosen = null;
-      for (const c of candidates) {
-        try {
-          const { spawnSync } = await import('child_process');
-          const which = spawnSync('which', [c.cmd]);
-          if (which.status === 0) {
-            chosen = { cmd: c.cmd, args: c.buildArgs(cwd) };
-            break;
-          }
-        } catch { /* continue */ }
-      }
-      if (!chosen) return res.status(500).json({ error: 'Nessun terminale trovato' });
-      command = chosen.cmd;
-      args = chosen.args;
-    }
-
-    try {
-      const child = spawn(command, args, { detached: true, stdio: 'ignore' });
-      child.on('error', (err) => console.error('Terminal spawn error:', err));
-      child.unref();
-    } catch (err) {
-      return res.status(500).json({ error: `Failed to launch ${command}: ${err?.message || err}` });
-    }
-
-    res.json({ success: true, platform, command, path: cwd });
-  } catch (error) {
-    console.error('Error opening project in terminal:', error);
     res.status(500).json({ error: 'Failed to open terminal' });
   }
 });

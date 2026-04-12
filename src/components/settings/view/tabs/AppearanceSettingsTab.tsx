@@ -141,6 +141,7 @@ export default function AppearanceSettingsTab({
       <SettingsSection title="Ambiente">
         <SettingsCard>
           <IdeCommandSetting />
+          <TerminalCommandSetting />
         </SettingsCard>
       </SettingsSection>
     </div>
@@ -186,6 +187,49 @@ function IdeCommandSetting() {
           onBlur={handleSave}
           onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
           placeholder={defaultCommand}
+          disabled={loading}
+          className="w-48 rounded-lg border border-input bg-card px-3 py-2 font-mono text-sm text-foreground focus:border-primary focus:ring-1 focus:ring-primary"
+        />
+        {savedAt && <span className="text-xs text-primary">✓ salvato</span>}
+      </div>
+    </SettingsRow>
+  );
+}
+
+function TerminalCommandSetting() {
+  const [command, setCommand] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    authenticatedFetch('/api/project-open/config/terminal')
+      .then((r) => r.json())
+      .then((data) => setCommand(data.command || ''))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    await authenticatedFetch('/api/project-open/config/terminal', {
+      method: 'PUT',
+      body: JSON.stringify({ command: command.trim() }),
+    });
+    setSavedAt(Date.now());
+    setTimeout(() => setSavedAt(null), 2000);
+  };
+
+  return (
+    <SettingsRow
+      label="Terminale (Linux)"
+      description="Emulatore di terminale da usare. Vuoto = auto-detection ($TERMINAL / x-terminal-emulator / preset). Es: tilix, konsole, gnome-terminal, alacritty, kitty"
+    >
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={command}
+          onChange={(e) => setCommand(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
+          placeholder="auto-detect"
           disabled={loading}
           className="w-48 rounded-lg border border-input bg-card px-3 py-2 font-mono text-sm text-foreground focus:border-primary focus:ring-1 focus:ring-primary"
         />
