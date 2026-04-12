@@ -10,6 +10,31 @@
  * - SDK format ('sonnet', 'opus') - used by the UI and claude-sdk.js
  * - API format ('claude-sonnet-4.5') - used by slash commands for display
  */
+/**
+ * Returns the context window (in tokens) for a given model id/alias.
+ * Claude models default to 200k, except 1M context variants.
+ */
+export function getContextWindowForModel(model, provider = 'claude') {
+  if (!model) return 200_000;
+  const m = String(model).toLowerCase();
+
+  if (provider === 'claude') {
+    if (m.includes('[1m]') || m.includes('1m context') || m.includes('opus 1m') || m.includes('sonnet 1m')) {
+      return 1_000_000;
+    }
+    return 200_000;
+  }
+
+  // Gemini Pro: 1M, Flash: 1M, others default
+  if (provider === 'gemini') {
+    if (m.includes('pro') || m.includes('flash')) return 1_000_000;
+    return 200_000;
+  }
+
+  // Codex / Cursor / fallback
+  return 200_000;
+}
+
 export const CLAUDE_MODELS = {
   // The SDK accepts either explicit IDs (e.g. claude-opus-4-6) or short aliases
   // (sonnet/opus/haiku), which are resolved to the current defaults.

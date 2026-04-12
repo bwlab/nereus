@@ -1,4 +1,4 @@
-import { CLAUDE_MODELS, CODEX_MODELS, CURSOR_MODELS, GEMINI_MODELS } from '../../../../../shared/modelConstants';
+import { CLAUDE_MODELS, CODEX_MODELS, CURSOR_MODELS, GEMINI_MODELS, getContextWindowForModel } from '../../../../../shared/modelConstants';
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'gemini';
 
@@ -45,7 +45,7 @@ export default function ChatStatusBar({
 }: ChatStatusBarProps) {
   const modelLabel = getModelLabel(provider, selectedModel);
   const used = tokenBudget?.used ?? 0;
-  const total = tokenBudget?.total ?? 0;
+  const total = getContextWindowForModel(selectedModel, provider);
   const ctxPct = total > 0 ? Math.round((used / total) * 100) : 0;
   const modeMeta = permissionModeMeta[permissionMode] ?? permissionModeMeta.default;
   const shortSid = sessionId ? sessionId.slice(0, 8) : null;
