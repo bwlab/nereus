@@ -97,6 +97,108 @@ router.post('/:projectName/in-ide', async (req, res) => {
   }
 });
 
+function buildClaudeCommand(options = {}) {
+  const parts = ['claude'];
+  const { resume, continueSession, permissionMode, model, verbose, debug } = options;
+
+  if (continueSession) {
+    parts.push('--continue');
+  } else if (resume) {
+    // Safely escape the session id (should be a UUID, no shell metachars but safe anyway)
+    parts.push('--resume', JSON.stringify(resume));
+  }
+
+  if (permissionMode) {
+    if (permissionMode === 'bypassPermissions') {
+      parts.push('--dangerously-skip-permissions');
+    } else if (permissionMode !== 'default') {
+      parts.push('--permission-mode', permissionMode);
+    }
+  }
+
+  if (model) parts.push('--model', JSON.stringify(model));
+  if (verbose) parts.push('--verbose');
+  if (debug) parts.push('--debug');
+
+  return parts.join(' ');
+}
+
+function buildLinuxTerminalArgs(terminalCmd, cwd, shellCommand) {
+  // All Linux terminals support a '<flag> <path>' for cwd, then '-- bash -c "<cmd>; exec bash"' to keep it open.
+  // Normalize per terminal.
+  const keepOpen = `; exec $SHELL`;
+  const full = shellCommand ? `${shellCommand}${keepOpen}` : '';
+  switch (terminalCmd) {
+    case 'gnome-terminal':
+      return ['--working-directory', cwd, ...(shellCommand ? ['--', 'bash', '-c', full] : [])];
+    case 'konsole':
+      return ['--workdir', cwd, ...(shellCommand ? ['-e', 'bash', '-c', full] : [])];
+    case 'xfce4-terminal':
+      return ['--working-directory', cwd, ...(shellCommand ? ['-x', 'bash', '-c', full] : [])];
+    case 'tilix':
+      return ['--working-directory', cwd, ...(shellCommand ? ['-e', `bash -c '${full.replace(/'/g, `'\\''`)}'`] : [])];
+    case 'alacritty':
+      return ['--working-directory', cwd, ...(shellCommand ? ['-e', 'bash', '-c', full] : [])];
+    case 'kitty':
+      return ['--directory', cwd, ...(shellCommand ? ['bash', '-c', full] : [])];
+    case 'xterm':
+      return ['-e', shellCommand ? `cd "${cwd}" && ${full}` : `cd "${cwd}" && $SHELL`];
+    default:
+      return ['--working-directory', cwd];
+  }
+}
+
+// POST /api/project-open/:projectName/in-terminal-with-claude — body: { resume, continueSession, permissionMode, model, verbose, debug }
+router.post('/:projectName/in-terminal-with-claude', async (req, res) => {
+  try {
+    const cwd = await extractProjectDirectory(req.params.projectName);
+    if (!cwd || !fs.existsSync(cwd)) {
+      return res.status(404).json({ error: 'Project path not found' });
+    }
+
+    const claudeCmd = buildClaudeCommand(req.body || {});
+    const platform = process.platform;
+
+    if (platform === 'darwin') {
+      // Use osascript to open a new Terminal.app window with the command
+      const script = `tell application "Terminal" to do script "cd ${JSON.stringify(cwd).replace(/"/g, '\\"')} && ${claudeCmd.replace(/"/g, '\\"')}"`;
+      const child = spawn('osascript', ['-e', script], { detached: true, stdio: 'ignore' });
+      child.on('error', (err) => console.error('osascript error:', err));
+      child.unref();
+      return res.json({ success: true, platform, command: claudeCmd, path: cwd });
+    }
+
+    if (platform === 'win32') {
+      const child = spawn('cmd', ['/c', 'start', 'cmd', '/K', `cd /d "${cwd}" && ${claudeCmd}`], { detached: true, stdio: 'ignore' });
+      child.on('error', (err) => console.error('cmd error:', err));
+      child.unref();
+      return res.json({ success: true, platform, command: claudeCmd, path: cwd });
+    }
+
+    // Linux — pick a terminal
+    const { spawnSync } = await import('child_process');
+    const candidates = ['gnome-terminal', 'konsole', 'xfce4-terminal', 'tilix', 'alacritty', 'kitty', 'xterm'];
+    let chosen = null;
+    for (const c of candidates) {
+      try {
+        const which = spawnSync('which', [c]);
+        if (which.status === 0) { chosen = c; break; }
+      } catch { /* continue */ }
+    }
+    if (!chosen) return res.status(500).json({ error: 'Nessun terminale trovato' });
+
+    const args = buildLinuxTerminalArgs(chosen, cwd, claudeCmd);
+    const child = spawn(chosen, args, { detached: true, stdio: 'ignore' });
+    child.on('error', (err) => console.error('Terminal spawn error:', err));
+    child.unref();
+
+    res.json({ success: true, platform, terminal: chosen, command: claudeCmd, path: cwd });
+  } catch (error) {
+    console.error('Error opening terminal with claude:', error);
+    res.status(500).json({ error: 'Failed to open terminal' });
+  }
+});
+
 // POST /api/project-open/:projectName/in-terminal
 router.post('/:projectName/in-terminal', async (req, res) => {
   try {

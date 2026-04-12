@@ -425,20 +425,7 @@ function ChatInterface({
           currentSessionId={currentSessionId ?? selectedSession?.id}
           appVersion={import.meta.env.VITE_APP_VERSION as string | undefined}
           onOpenContext={() => setIsContextOpen(true)}
-          onOpenTerminal={selectedProject ? async () => {
-            try {
-              const res = await fetch(`/api/project-open/${encodeURIComponent(selectedProject.name)}/in-terminal`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('auth-token') || ''}` },
-              });
-              if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                alert(data.error || 'Impossibile aprire il terminale');
-              }
-            } catch (err) {
-              alert((err as Error).message);
-            }
-          } : undefined}
+          terminalProjectName={selectedProject?.name}
         />
       </div>
 

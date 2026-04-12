@@ -97,7 +97,7 @@ interface ChatComposerProps {
   currentSessionId?: string | null;
   appVersion?: string;
   onOpenContext?: () => void;
-  onOpenTerminal?: () => void;
+  terminalProjectName?: string | null;
 }
 
 export default function ChatComposer({
@@ -160,7 +160,7 @@ export default function ChatComposer({
   currentSessionId,
   appVersion,
   onOpenContext,
-  onOpenTerminal,
+  terminalProjectName,
 }: ChatComposerProps) {
   const { t } = useTranslation('chat');
   const textareaRect = textareaRef.current?.getBoundingClientRect();
@@ -215,7 +215,8 @@ export default function ChatComposer({
           hasMessages={hasMessages}
           onScrollToBottom={onScrollToBottom}
           onBackToKanban={onBackToKanban}
-          onOpenTerminal={onOpenTerminal}
+          terminalProjectName={terminalProjectName}
+          terminalSessionId={currentSessionId}
           selectedModel={selectedModel}
           onModelChange={onModelChange}
         />}
