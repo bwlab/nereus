@@ -1,4 +1,4 @@
-import { Clock, MessageSquare, Folder, FolderOpen, PlayCircle, CheckCircle2, CircleDot } from 'lucide-react';
+import { Clock, MessageSquare, Folder, FolderOpen, Code, PlayCircle, CheckCircle2, CircleDot } from 'lucide-react';
 import type { Project } from '../../../../types/app';
 import { authenticatedFetch } from '../../../../utils/api';
 import type { ClaudeTaskSummary } from '../../../claude-tasks/types/claude-tasks';
@@ -71,28 +71,51 @@ export default function DashboardProjectCard({ project, onClick, taskSummary }: 
             {project.displayName || project.name}
           </p>
           {(project.path || project.fullPath) && (
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={async (e) => {
-                e.stopPropagation();
-                try {
-                  const res = await authenticatedFetch(`/api/project-open/${encodeURIComponent(project.name)}/in-file-manager`, { method: 'POST' });
-                  if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    alert(data.error || 'Impossibile aprire il file manager');
+            <div className="mt-0.5 flex items-center gap-1.5">
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  try {
+                    const res = await authenticatedFetch(`/api/project-open/${encodeURIComponent(project.name)}/in-file-manager`, { method: 'POST' });
+                    if (!res.ok) {
+                      const data = await res.json().catch(() => ({}));
+                      alert(data.error || 'Impossibile aprire il file manager');
+                    }
+                  } catch (err) {
+                    alert((err as Error).message);
                   }
-                } catch (err) {
-                  alert((err as Error).message);
-                }
-              }}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); (e.currentTarget as HTMLSpanElement).click(); } }}
-              className="mt-0.5 inline-flex max-w-full cursor-pointer items-center gap-1 truncate text-xs text-muted-foreground transition-colors hover:text-primary"
-              title="Apri nel file manager"
-            >
-              <FolderOpen className="h-3 w-3 shrink-0" />
-              <span className="truncate">{project.path || project.fullPath}</span>
-            </span>
+                }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); (e.currentTarget as HTMLSpanElement).click(); } }}
+                className="inline-flex min-w-0 flex-1 cursor-pointer items-center gap-1 truncate text-xs text-muted-foreground transition-colors hover:text-primary"
+                title="Apri nel file manager"
+              >
+                <FolderOpen className="h-3 w-3 shrink-0" />
+                <span className="truncate">{project.path || project.fullPath}</span>
+              </span>
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  try {
+                    const res = await authenticatedFetch(`/api/project-open/${encodeURIComponent(project.name)}/in-ide`, { method: 'POST' });
+                    if (!res.ok) {
+                      const data = await res.json().catch(() => ({}));
+                      alert(data.error || 'Impossibile aprire l\'IDE');
+                    }
+                  } catch (err) {
+                    alert((err as Error).message);
+                  }
+                }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); (e.currentTarget as HTMLSpanElement).click(); } }}
+                className="inline-flex shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                title="Apri nell'IDE"
+              >
+                <Code className="h-3 w-3" />
+              </span>
+            </div>
           )}
         </div>
       </div>

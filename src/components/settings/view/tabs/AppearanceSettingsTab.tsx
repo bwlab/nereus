@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DarkModeToggle } from '../../../../shared/view/ui';
 import type { CodeEditorSettingsState, ProjectSortOrder } from '../../types/types';
@@ -6,6 +7,7 @@ import SettingsCard from '../SettingsCard';
 import SettingsRow from '../SettingsRow';
 import SettingsSection from '../SettingsSection';
 import SettingsToggle from '../SettingsToggle';
+import { authenticatedFetch } from '../../../../utils/api';
 
 type AppearanceSettingsTabProps = {
   projectSortOrder: ProjectSortOrder;
@@ -135,6 +137,60 @@ export default function AppearanceSettingsTab({
           </SettingsRow>
         </SettingsCard>
       </SettingsSection>
+
+      <SettingsSection title="Ambiente">
+        <SettingsCard>
+          <IdeCommandSetting />
+        </SettingsCard>
+      </SettingsSection>
     </div>
+  );
+}
+
+function IdeCommandSetting() {
+  const [command, setCommand] = useState('');
+  const [defaultCommand, setDefaultCommand] = useState('code');
+  const [loading, setLoading] = useState(true);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    authenticatedFetch('/api/project-open/config/ide')
+      .then((r) => r.json())
+      .then((data) => {
+        setCommand(data.command || '');
+        setDefaultCommand(data.defaultCommand || 'code');
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    if (!command.trim()) return;
+    await authenticatedFetch('/api/project-open/config/ide', {
+      method: 'PUT',
+      body: JSON.stringify({ command: command.trim() }),
+    });
+    setSavedAt(Date.now());
+    setTimeout(() => setSavedAt(null), 2000);
+  };
+
+  return (
+    <SettingsRow
+      label="Comando IDE"
+      description="Comando da eseguire quando clicchi l'icona IDE sulle card progetto. Es: code, cursor, phpstorm, idea, subl"
+    >
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={command}
+          onChange={(e) => setCommand(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
+          placeholder={defaultCommand}
+          disabled={loading}
+          className="w-48 rounded-lg border border-input bg-card px-3 py-2 font-mono text-sm text-foreground focus:border-primary focus:ring-1 focus:ring-primary"
+        />
+        {savedAt && <span className="text-xs text-primary">✓ salvato</span>}
+      </div>
+    </SettingsRow>
   );
 }

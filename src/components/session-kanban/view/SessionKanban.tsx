@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Loader2, Terminal, Wrench, Plug, FolderOpen } from 'lucide-react';
+import { Loader2, Terminal, Wrench, Plug, FolderOpen, Code } from 'lucide-react';
 import type { Project, ProjectSession } from '../../../types/app';
 import { authenticatedFetch } from '../../../utils/api';
 import { useKanbanState } from '../hooks/useKanbanState';
@@ -79,6 +79,24 @@ export default function SessionKanban({ project, onSessionClick, onNewSession, o
           )}
         </div>
         <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const res = await authenticatedFetch(`/api/project-open/${encodeURIComponent(project.name)}/in-ide`, { method: 'POST' });
+                if (!res.ok) {
+                  const data = await res.json().catch(() => ({}));
+                  alert(data.error || "Impossibile aprire l'IDE");
+                }
+              } catch (err) {
+                alert((err as Error).message);
+              }
+            }}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            title="Apri nell'IDE"
+          >
+            <Code className="h-3.5 w-3.5" />
+          </button>
           <button
             type="button"
             onClick={() => setSettingsTab('commands')}
