@@ -167,25 +167,26 @@ function buildClaudeCommand(options = {}) {
 }
 
 function buildLinuxTerminalArgs(terminalCmd, cwd, shellCommand) {
-  // All Linux terminals support a '<flag> <path>' for cwd, then '-- bash -c "<cmd>; exec bash"' to keep it open.
-  // Normalize per terminal.
-  const keepOpen = `; exec $SHELL`;
+  // Use the user's login shell ($SHELL with -l) so the PATH from ~/.zshrc / ~/.bashrc / ~/.profile is loaded.
+  // Without this, commands like `claude` installed in ~/.local/bin are not found.
+  const userShell = process.env.SHELL || '/bin/bash';
+  const keepOpen = `; exec ${userShell}`;
   const full = shellCommand ? `${shellCommand}${keepOpen}` : '';
   switch (terminalCmd) {
     case 'gnome-terminal':
-      return ['--working-directory', cwd, ...(shellCommand ? ['--', 'bash', '-c', full] : [])];
+      return ['--working-directory', cwd, ...(shellCommand ? ['--', userShell, '-lc', full] : [])];
     case 'konsole':
-      return ['--workdir', cwd, ...(shellCommand ? ['-e', 'bash', '-c', full] : [])];
+      return ['--workdir', cwd, ...(shellCommand ? ['-e', userShell, '-lc', full] : [])];
     case 'xfce4-terminal':
-      return ['--working-directory', cwd, ...(shellCommand ? ['-x', 'bash', '-c', full] : [])];
+      return ['--working-directory', cwd, ...(shellCommand ? ['-x', userShell, '-lc', full] : [])];
     case 'tilix':
-      return ['--working-directory', cwd, ...(shellCommand ? ['-e', `bash -c '${full.replace(/'/g, `'\\''`)}'`] : [])];
+      return ['--working-directory', cwd, ...(shellCommand ? ['-e', `${userShell} -lc '${full.replace(/'/g, `'\\''`)}'`] : [])];
     case 'alacritty':
-      return ['--working-directory', cwd, ...(shellCommand ? ['-e', 'bash', '-c', full] : [])];
+      return ['--working-directory', cwd, ...(shellCommand ? ['-e', userShell, '-lc', full] : [])];
     case 'kitty':
-      return ['--directory', cwd, ...(shellCommand ? ['bash', '-c', full] : [])];
+      return ['--directory', cwd, ...(shellCommand ? [userShell, '-lc', full] : [])];
     case 'xterm':
-      return ['-e', shellCommand ? `cd "${cwd}" && ${full}` : `cd "${cwd}" && $SHELL`];
+      return ['-e', shellCommand ? `${userShell} -lc 'cd "${cwd}" && ${full.replace(/'/g, `'\\''`)}'` : `${userShell} -lc 'cd "${cwd}"'`];
     default:
       return ['--working-directory', cwd];
   }
