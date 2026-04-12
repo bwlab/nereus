@@ -11,13 +11,21 @@
  * - API format ('claude-sonnet-4.5') - used by slash commands for display
  */
 export const CLAUDE_MODELS = {
-  // Models in SDK format (what the actual SDK accepts)
+  // The SDK accepts either explicit IDs (e.g. claude-opus-4-6) or short aliases
+  // (sonnet/opus/haiku), which are resolved to the current defaults.
   OPTIONS: [
-    { value: "sonnet", label: "Sonnet" },
-    { value: "opus", label: "Opus" },
-    { value: "haiku", label: "Haiku" },
+    // Claude 4.6 generation (explicit IDs)
+    { value: "claude-opus-4-6", label: "Opus 4.6" },
+    { value: "claude-sonnet-4-6", label: "Sonnet 4.6" },
+    { value: "claude-haiku-4-5-20251001", label: "Haiku 4.5" },
+    // Aliases (resolved by the SDK to the latest matching model)
+    { value: "opus", label: "Opus (latest)" },
+    { value: "sonnet", label: "Sonnet (latest)" },
+    { value: "haiku", label: "Haiku (latest)" },
+    // Special modes
     { value: "opusplan", label: "Opus Plan" },
-    { value: "sonnet[1m]", label: "Sonnet [1M]" },
+    { value: "sonnet[1m]", label: "Sonnet 1M context" },
+    { value: "opus[1m]", label: "Opus 1M context" },
   ],
 
   DEFAULT: "sonnet",
