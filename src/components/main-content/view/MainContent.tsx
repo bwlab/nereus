@@ -16,6 +16,7 @@ import EditorSidebar from '../../code-editor/view/EditorSidebar';
 import type { Project } from '../../../types/app';
 import { TaskMasterPanel } from '../../task-master';
 import MainContentHeader from './subcomponents/MainContentHeader';
+import MainContentTabSwitcher from './subcomponents/MainContentTabSwitcher';
 import MainContentStateView from './subcomponents/MainContentStateView';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -237,6 +238,16 @@ function MainContent({
         </>
         )}
       </div>
+
+      {selectedProject && (selectedSession || isNewSession) && !activeDashboardId && (
+        <div className="flex-shrink-0 border-t border-border/60 bg-background px-3 py-1 sm:px-4">
+          <MainContentTabSwitcher
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            shouldShowTasksTab={shouldShowTasksTab}
+          />
+        </div>
+      )}
     </div>
   );
 }
