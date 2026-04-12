@@ -1,5 +1,6 @@
-import { Clock, MessageSquare, Folder, PlayCircle, CheckCircle2, CircleDot } from 'lucide-react';
+import { Clock, MessageSquare, Folder, FolderOpen, PlayCircle, CheckCircle2, CircleDot } from 'lucide-react';
 import type { Project } from '../../../../types/app';
+import { authenticatedFetch } from '../../../../utils/api';
 import type { ClaudeTaskSummary } from '../../../claude-tasks/types/claude-tasks';
 
 type DashboardProjectCardProps = {
@@ -69,9 +70,30 @@ export default function DashboardProjectCard({ project, onClick, taskSummary }: 
           <p className="truncate text-sm font-medium text-foreground">
             {project.displayName || project.name}
           </p>
-          <p className="truncate text-xs text-muted-foreground">
-            {project.path || project.fullPath}
-          </p>
+          {(project.path || project.fullPath) && (
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={async (e) => {
+                e.stopPropagation();
+                try {
+                  const res = await authenticatedFetch(`/api/project-open/${encodeURIComponent(project.name)}/in-file-manager`, { method: 'POST' });
+                  if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    alert(data.error || 'Impossibile aprire il file manager');
+                  }
+                } catch (err) {
+                  alert((err as Error).message);
+                }
+              }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); (e.currentTarget as HTMLSpanElement).click(); } }}
+              className="mt-0.5 inline-flex max-w-full cursor-pointer items-center gap-1 truncate text-xs text-muted-foreground transition-colors hover:text-primary"
+              title="Apri nel file manager"
+            >
+              <FolderOpen className="h-3 w-3 shrink-0" />
+              <span className="truncate">{project.path || project.fullPath}</span>
+            </span>
+          )}
         </div>
       </div>
 
