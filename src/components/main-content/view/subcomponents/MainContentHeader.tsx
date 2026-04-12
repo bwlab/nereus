@@ -2,10 +2,12 @@ import { LayoutGrid } from 'lucide-react';
 import DashboardSelector from '../../../dashboard/view/DashboardSelector';
 import type { MainContentHeaderProps } from '../../types/types';
 import MobileMenuButton from './MobileMenuButton';
+import MainContentTabSwitcher from './MainContentTabSwitcher';
 import MainContentTitle from './MainContentTitle';
 
 export default function MainContentHeader({
   activeTab,
+  setActiveTab,
   selectedProject,
   selectedSession,
   shouldShowTasksTab,
@@ -41,6 +43,16 @@ export default function MainContentHeader({
           >
             <LayoutGrid className="h-4 w-4" />
           </button>
+        )}
+
+        {selectedProject && (
+          <div className="scrollbar-hide min-w-0 flex-shrink overflow-x-auto sm:flex-shrink-0">
+            <MainContentTabSwitcher
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              shouldShowTasksTab={shouldShowTasksTab}
+            />
+          </div>
         )}
       </div>
     </div>
