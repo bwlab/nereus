@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { LayoutGrid } from 'lucide-react';
 import type { PermissionMode, Provider } from '../../types/types';
 import ThinkingModeSelector from './ThinkingModeSelector';
+import ModelSelector from './ModelSelector';
 import TokenUsagePie from './TokenUsagePie';
 
 interface ChatInputControlsProps {
@@ -20,6 +21,8 @@ interface ChatInputControlsProps {
   hasMessages: boolean;
   onScrollToBottom: () => void;
   onBackToKanban?: () => void;
+  selectedModel: string;
+  onModelChange: (modelId: string) => void;
 }
 
 export default function ChatInputControls({
@@ -37,6 +40,8 @@ export default function ChatInputControls({
   hasMessages,
   onScrollToBottom,
   onBackToKanban,
+  selectedModel,
+  onModelChange,
 }: ChatInputControlsProps) {
   const { t } = useTranslation('chat');
 
@@ -80,6 +85,8 @@ export default function ChatInputControls({
       {provider === 'claude' && (
         <ThinkingModeSelector selectedMode={thinkingMode} onModeChange={setThinkingMode} onClose={() => {}} className="" />
       )}
+
+      <ModelSelector provider={provider} selectedModel={selectedModel} onModelChange={onModelChange} />
 
       <TokenUsagePie used={tokenBudget?.used || 0} total={tokenBudget?.total || parseInt(import.meta.env.VITE_CONTEXT_WINDOW) || 160000} />
 

@@ -408,6 +408,18 @@ function ChatInterface({
           isTextareaExpanded={isTextareaExpanded}
           sendByCtrlEnter={sendByCtrlEnter}
           onBackToKanban={onBackToKanban}
+          selectedModel={
+            provider === 'cursor' ? cursorModel
+              : provider === 'codex' ? codexModel
+              : provider === 'gemini' ? geminiModel
+              : claudeModel
+          }
+          onModelChange={(modelId) => {
+            if (provider === 'cursor') { setCursorModel(modelId); localStorage.setItem('cursor-model', modelId); }
+            else if (provider === 'codex') { setCodexModel(modelId); localStorage.setItem('codex-model', modelId); }
+            else if (provider === 'gemini') { setGeminiModel(modelId); localStorage.setItem('gemini-model', modelId); }
+            else { setClaudeModel(modelId); localStorage.setItem('claude-model', modelId); }
+          }}
         />
       </div>
 

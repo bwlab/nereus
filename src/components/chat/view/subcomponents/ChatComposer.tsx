@@ -91,6 +91,8 @@ interface ChatComposerProps {
   isTextareaExpanded: boolean;
   sendByCtrlEnter?: boolean;
   onBackToKanban?: () => void;
+  selectedModel: string;
+  onModelChange: (modelId: string) => void;
 }
 
 export default function ChatComposer({
@@ -148,6 +150,8 @@ export default function ChatComposer({
   isTextareaExpanded,
   sendByCtrlEnter,
   onBackToKanban,
+  selectedModel,
+  onModelChange,
 }: ChatComposerProps) {
   const { t } = useTranslation('chat');
   const textareaRect = textareaRef.current?.getBoundingClientRect();
@@ -202,6 +206,8 @@ export default function ChatComposer({
           hasMessages={hasMessages}
           onScrollToBottom={onScrollToBottom}
           onBackToKanban={onBackToKanban}
+          selectedModel={selectedModel}
+          onModelChange={onModelChange}
         />}
       </div>
 
