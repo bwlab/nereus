@@ -1102,6 +1102,21 @@ const dashboardDb = {
     transaction(projectNames);
   },
 
+  // --- Ownership checks ---
+  dashboardBelongsToUser: (dashboardId, userId) => {
+    const row = db.prepare('SELECT 1 FROM dashboards WHERE id = ? AND user_id = ?').get(dashboardId, userId);
+    return !!row;
+  },
+
+  raccoglitoreBelongsToUser: (raccoglitoreId, userId) => {
+    const row = db.prepare(`
+      SELECT dr.dashboard_id FROM dashboard_raccoglitori dr
+      JOIN dashboards d ON dr.dashboard_id = d.id
+      WHERE dr.id = ? AND d.user_id = ?
+    `).get(raccoglitoreId, userId);
+    return row ? row.dashboard_id : null;
+  },
+
   // --- Full dashboard load ---
   getFullDashboard: (dashboardId, userId) => {
     const dashboard = db.prepare(

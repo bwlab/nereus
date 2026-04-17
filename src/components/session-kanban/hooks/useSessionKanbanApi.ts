@@ -90,6 +90,25 @@ export function useSessionKanbanApi(projectName: string) {
     });
   }, []);
 
+  const getArchivedSessions = useCallback(async (): Promise<Array<{ session_id: string; archived_at: string }>> => {
+    const res = await authenticatedFetch(`/api/kanban/${encodeURIComponent(projectName)}/archived-sessions`);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    return data.archived ?? [];
+  }, [projectName]);
+
+  const archiveSession = useCallback(async (sessionId: string) => {
+    await authenticatedFetch(`/api/kanban/${encodeURIComponent(projectName)}/sessions/${encodeURIComponent(sessionId)}/archive`, {
+      method: 'PUT',
+    });
+  }, [projectName]);
+
+  const unarchiveSession = useCallback(async (sessionId: string) => {
+    await authenticatedFetch(`/api/kanban/${encodeURIComponent(projectName)}/sessions/${encodeURIComponent(sessionId)}/archive`, {
+      method: 'DELETE',
+    });
+  }, [projectName]);
+
   return {
     fetchBoard,
     createColumn,
@@ -103,5 +122,8 @@ export function useSessionKanbanApi(projectName: string) {
     deleteLabel,
     assignLabelToSession,
     removeLabelFromSession,
+    getArchivedSessions,
+    archiveSession,
+    unarchiveSession,
   };
 }

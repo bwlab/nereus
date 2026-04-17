@@ -105,14 +105,42 @@ router.put('/:id/default', (req, res) => {
 
 // --- Raccoglitori ---
 
+// Ownership guards
+function requireDashboardOwnership(req, res, next) {
+  const dashboardId = Number(req.params.id);
+  if (!Number.isFinite(dashboardId) || !dashboardDb.dashboardBelongsToUser(dashboardId, req.user.id)) {
+    return res.status(404).json({ error: 'Dashboard not found' });
+  }
+  req.dashboardId = dashboardId;
+  next();
+}
+
+function requireRaccoglitoreOwnership(req, res, next) {
+  const rid = Number(req.params.rid);
+  const dashboardId = Number(req.params.id);
+  const ownerDashboardId = Number.isFinite(rid) ? dashboardDb.raccoglitoreBelongsToUser(rid, req.user.id) : null;
+  if (ownerDashboardId === null || (Number.isFinite(dashboardId) && ownerDashboardId !== dashboardId)) {
+    return res.status(404).json({ error: 'Raccoglitore not found' });
+  }
+  req.raccoglitoreId = rid;
+  req.dashboardId = ownerDashboardId;
+  next();
+}
+
 // POST create raccoglitore
-router.post('/:id/raccoglitori', (req, res) => {
+router.post('/:id/raccoglitori', requireDashboardOwnership, (req, res) => {
   try {
     const { name, color, icon, notes, parent_id } = req.body;
     if (!name?.trim()) {
       return res.status(400).json({ error: 'Raccoglitore name is required' });
     }
-    const raccoglitore = dashboardDb.createRaccoglitore(Number(req.params.id), {
+    if (parent_id != null) {
+      const parentDashboardId = dashboardDb.raccoglitoreBelongsToUser(Number(parent_id), req.user.id);
+      if (parentDashboardId !== req.dashboardId) {
+        return res.status(400).json({ error: 'Parent raccoglitore not found' });
+      }
+    }
+    const raccoglitore = dashboardDb.createRaccoglitore(req.dashboardId, {
       name: name.trim(), color, icon, notes,
       parent_id: parent_id ?? null,
     });
@@ -126,10 +154,16 @@ router.post('/:id/raccoglitori', (req, res) => {
 });
 
 // PATCH move raccoglitore (change parent and/or position)
-router.patch('/:id/raccoglitori/:rid/move', (req, res) => {
+router.patch('/:id/raccoglitori/:rid/move', requireRaccoglitoreOwnership, (req, res) => {
   try {
     const { parent_id, position } = req.body;
-    const raccoglitore = dashboardDb.moveRaccoglitore(Number(req.params.rid), {
+    if (parent_id != null) {
+      const parentDashboardId = dashboardDb.raccoglitoreBelongsToUser(Number(parent_id), req.user.id);
+      if (parentDashboardId !== req.dashboardId) {
+        return res.status(400).json({ error: 'Target parent not found' });
+      }
+    }
+    const raccoglitore = dashboardDb.moveRaccoglitore(req.raccoglitoreId, {
       parent_id: parent_id ?? null,
       position: position ?? null,
     });
@@ -143,10 +177,10 @@ router.patch('/:id/raccoglitori/:rid/move', (req, res) => {
 });
 
 // PUT update raccoglitore
-router.put('/:id/raccoglitori/:rid', (req, res) => {
+router.put('/:id/raccoglitori/:rid', requireRaccoglitoreOwnership, (req, res) => {
   try {
     const { name, color, icon, notes } = req.body;
-    dashboardDb.updateRaccoglitore(Number(req.params.rid), { name, color, icon, notes });
+    dashboardDb.updateRaccoglitore(req.raccoglitoreId, { name, color, icon, notes });
     res.json({ success: true });
   } catch (error) {
     console.error('Error updating raccoglitore:', error);
@@ -155,10 +189,10 @@ router.put('/:id/raccoglitori/:rid', (req, res) => {
 });
 
 // DELETE raccoglitore (optional ?reparent=true moves children up one level)
-router.delete('/:id/raccoglitori/:rid', (req, res) => {
+router.delete('/:id/raccoglitori/:rid', requireRaccoglitoreOwnership, (req, res) => {
   try {
     const reparent = req.query.reparent === 'true' || req.query.reparent === '1';
-    dashboardDb.deleteRaccoglitore(Number(req.params.rid), { reparent });
+    dashboardDb.deleteRaccoglitore(req.raccoglitoreId, { reparent });
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting raccoglitore:', error);
@@ -167,13 +201,19 @@ router.delete('/:id/raccoglitori/:rid', (req, res) => {
 });
 
 // PUT reorder raccoglitori
-router.put('/:id/raccoglitori/reorder', (req, res) => {
+router.put('/:id/raccoglitori/reorder', requireDashboardOwnership, (req, res) => {
   try {
     const { raccoglitoreIds } = req.body;
     if (!Array.isArray(raccoglitoreIds)) {
       return res.status(400).json({ error: 'raccoglitoreIds array is required' });
     }
-    dashboardDb.reorderRaccoglitori(Number(req.params.id), raccoglitoreIds);
+    for (const rid of raccoglitoreIds) {
+      const ownerDashboardId = dashboardDb.raccoglitoreBelongsToUser(Number(rid), req.user.id);
+      if (ownerDashboardId !== req.dashboardId) {
+        return res.status(400).json({ error: 'Invalid raccoglitore id' });
+      }
+    }
+    dashboardDb.reorderRaccoglitori(req.dashboardId, raccoglitoreIds);
     res.json({ success: true });
   } catch (error) {
     console.error('Error reordering raccoglitori:', error);
@@ -184,13 +224,13 @@ router.put('/:id/raccoglitori/reorder', (req, res) => {
 // --- Project assignments ---
 
 // POST assign project to raccoglitore
-router.post('/:id/raccoglitori/:rid/projects', (req, res) => {
+router.post('/:id/raccoglitori/:rid/projects', requireRaccoglitoreOwnership, (req, res) => {
   try {
     const { projectName, position } = req.body;
     if (!projectName?.trim()) {
       return res.status(400).json({ error: 'projectName is required' });
     }
-    dashboardDb.assignProject(Number(req.params.rid), projectName.trim(), position ?? 0);
+    dashboardDb.assignProject(req.raccoglitoreId, projectName.trim(), position ?? 0);
     res.json({ success: true });
   } catch (error) {
     console.error('Error assigning project:', error);
@@ -199,9 +239,9 @@ router.post('/:id/raccoglitori/:rid/projects', (req, res) => {
 });
 
 // DELETE remove project from raccoglitore
-router.delete('/:id/raccoglitori/:rid/projects/:projectName', (req, res) => {
+router.delete('/:id/raccoglitori/:rid/projects/:projectName', requireRaccoglitoreOwnership, (req, res) => {
   try {
-    dashboardDb.removeProject(Number(req.params.rid), req.params.projectName);
+    dashboardDb.removeProject(req.raccoglitoreId, req.params.projectName);
     res.json({ success: true });
   } catch (error) {
     console.error('Error removing project:', error);
@@ -210,13 +250,13 @@ router.delete('/:id/raccoglitori/:rid/projects/:projectName', (req, res) => {
 });
 
 // PUT reorder projects in raccoglitore
-router.put('/:id/raccoglitori/:rid/projects/reorder', (req, res) => {
+router.put('/:id/raccoglitori/:rid/projects/reorder', requireRaccoglitoreOwnership, (req, res) => {
   try {
     const { projectNames } = req.body;
     if (!Array.isArray(projectNames)) {
       return res.status(400).json({ error: 'projectNames array is required' });
     }
-    dashboardDb.reorderProjects(Number(req.params.rid), projectNames);
+    dashboardDb.reorderProjects(req.raccoglitoreId, projectNames);
     res.json({ success: true });
   } catch (error) {
     console.error('Error reordering projects:', error);

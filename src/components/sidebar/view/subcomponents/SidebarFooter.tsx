@@ -1,7 +1,8 @@
-import { Settings, ArrowUpCircle, Bug } from 'lucide-react';
+import { Settings, ArrowUpCircle, Bug, Sun, Moon } from 'lucide-react';
 import type { TFunction } from 'i18next';
 import { IS_PLATFORM } from '../../../../constants/config';
 import type { ReleaseInfo } from '../../../../types/sharedTypes';
+import { useTheme } from '../../../../contexts/ThemeContext';
 
 const GITHUB_ISSUES_URL = 'https://github.com/siteboon/claudecodeui/issues/new';
 const GITHUB_REPO_URL = 'https://github.com/siteboon/claudecodeui';
@@ -35,6 +36,7 @@ export default function SidebarFooter({
   onShowSettings,
   t,
 }: SidebarFooterProps) {
+  const { isDarkMode, toggleDarkMode } = useTheme();
   return (
     <div className="flex-shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
       {/* Update banner */}
@@ -44,7 +46,7 @@ export default function SidebarFooter({
           {/* Desktop update */}
           <div className="hidden px-2 py-1.5 md:block">
             <button
-              className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-primary/5/80 dark:hover:bg-primary/15"
+              className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-primary/5 dark:hover:bg-primary/15"
               onClick={onShowVersionModal}
             >
               <div className="relative flex-shrink-0">
@@ -65,7 +67,7 @@ export default function SidebarFooter({
           {/* Mobile update */}
           <div className="px-3 py-2 md:hidden">
             <button
-              className="flex h-11 w-full items-center gap-3 rounded-xl border border-primary/20/60 bg-primary/5/80 px-3.5 transition-all active:scale-[0.98] dark:border-primary/20/40 dark:bg-primary/15"
+              className="flex h-11 w-full items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-3.5 transition-all active:scale-[0.98] dark:border-primary/20 dark:bg-primary/15"
               onClick={onShowVersionModal}
             >
               <div className="relative flex-shrink-0">
@@ -112,6 +114,18 @@ export default function SidebarFooter({
           <DiscordIcon className="h-3.5 w-3.5" />
           <span className="text-sm">{t('actions.joinCommunity')}</span>
         </a>
+      </div>
+
+      {/* Desktop theme toggle */}
+      <div className="hidden px-2 md:block">
+        <button
+          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
+          onClick={toggleDarkMode}
+          title={isDarkMode ? 'Passa a light mode' : 'Passa a dark mode'}
+        >
+          {isDarkMode ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+          <span className="text-sm">{isDarkMode ? 'Light mode' : 'Dark mode'}</span>
+        </button>
       </div>
 
       {/* Desktop settings */}

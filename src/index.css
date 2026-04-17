@@ -29,7 +29,7 @@
     --card-foreground: 25 20% 12%;
     --popover: 30 20% 99%;
     --popover-foreground: 25 20% 12%;
-    --primary: 17 64% 60%;
+    --primary: 17 48% 54%;
     --primary-foreground: 30 25% 98%;
     --secondary: 28 20% 93%;
     --secondary-foreground: 25 20% 15%;
@@ -41,20 +41,20 @@
     --destructive-foreground: 30 25% 98%;
     --border: 28 18% 88%;
     --input: 28 18% 88%;
-    --ring: 17 64% 60%;
+    --ring: 17 48% 54%;
     --radius: 0.5rem;
 
     /* Nav design tokens */
     --nav-glass-bg: 30 25% 97% / 0.7;
     --nav-glass-blur: 20px;
     --nav-glass-saturate: 1.8;
-    --nav-tab-glow: 17 64% 60% / 0.18;
-    --nav-tab-ring: 17 64% 60% / 0.10;
+    --nav-tab-glow: 17 48% 54% / 0.18;
+    --nav-tab-ring: 17 48% 54% / 0.10;
     --nav-float-shadow: 25 15% 20% / 0.06;
     --nav-float-ring: 28 18% 88% / 0.5;
     --nav-divider-color: 28 18% 88% / 0.5;
     --nav-input-bg: 28 18% 94% / 0.5;
-    --nav-input-focus-ring: 17 64% 60% / 0.22;
+    --nav-input-focus-ring: 17 48% 54% / 0.22;
 
     /* Safe area CSS variables */
     --safe-area-inset-top: env(safe-area-inset-top);
@@ -91,7 +91,7 @@
     --card-foreground: 30 20% 92%;
     --popover: 25 15% 11%;
     --popover-foreground: 30 20% 92%;
-    --primary: 17 64% 65%;
+    --primary: 17 48% 60%;
     --primary-foreground: 25 15% 10%;
     --secondary: 25 12% 18%;
     --secondary-foreground: 30 20% 92%;
@@ -103,19 +103,19 @@
     --destructive-foreground: 30 20% 92%;
     --border: 25 12% 18%;
     --input: 25 10% 35%;
-    --ring: 17 64% 65%;
+    --ring: 17 48% 60%;
 
     /* Nav design tokens — dark overrides */
     --nav-glass-bg: 25 15% 8% / 0.55;
     --nav-glass-blur: 24px;
     --nav-glass-saturate: 1.6;
-    --nav-tab-glow: 17 64% 65% / 0.25;
-    --nav-tab-ring: 17 64% 65% / 0.15;
+    --nav-tab-glow: 17 48% 60% / 0.25;
+    --nav-tab-ring: 17 48% 60% / 0.15;
     --nav-float-shadow: 0 0% 0% / 0.35;
     --nav-float-ring: 25 12% 18% / 0.3;
     --nav-divider-color: 25 12% 18% / 0.5;
     --nav-input-bg: 25 12% 18% / 0.5;
-    --nav-input-focus-ring: 17 64% 65% / 0.25;
+    --nav-input-focus-ring: 17 48% 60% / 0.25;
   }
 }
 

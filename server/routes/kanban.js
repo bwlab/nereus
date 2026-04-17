@@ -161,4 +161,37 @@ router.delete('/sessions/:sessionId/labels/:labelId', (req, res) => {
   }
 });
 
+// GET archived sessions for a project
+router.get('/:projectName/archived-sessions', (req, res) => {
+  try {
+    const archived = kanbanDb.getArchivedSessions(req.params.projectName);
+    res.json({ success: true, archived });
+  } catch (error) {
+    console.error('Error getting archived sessions:', error);
+    res.status(500).json({ error: 'Failed to get archived sessions' });
+  }
+});
+
+// PUT archive a session
+router.put('/:projectName/sessions/:sessionId/archive', (req, res) => {
+  try {
+    kanbanDb.archiveSession(req.params.projectName, req.params.sessionId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error archiving session:', error);
+    res.status(500).json({ error: 'Failed to archive session' });
+  }
+});
+
+// DELETE unarchive a session
+router.delete('/:projectName/sessions/:sessionId/archive', (req, res) => {
+  try {
+    kanbanDb.unarchiveSession(req.params.projectName, req.params.sessionId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error unarchiving session:', error);
+    res.status(500).json({ error: 'Failed to unarchive session' });
+  }
+});
+
 export default router;

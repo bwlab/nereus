@@ -17,7 +17,17 @@ export function useKanbanState(projectName: string, allSessions: ProjectSession[
   const [notes, setNotes] = useState<SessionNote[]>([]);
   const [labels, setLabels] = useState<SessionLabel[]>([]);
   const [labelAssignments, setLabelAssignments] = useState<SessionLabelAssignment[]>([]);
+  const [archivedIds, setArchivedIds] = useState<Set<string>>(() => new Set());
   const [loading, setLoading] = useState(true);
+
+  const refreshArchived = useCallback(async () => {
+    try {
+      const archived = await api.getArchivedSessions();
+      setArchivedIds(new Set(archived.map((a) => a.session_id)));
+    } catch (err) {
+      console.error('Failed to fetch archived sessions:', err);
+    }
+  }, [api]);
 
   const refresh = useCallback(async () => {
     try {
@@ -27,12 +37,13 @@ export function useKanbanState(projectName: string, allSessions: ProjectSession[
       setNotes(board.notes);
       setLabels(board.labels);
       setLabelAssignments(board.labelAssignments);
+      await refreshArchived();
     } catch (err) {
       console.error('Failed to fetch kanban board:', err);
     } finally {
       setLoading(false);
     }
-  }, [api]);
+  }, [api, refreshArchived]);
 
   useEffect(() => {
     setLoading(true);
@@ -49,6 +60,7 @@ export function useKanbanState(projectName: string, allSessions: ProjectSession[
     }
 
     for (const session of allSessions) {
+      if (archivedIds.has(session.id)) continue;
       const assignment = assignmentMap.get(session.id);
       if (assignment && buckets.has(assignment.column_id)) {
         buckets.get(assignment.column_id)!.push({ session, position: assignment.position });
@@ -62,7 +74,29 @@ export function useKanbanState(projectName: string, allSessions: ProjectSession[
     }
 
     return buckets;
-  }, [columns, assignments, allSessions]);
+  }, [columns, assignments, allSessions, archivedIds]);
+
+  const getArchivedSessionsList = useCallback(() => {
+    return allSessions.filter((s) => archivedIds.has(s.id));
+  }, [allSessions, archivedIds]);
+
+  const archiveSession = useCallback(async (sessionId: string) => {
+    setArchivedIds((prev) => {
+      const next = new Set(prev);
+      next.add(sessionId);
+      return next;
+    });
+    await api.archiveSession(sessionId);
+  }, [api]);
+
+  const unarchiveSession = useCallback(async (sessionId: string) => {
+    setArchivedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(sessionId);
+      return next;
+    });
+    await api.unarchiveSession(sessionId);
+  }, [api]);
 
   const getNoteForSession = useCallback(
     (sessionId: string) => notes.find((n) => n.session_id === sessionId)?.note_text ?? '',
@@ -146,7 +180,9 @@ export function useKanbanState(projectName: string, allSessions: ProjectSession[
     columns,
     labels,
     loading,
+    archivedIds,
     getSessionsByColumn,
+    getArchivedSessionsList,
     getNoteForSession,
     getLabelsForSession,
     addColumn,
@@ -159,6 +195,8 @@ export function useKanbanState(projectName: string, allSessions: ProjectSession[
     editLabel,
     removeLabel,
     toggleSessionLabel,
+    archiveSession,
+    unarchiveSession,
     refresh,
   };
 }

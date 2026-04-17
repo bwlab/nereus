@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Clock, Pencil, Trash2, Check, X, FolderInput } from 'lucide-react';
+import { Clock, Pencil, Trash2, Check, X, FolderInput, Archive } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '../../../../shared/view/ui';
 import { formatTimeAgo } from '../../../../utils/dateUtils';
@@ -31,6 +31,7 @@ type KanbanSessionCardProps = {
   onSessionUpdated: () => void;
   onSessionDeleted: (sessionId: string) => void;
   allProjects?: Project[];
+  onArchive?: (sessionId: string) => void;
 };
 
 export default function KanbanSessionCard({
@@ -49,6 +50,7 @@ export default function KanbanSessionCard({
   onSessionUpdated,
   onSessionDeleted,
   allProjects,
+  onArchive,
 }: KanbanSessionCardProps) {
   const { t } = useTranslation();
 
@@ -164,6 +166,17 @@ export default function KanbanSessionCard({
               title="Sposta in un altro progetto"
             >
               <FolderInput className="h-3 w-3 text-muted-foreground" />
+            </button>
+          )}
+          {onArchive && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onArchive(session.id); }}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="flex h-6 w-6 items-center justify-center rounded bg-muted/80 hover:bg-accent"
+              title="Archivia"
+            >
+              <Archive className="h-3 w-3 text-muted-foreground" />
             </button>
           )}
           <button

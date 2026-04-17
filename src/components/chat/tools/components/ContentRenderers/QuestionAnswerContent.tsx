@@ -57,7 +57,7 @@ export const QuestionAnswerContent: React.FC<QuestionAnswerContentProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   {q.header && (
-                    <span className="inline-flex items-center rounded border border-primary/20/80 bg-primary/5 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary dark:border-primary/20/40 dark:bg-primary/30 dark:text-primary">
+                    <span className="inline-flex items-center rounded border border-primary/20 bg-primary/5 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary dark:border-primary/20 dark:bg-primary/30 dark:text-primary">
                       {q.header}
                     </span>
                   )}
@@ -117,7 +117,7 @@ export const QuestionAnswerContent: React.FC<QuestionAnswerContentProps> = ({
                         key={opt.label}
                         className={`flex items-start gap-2 rounded-lg px-2.5 py-1.5 text-[12px] ${
                           wasSelected
-                            ? 'border border-primary/20/60 bg-primary/5/80 dark:border-primary/20/40 dark:bg-primary/20'
+                            ? 'border border-primary/20 bg-primary/5 dark:border-primary/20 dark:bg-primary/20'
                             : 'text-gray-400 dark:text-gray-500'
                         }`}
                       >
@@ -151,7 +151,7 @@ export const QuestionAnswerContent: React.FC<QuestionAnswerContentProps> = ({
                   {answerLabels.filter(lbl => !q.options.some(o => o.label === lbl)).map(lbl => (
                     <div
                       key={lbl}
-                      className="flex items-start gap-2 rounded-lg border border-primary/20/60 bg-primary/5/80 px-2.5 py-1.5 text-[12px] dark:border-primary/20/40 dark:bg-primary/20"
+                      className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-1.5 text-[12px] dark:border-primary/20 dark:bg-primary/20"
                     >
                       <div className={`mt-0.5 h-3.5 w-3.5 flex-shrink-0 ${q.multiSelect ? 'rounded-[3px]' : 'rounded-full'} flex items-center justify-center border-[1.5px] border-primary bg-primary dark:border-primary dark:bg-primary`}>
                         <svg className="h-2 w-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>

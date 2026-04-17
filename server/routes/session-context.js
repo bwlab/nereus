@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import { getProjects } from '../projects.js';
 
 const router = express.Router();
 
@@ -170,11 +171,24 @@ function extractInitialPrompt(jsonlPath) {
   }
 }
 
+async function resolveAllowedProjectPath(rawProjectPath) {
+  if (typeof rawProjectPath !== 'string' || !rawProjectPath) return null;
+  const requested = path.resolve(rawProjectPath);
+  const projects = await getProjects();
+  for (const p of projects) {
+    const candidates = [p.fullPath, p.path].filter(Boolean);
+    for (const c of candidates) {
+      if (path.resolve(c) === requested) return requested;
+    }
+  }
+  return null;
+}
+
 // GET /api/session-context/:sessionId?projectPath=...
-router.get('/:sessionId', (req, res) => {
+router.get('/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params;
-    const projectPath = typeof req.query.projectPath === 'string' ? req.query.projectPath : null;
+    const projectPath = await resolveAllowedProjectPath(req.query.projectPath);
 
     const claudeMdFiles = loadClaudeMdFiles(projectPath);
     const jsonlPath = findSessionJsonlPath(sessionId);

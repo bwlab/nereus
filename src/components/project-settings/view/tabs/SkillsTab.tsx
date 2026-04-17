@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Loader2, Sparkles, AlertCircle, FolderOpen, Check, Globe } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Loader2, Sparkles, AlertCircle, FolderOpen, Check, Globe, Search, X } from 'lucide-react';
 import { useProjectSettingsApi, type ProjectSkill, type GlobalSkill } from '../../hooks/useProjectSettingsApi';
 
 type SkillsTabProps = {
@@ -16,6 +16,23 @@ export default function SkillsTab({ projectName }: SkillsTabProps) {
   const [newDirValue, setNewDirValue] = useState('');
   const [globalSkills, setGlobalSkills] = useState<GlobalSkill[]>([]);
   const [globalDir, setGlobalDir] = useState('');
+  const [query, setQuery] = useState('');
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredSkills = useMemo(() => {
+    if (!normalizedQuery) return skills;
+    return skills.filter((s) =>
+      s.name.toLowerCase().includes(normalizedQuery) ||
+      (s.description?.toLowerCase().includes(normalizedQuery) ?? false),
+    );
+  }, [skills, normalizedQuery]);
+  const filteredGlobalSkills = useMemo(() => {
+    if (!normalizedQuery) return globalSkills;
+    return globalSkills.filter((s) =>
+      s.name.toLowerCase().includes(normalizedQuery) ||
+      (s.description?.toLowerCase().includes(normalizedQuery) ?? false),
+    );
+  }, [globalSkills, normalizedQuery]);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -98,16 +115,47 @@ export default function SkillsTab({ projectName }: SkillsTabProps) {
         )}
       </div>
 
+      {/* Search */}
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Cerca skill per nome o descrizione…"
+          className="w-full rounded-lg border border-border bg-background py-1.5 pl-8 pr-8 text-sm outline-none focus:ring-1 focus:ring-primary"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            className="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+            title="Pulisci"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        )}
+      </div>
+
       {/* Skills list */}
       <div>
-        <h3 className="mb-2 text-sm font-semibold text-foreground">Skill disponibili</h3>
+        <h3 className="mb-2 text-sm font-semibold text-foreground">
+          Skill disponibili
+          {normalizedQuery && (
+            <span className="ml-1 text-xs font-normal text-muted-foreground">({filteredSkills.length}/{skills.length})</span>
+          )}
+        </h3>
         {skills.length === 0 ? (
           <p className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
             Nessuna skill trovata nella directory master
           </p>
+        ) : filteredSkills.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
+            Nessun risultato per &quot;{query}&quot;
+          </p>
         ) : (
           <div className="space-y-2">
-            {skills.map((skill) => (
+            {filteredSkills.map((skill) => (
               <div key={skill.name} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
                 <Sparkles className={`mt-0.5 h-4 w-4 shrink-0 ${skill.enabled ? 'text-primary' : 'text-muted-foreground/50'}`} />
                 <div className="min-w-0 flex-1">
@@ -145,7 +193,12 @@ export default function SkillsTab({ projectName }: SkillsTabProps) {
       <div>
         <div className="mb-2 flex items-center gap-2">
           <Globe className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold text-foreground">Skill globali (user)</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            Skill globali (user)
+            {normalizedQuery && (
+              <span className="ml-1 text-xs font-normal text-muted-foreground">({filteredGlobalSkills.length}/{globalSkills.length})</span>
+            )}
+          </h3>
         </div>
         <p className="mb-2 text-xs text-muted-foreground">
           Skill in <code className="rounded bg-muted px-1 py-0.5 font-mono">{globalDir}</code> caricate automaticamente per <strong>tutte</strong> le sessioni.
@@ -155,9 +208,13 @@ export default function SkillsTab({ projectName }: SkillsTabProps) {
           <p className="rounded-lg border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
             Nessuna skill globale trovata
           </p>
+        ) : filteredGlobalSkills.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
+            Nessun risultato per &quot;{query}&quot;
+          </p>
         ) : (
           <div className="space-y-2">
-            {globalSkills.map((skill) => (
+            {filteredGlobalSkills.map((skill) => (
               <div key={skill.rawDirName} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
                 <Sparkles className={`mt-0.5 h-4 w-4 shrink-0 ${skill.enabled ? 'text-primary' : 'text-muted-foreground/50'}`} />
                 <div className="min-w-0 flex-1">

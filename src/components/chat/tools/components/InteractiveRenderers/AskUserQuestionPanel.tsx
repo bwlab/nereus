@@ -173,7 +173,7 @@ export const AskUserQuestionPanel: React.FC<PermissionPanelProps> = ({
                 Claude needs your input
               </span>
               {q.header && (
-                <span className="inline-flex items-center rounded border border-primary/20 bg-primary/5 px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider text-primary dark:border-primary/20/50 dark:bg-primary/30 dark:text-primary">
+                <span className="inline-flex items-center rounded border border-primary/20 bg-primary/5 px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider text-primary dark:border-primary/20 dark:bg-primary/30 dark:text-primary">
                   {q.header}
                 </span>
               )}
@@ -228,7 +228,7 @@ export const AskUserQuestionPanel: React.FC<PermissionPanelProps> = ({
                   onClick={() => toggleOption(currentStep, opt.label, multi)}
                   className={`group flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 text-left transition-all duration-150 ${
                     isSelected
-                      ? 'border-primary/30 bg-primary/5/80 ring-1 ring-primary/20 dark:border-primary dark:bg-primary/25 dark:ring-primary/20'
+                      ? 'border-primary/30 bg-primary/5 ring-1 ring-primary/20 dark:border-primary dark:bg-primary/25 dark:ring-primary/20'
                       : 'dark:hover:bg-gray-750/50 border-gray-200 hover:border-gray-300 hover:bg-gray-50/60 dark:border-gray-700/60 dark:hover:border-gray-600'
                   }`}
                 >
@@ -276,7 +276,7 @@ export const AskUserQuestionPanel: React.FC<PermissionPanelProps> = ({
               onClick={() => toggleOther(currentStep, multi)}
               className={`group flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 text-left transition-all duration-150 ${
                 isOtherOn
-                  ? 'border-primary/30 bg-primary/5/80 ring-1 ring-primary/20 dark:border-primary dark:bg-primary/25 dark:ring-primary/20'
+                  ? 'border-primary/30 bg-primary/5 ring-1 ring-primary/20 dark:border-primary dark:bg-primary/25 dark:ring-primary/20'
                   : 'dark:hover:bg-gray-750/50 border-dashed border-gray-200 hover:border-gray-300 hover:bg-gray-50/60 dark:border-gray-700/60 dark:hover:border-gray-600'
               }`}
             >

@@ -22,12 +22,11 @@ export function getContextWindowForModel(model, provider = 'claude') {
   const m = String(model).toLowerCase();
 
   if (provider === 'claude') {
+    // Esplicito 1M via suffisso [1m]
+    if (m.includes('[1m]')) return 1_000_000;
     // Haiku is 200k
     if (m.includes('haiku')) return 200_000;
-    // Opus 4.6 and Sonnet 4.6 are 1M
-    if (m.startsWith('claude-opus-4-6') || m === 'opus') return 1_000_000;
-    if (m.startsWith('claude-sonnet-4-6') || m === 'sonnet') return 1_000_000;
-    if (m === 'opusplan') return 1_000_000;
+    if (m === 'opus' || m === 'sonnet' || m === 'opusplan') return 1_000_000;
     // Older models or unknown → 200k
     return 200_000;
   }
@@ -42,24 +41,17 @@ export function getContextWindowForModel(model, provider = 'claude') {
 
 export const CLAUDE_MODELS = {
   // Source of truth: https://platform.claude.com/docs/en/about-claude/models/overview
-  // The SDK accepts either explicit IDs (e.g. claude-opus-4-6) or short aliases
-  // (sonnet/opus/haiku), which are resolved to the latest matching model.
+  // Aliases ufficiali esposti dall'API Anthropic (GET /v1/models).
   OPTIONS: [
-    // Claude 4.6 generation — Claude API IDs
-    { value: "claude-opus-4-6", label: "Opus 4.6 (1M ctx)" },
-    { value: "claude-sonnet-4-6", label: "Sonnet 4.6 (1M ctx)" },
-    { value: "claude-haiku-4-5-20251001", label: "Haiku 4.5 (200k ctx)" },
-    // Claude API aliases (official)
-    { value: "claude-haiku-4-5", label: "Haiku 4.5 (alias)" },
-    // SDK short aliases (resolved to latest by the SDK)
-    { value: "opus", label: "Opus (latest)" },
-    { value: "sonnet", label: "Sonnet (latest)" },
-    { value: "haiku", label: "Haiku (latest)" },
+    { value: "claude-opus-4-7[1m]", label: "Opus 4.7 (1M ctx)" },
+    { value: "claude-sonnet-4-6[1m]", label: "Sonnet 4.6 (1M ctx)" },
+    { value: "claude-opus-4-6[1m]", label: "Opus 4.6 (1M ctx)" },
+    { value: "claude-haiku-4-5", label: "Haiku 4.5 (200k ctx)" },
     // Special CLI modes
     { value: "opusplan", label: "Opus Plan" },
   ],
 
-  DEFAULT: "sonnet",
+  DEFAULT: "claude-sonnet-4-6[1m]",
 };
 
 /**

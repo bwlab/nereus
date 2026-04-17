@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Loader2, Terminal, Wrench, Plug, FolderOpen, Code } from 'lucide-react';
+import { Loader2, FolderOpen, Archive } from 'lucide-react';
 import type { Project, ProjectSession } from '../../../types/app';
 import { authenticatedFetch } from '../../../utils/api';
 import { useKanbanState } from '../hooks/useKanbanState';
@@ -8,7 +8,7 @@ import KanbanAccordionView from './subcomponents/KanbanAccordionView';
 import KanbanTabsView from './subcomponents/KanbanTabsView';
 import KanbanGridView from './subcomponents/KanbanGridView';
 import ViewModeSwitcher, { type ViewMode } from '../../dashboard/view/subcomponents/ViewModeSwitcher';
-import ProjectSettingsPanel, { type ProjectSettingsTab } from '../../project-settings/view/ProjectSettingsPanel';
+import ArchivedSessionsDrawer from './ArchivedSessionsDrawer';
 
 type SessionKanbanProps = {
   project: Project;
@@ -21,7 +21,7 @@ type SessionKanbanProps = {
 
 export default function SessionKanban({ project, onSessionClick, onNewSession, onSessionUpdated, onSessionDeleted, allProjects }: SessionKanbanProps) {
   const [currentTime, setCurrentTime] = useState(() => new Date());
-  const [settingsTab, setSettingsTab] = useState<ProjectSettingsTab | null>(null);
+  const [archiveDrawerOpen, setArchiveDrawerOpen] = useState(false);
   const viewModeKey = `session-kanban-view-${project.name}`;
   const [viewMode, setViewModeState] = useState<ViewMode>(() => {
     const stored = localStorage.getItem(viewModeKey);
@@ -65,6 +65,8 @@ export default function SessionKanban({ project, onSessionClick, onNewSession, o
   }
 
   const sessionsByColumn = kanban.getSessionsByColumn();
+  const archivedSessions = kanban.getArchivedSessionsList();
+  const archivedCount = kanban.archivedIds.size;
 
   return (
     <div className="flex h-full flex-col">
@@ -97,45 +99,16 @@ export default function SessionKanban({ project, onSessionClick, onNewSession, o
           <ViewModeSwitcher viewMode={viewMode} onViewModeChange={setViewMode} />
           <button
             type="button"
-            onClick={async () => {
-              try {
-                const res = await authenticatedFetch(`/api/project-open/${encodeURIComponent(project.name)}/in-ide`, { method: 'POST' });
-                if (!res.ok) {
-                  const data = await res.json().catch(() => ({}));
-                  alert(data.error || "Impossibile aprire l'IDE");
-                }
-              } catch (err) {
-                alert((err as Error).message);
-              }
-            }}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            title="Apri nell'IDE"
+            onClick={() => setArchiveDrawerOpen(true)}
+            className={`flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors ${
+              archivedCount > 0
+                ? 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                : 'text-muted-foreground/50 hover:bg-accent hover:text-muted-foreground'
+            }`}
+            title="Sessioni archiviate"
           >
-            <Code className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setSettingsTab('commands')}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            title="Comandi di progetto"
-          >
-            <Terminal className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setSettingsTab('skills')}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            title="Skills"
-          >
-            <Wrench className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setSettingsTab('mcp')}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            title="MCP Tools"
-          >
-            <Plug className="h-3.5 w-3.5" />
+            <Archive className="h-3.5 w-3.5" />
+            <span>Archivio{archivedCount > 0 ? ` (${archivedCount})` : ''}</span>
           </button>
         </div>
       </div>
@@ -164,6 +137,7 @@ export default function SessionKanban({ project, onSessionClick, onNewSession, o
             onSessionUpdated={onSessionUpdated}
             onSessionDeleted={onSessionDeleted}
             allProjects={allProjects}
+            onArchive={kanban.archiveSession}
           />
         )}
         {viewMode === 'accordion' && (
@@ -208,13 +182,16 @@ export default function SessionKanban({ project, onSessionClick, onNewSession, o
         )}
       </div>
 
-      <ProjectSettingsPanel
-        isOpen={settingsTab !== null}
-        onClose={() => setSettingsTab(null)}
+      <ArchivedSessionsDrawer
+        isOpen={archiveDrawerOpen}
+        onClose={() => setArchiveDrawerOpen(false)}
         projectName={project.name}
-        projectDisplayName={project.displayName}
-        activeTab={settingsTab ?? 'commands'}
-        onChangeTab={(tab) => setSettingsTab(tab)}
+        archivedSessions={archivedSessions}
+        onUnarchive={kanban.unarchiveSession}
+        onDeleted={(sid) => {
+          kanban.unarchiveSession(sid);
+          onSessionDeleted(sid);
+        }}
       />
     </div>
   );

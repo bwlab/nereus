@@ -26,6 +26,7 @@ type KanbanColumnProps = {
   onSessionUpdated: () => void;
   onSessionDeleted: (sessionId: string) => void;
   allProjects?: import('../../../../types/app').Project[];
+  onArchive?: (sessionId: string) => void;
 };
 
 export default function KanbanColumn({
@@ -48,6 +49,7 @@ export default function KanbanColumn({
   onSessionUpdated,
   onSessionDeleted,
   allProjects,
+  onArchive,
 }: KanbanColumnProps) {
   const {
     attributes,
@@ -107,6 +109,7 @@ export default function KanbanColumn({
               onSessionUpdated={onSessionUpdated}
               onSessionDeleted={onSessionDeleted}
               allProjects={allProjects}
+              onArchive={onArchive}
             />
           ))}
         </SortableContext>
