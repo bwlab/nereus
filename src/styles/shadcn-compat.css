@@ -1,0 +1,57 @@
+/* ==========================================================================
+   shadcn-compat.css
+   Rimappa le variabili shadcn (primary, background, ...) ai valori del
+   Design System bwlab v2 mantenendo il formato HSL-triple (senza hsl()),
+   così Tailwind può usare l'alpha modifier: hsl(var(--primary) / 0.5).
+
+   I valori HSL-triple sono duplicati manualmente dai HEX di design-tokens.css.
+   Se design-tokens.css cambia i valori, aggiornare a mano questo file.
+   Commento accanto ad ogni var indica il HEX di origine.
+   ========================================================================== */
+
+:root,
+html[data-theme="light"] {
+  --background: 0 0% 98%;          /* #fafafa  — surface-0 light */
+  --foreground: 240 14% 5%;        /* #0b0b0e  — fg-1 light */
+  --card: 0 0% 100%;               /* #ffffff  — surface-1 */
+  --card-foreground: 240 14% 5%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 14% 5%;
+  --primary: 51 100% 48%;          /* #F5D000  — heritage-a (yellow) */
+  --primary-foreground: 240 7% 3%; /* #070708  — ink-950 */
+  --secondary: 220 13% 97%;        /* #f5f6f8  — surface-2 */
+  --secondary-foreground: 240 10% 18%;
+  --muted: 220 13% 97%;
+  --muted-foreground: 232 7% 35%;  /* #54545e  — fg-3 */
+  --accent: 355 94% 46%;           /* #E30613  — heritage-b (red) */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 3 100% 62%;       /* #FF453A  — state-danger */
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 0%;               /* alpha via tailwind modifier */
+  --input: 0 0% 0%;
+  --ring: 51 100% 48%;
+  --radius: 0.5rem;
+}
+
+html[data-theme="dark"],
+html.dark {
+  --background: 240 9% 6%;         /* #0d0d10  — ink-900 */
+  --foreground: 220 17% 94%;       /* #eceef2  — fg-1 dark */
+  --card: 240 13% 9%;              /* #141418  — ink-850 */
+  --card-foreground: 220 17% 94%;
+  --popover: 240 13% 9%;
+  --popover-foreground: 220 17% 94%;
+  --primary: 51 100% 48%;
+  --primary-foreground: 240 7% 3%;
+  --secondary: 240 11% 12%;        /* #1a1a20  — ink-800 */
+  --secondary-foreground: 220 17% 94%;
+  --muted: 240 11% 12%;
+  --muted-foreground: 232 10% 65%;
+  --accent: 355 94% 46%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 3 100% 62%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 100%;             /* alpha via tailwind modifier */
+  --input: 0 0% 100%;
+  --ring: 51 100% 48%;
+}
