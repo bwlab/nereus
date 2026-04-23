@@ -1,0 +1,234 @@
+/* ==========================================================================
+   bwlab — Design Tokens (v2)
+   Portati dal Design System Storybook.
+   Variabili CSS attive a livello :root + override via data-* su <html>:
+     data-theme   → light | dark
+     data-accent  → signal | heritage | lab
+     data-bg      → flat | grid | aurora
+     data-font    → inter | space | geist | mont
+     data-density → compact | normal | relaxed
+   ========================================================================== */
+
+:root {
+  /* ---------- Base neutrals ---------- */
+  --bw-black: #000000;
+  --bw-white: #ffffff;
+  --bw-ink-950: #070708;
+  --bw-ink-900: #0d0d10;
+  --bw-ink-850: #141418;
+  --bw-ink-800: #1a1a20;
+  --bw-ink-700: #24242c;
+  --bw-ink-600: #2f2f38;
+  --bw-ink-500: #4a4a56;
+  --bw-ink-400: #6b6b78;
+  --bw-ink-300: #9aa0ac;
+  --bw-ink-200: #c4c8d0;
+  --bw-ink-100: #e6e8ec;
+  --bw-ink-50:  #f5f6f8;
+
+  /* ---------- Accent palettes ---------- */
+  /* 1. Signal (yellow + cyan) — tech/AI direction */
+  --signal-a: #F5D000;
+  --signal-a-hover: #FFE02E;
+  --signal-a-weak: rgba(245, 208, 0, 0.16);
+  --signal-b: #3AE4E4;
+  --signal-b-hover: #5CF0F0;
+  --signal-b-weak: rgba(58, 228, 228, 0.16);
+
+  /* 2. Heritage (yellow + red) — brand original */
+  --heritage-a: #F5D000;
+  --heritage-a-hover: #FFE02E;
+  --heritage-a-weak: rgba(245, 208, 0, 0.16);
+  --heritage-b: #E30613;
+  --heritage-b-hover: #FF1A28;
+  --heritage-b-weak: rgba(227, 6, 19, 0.18);
+
+  /* 3. Lab (lime + coral) — pop contemporary */
+  --lab-a: #B8FF3E;
+  --lab-a-hover: #C9FF5E;
+  --lab-a-weak: rgba(184, 255, 62, 0.18);
+  --lab-b: #FF3D2E;
+  --lab-b-hover: #FF5648;
+  --lab-b-weak: rgba(255, 61, 46, 0.18);
+
+  /* Semantic state */
+  --state-success: #30D158;
+  --state-warning: #FFB020;
+  --state-danger:  #FF453A;
+  --state-info:    #0A84FF;
+
+  /* ---------- Current accent (default: heritage = brand bwlab) ---------- */
+  --accent-a: var(--heritage-a);
+  --accent-a-hover: var(--heritage-a-hover);
+  --accent-a-weak: var(--heritage-a-weak);
+  --accent-b: var(--heritage-b);
+  --accent-b-hover: var(--heritage-b-hover);
+  --accent-b-weak: var(--heritage-b-weak);
+
+  /* ---------- Light surfaces (default theme) ---------- */
+  --surface-0: #fafafa;
+  --surface-1: #ffffff;
+  --surface-2: #f5f6f8;
+  --surface-3: #eceef2;
+  --surface-4: #dfe2e7;
+  --fg-1: #0b0b0e;
+  --fg-2: #2a2a33;
+  --fg-3: #54545e;
+  --fg-4: #7a7a84;
+  --border-1: rgba(0, 0, 0, 0.08);
+  --border-2: rgba(0, 0, 0, 0.14);
+  --border-3: rgba(0, 0, 0, 0.28);
+  --scrim: rgba(255, 255, 255, 0.6);
+
+  /* Page background */
+  --page-bg: #fafafa;
+  --page-bg-image: none;
+
+  /* ---------- Typography ---------- */
+  --font-display: "Inter Tight", "Nobile", system-ui, sans-serif;
+  --font-sans:    "Inter Tight", "Nobile", "Poppins", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+
+  /* Density scale */
+  --den: 1;
+
+  /* Base font sizes */
+  --fs-xs: 12px;
+  --fs-sm: 15px;
+  --fs-base: 17px;
+  --fs-md: 20px;
+  --fs-lg: 22px;
+  --fs-xl: 26px;
+  --fs-2xl: 34px;
+  --fs-3xl: 44px;
+  --fs-4xl: 58px;
+  --fs-5xl: 78px;
+  --fs-6xl: 112px;
+
+  --lh-tight: 1.04;
+  --lh-snug: 1.18;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.65;
+
+  --tr-tight: -0.02em;
+  --tr-tighter: -0.03em;
+  --tr-normal: 0;
+  --tr-wide: 0.04em;
+  --tr-wider: 0.14em;
+  --tr-widest: 0.22em;
+
+  /* ---------- Spacing (scales with --den) ---------- */
+  --s-1: calc(4px * var(--den));
+  --s-2: calc(8px * var(--den));
+  --s-3: calc(12px * var(--den));
+  --s-4: calc(16px * var(--den));
+  --s-5: calc(20px * var(--den));
+  --s-6: calc(24px * var(--den));
+  --s-8: calc(32px * var(--den));
+  --s-10: calc(40px * var(--den));
+  --s-12: calc(48px * var(--den));
+  --s-16: calc(64px * var(--den));
+  --s-20: calc(80px * var(--den));
+  --s-24: calc(96px * var(--den));
+
+  /* ---------- Radius (tweakable) ---------- */
+  --r: 4px;
+  --r-xs: calc(var(--r) * 0.5);
+  --r-sm: var(--r);
+  --r-md: calc(var(--r) * 1.5);
+  --r-lg: calc(var(--r) * 2.5);
+  --r-xl: calc(var(--r) * 4);
+  --r-pill: 999px;
+
+  /* ---------- Shadows ---------- */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+  --shadow-2: 0 1px 2px rgba(0,0,0,0.04), 0 24px 64px rgba(0,0,0,0.10);
+  --shadow-glow-a: 0 0 0 1px var(--accent-a), 0 0 32px var(--accent-a-weak);
+  --shadow-glow-b: 0 0 0 1px var(--accent-b), 0 0 32px var(--accent-b-weak);
+
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 140ms;
+  --dur: 240ms;
+  --dur-slow: 480ms;
+}
+
+/* ===== Accent palette switches ===== */
+[data-accent="signal"] {
+  --accent-a: var(--signal-a); --accent-a-hover: var(--signal-a-hover); --accent-a-weak: var(--signal-a-weak);
+  --accent-b: var(--signal-b); --accent-b-hover: var(--signal-b-hover); --accent-b-weak: var(--signal-b-weak);
+}
+[data-theme="light"][data-accent="signal"] {
+  --accent-a: var(--signal-b); --accent-a-hover: var(--signal-b-hover); --accent-a-weak: var(--signal-b-weak);
+  --accent-b: var(--signal-a); --accent-b-hover: var(--signal-a-hover); --accent-b-weak: var(--signal-a-weak);
+}
+[data-accent="heritage"] {
+  --accent-a: var(--heritage-a); --accent-a-hover: var(--heritage-a-hover); --accent-a-weak: var(--heritage-a-weak);
+  --accent-b: var(--heritage-b); --accent-b-hover: var(--heritage-b-hover); --accent-b-weak: var(--heritage-b-weak);
+}
+[data-accent="lab"] {
+  --accent-a: var(--lab-a); --accent-a-hover: var(--lab-a-hover); --accent-a-weak: var(--lab-a-weak);
+  --accent-b: var(--lab-b); --accent-b-hover: var(--lab-b-hover); --accent-b-weak: var(--lab-b-weak);
+}
+
+/* ===== Background treatments ===== */
+[data-bg="flat"] { --page-bg: #fafafa; --page-bg-image: none; }
+[data-bg="grid"] {
+  --page-bg: #fafafa;
+  --page-bg-image:
+    linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px);
+}
+[data-bg="aurora"] {
+  --page-bg: #f5f2ff;
+  --page-bg-image:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(145, 120, 245, 0.25), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 30%, rgba(100, 160, 245, 0.20), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(200, 120, 220, 0.18), transparent 60%);
+}
+
+/* ===== Dark theme override ===== */
+[data-theme="dark"] {
+  --surface-0: var(--bw-ink-950);
+  --surface-1: var(--bw-ink-900);
+  --surface-2: var(--bw-ink-850);
+  --surface-3: var(--bw-ink-800);
+  --surface-4: var(--bw-ink-700);
+  --fg-1: var(--bw-white);
+  --fg-2: var(--bw-ink-200);
+  --fg-3: var(--bw-ink-300);
+  --fg-4: var(--bw-ink-400);
+  --border-1: rgba(255, 255, 255, 0.08);
+  --border-2: rgba(255, 255, 255, 0.14);
+  --border-3: rgba(255, 255, 255, 0.28);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --page-bg: var(--bw-ink-950);
+  --shadow-1: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px rgba(0,0,0,0.45);
+  --shadow-2: 0 1px 0 rgba(255,255,255,0.04) inset, 0 24px 64px rgba(0,0,0,0.55);
+}
+[data-theme="dark"][data-bg="flat"] { --page-bg: #070708; --page-bg-image: none; }
+[data-theme="dark"][data-bg="grid"] {
+  --page-bg: #070708;
+  --page-bg-image:
+    linear-gradient(to right, rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.035) 1px, transparent 1px);
+}
+[data-theme="dark"][data-bg="aurora"] {
+  --page-bg: #0b0820;
+  --page-bg-image:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(79, 44, 168, 0.55), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 30%, rgba(31, 60, 140, 0.45), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(120, 44, 140, 0.35), transparent 60%);
+}
+
+/* ===== Density scales ===== */
+[data-density="compact"] { --den: 0.80; }
+[data-density="normal"]  { --den: 1.00; }
+[data-density="relaxed"] { --den: 1.25; }
+
+/* ===== Font family swap ===== */
+[data-font="inter"] { --font-display: "Inter Tight", system-ui, sans-serif; --font-sans: "Inter Tight", system-ui, sans-serif; }
+[data-font="space"] { --font-display: "Space Grotesk", system-ui, sans-serif; --font-sans: "Inter Tight", "Space Grotesk", system-ui, sans-serif; }
+[data-font="mont"]  { --font-display: "Montserrat", system-ui, sans-serif; --font-sans: "Montserrat", system-ui, sans-serif; }
+[data-font="geist"] { --font-display: "Geist", "Inter Tight", system-ui, sans-serif; --font-sans: "Geist", "Inter Tight", system-ui, sans-serif; }
