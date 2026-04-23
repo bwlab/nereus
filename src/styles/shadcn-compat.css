@@ -12,11 +12,11 @@
 :root,
 html[data-theme="light"] {
   --background: 0 0% 98%;          /* #fafafa  — surface-0 light */
-  --foreground: 240 14% 5%;        /* #0b0b0e  — fg-1 light */
+  --foreground: 240 12% 5%;        /* #0b0b0e  — fg-1 light */
   --card: 0 0% 100%;               /* #ffffff  — surface-1 */
-  --card-foreground: 240 14% 5%;
+  --card-foreground: 240 12% 5%;   /* #0b0b0e  — fg-1 light */
   --popover: 0 0% 100%;
-  --popover-foreground: 240 14% 5%;
+  --popover-foreground: 240 12% 5%; /* #0b0b0e  — fg-1 light */
   --primary: 51 100% 48%;          /* #F5D000  — heritage-a (yellow) */
   --primary-foreground: 240 7% 3%; /* #070708  — ink-950 */
   --secondary: 220 18% 97%;        /* #f5f6f8  — surface-2 */
@@ -36,15 +36,15 @@ html[data-theme="light"] {
 html[data-theme="dark"],
 html.dark {
   --background: 240 9% 6%;         /* #0d0d10  — ink-900 */
-  --foreground: 220 17% 94%;       /* #eceef2  — fg-1 dark */
+  --foreground: 220 19% 94%;       /* #eceef2  — fg-1 dark */
   --card: 240 9% 9%;               /* #141418  — ink-850 */
-  --card-foreground: 220 17% 94%;
+  --card-foreground: 220 19% 94%;  /* #eceef2  — fg-1 dark */
   --popover: 240 9% 9%;
-  --popover-foreground: 220 17% 94%;
+  --popover-foreground: 220 19% 94%; /* #eceef2  — fg-1 dark */
   --primary: 51 100% 48%;
   --primary-foreground: 240 7% 3%;
   --secondary: 240 11% 12%;        /* #1a1a20  — ink-800 */
-  --secondary-foreground: 220 17% 94%; /* #eceef2  — fg-1 dark */
+  --secondary-foreground: 220 19% 94%; /* #eceef2  — fg-1 dark */
   --muted: 240 11% 12%;
   --muted-foreground: 220 10% 64%; /* #9aa0ac  — bw-ink-300 / fg-3 dark */
   --accent: 355 94% 46%;
