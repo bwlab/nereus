@@ -23,19 +23,19 @@ html[data-theme="light"] {
   --secondary-foreground: 240 10% 18%; /* #2a2a33  — fg-2 light */
   --muted: 220 18% 97%;
   --muted-foreground: 240 6% 35%;  /* #54545e  — fg-3 */
-  --accent: 355 94% 46%;           /* #E30613  — heritage-b (red) */
+  --accent: 356 95% 46%;           /* #E30613  — heritage-b (red) */
   --accent-foreground: 0 0% 100%;
-  --destructive: 3 100% 62%;       /* #FF453A  — state-danger */
+  --destructive: 3 100% 61%;       /* #FF453A  — state-danger */
   --destructive-foreground: 0 0% 100%;
-  --border: 220 13% 91%;           /* #e6e8ec — ink-100 neutro, bordi sottili */
-  --input: 220 13% 91%;
+  --border: 220 14% 91%;           /* #e6e8ec  — ink-100, bordi sottili (valore pieno, non zero+alpha) */
+  --input: 220 14% 91%;
   --ring: 51 100% 48%;
   --radius: 0.5rem;
 }
 
 html[data-theme="dark"],
 html.dark {
-  --background: 240 9% 6%;         /* #0d0d10  — ink-900 */
+  --background: 240 10% 6%;        /* #0d0d10  — ink-900 */
   --foreground: 220 19% 94%;       /* #eceef2  — fg-1 dark */
   --card: 240 9% 9%;               /* #141418  — ink-850 */
   --card-foreground: 220 19% 94%;  /* #eceef2  — fg-1 dark */
@@ -43,15 +43,15 @@ html.dark {
   --popover-foreground: 220 19% 94%; /* #eceef2  — fg-1 dark */
   --primary: 51 100% 48%;
   --primary-foreground: 240 7% 3%;
-  --secondary: 240 11% 12%;        /* #1a1a20  — ink-800 */
+  --secondary: 240 10% 11%;        /* #1a1a20  — ink-800 */
   --secondary-foreground: 220 19% 94%; /* #eceef2  — fg-1 dark */
-  --muted: 240 11% 12%;
+  --muted: 240 10% 11%;
   --muted-foreground: 220 10% 64%; /* #9aa0ac  — bw-ink-300 / fg-3 dark */
-  --accent: 355 94% 46%;
+  --accent: 356 95% 46%;
   --accent-foreground: 0 0% 100%;
-  --destructive: 3 100% 62%;
+  --destructive: 3 100% 61%;
   --destructive-foreground: 0 0% 100%;
-  --border: 240 9% 16%;            /* #24242c — ink-700 bordi sottili su dark */
-  --input: 240 9% 16%;
+  --border: 240 10% 16%;           /* #24242c  — ink-700, bordi sottili dark */
+  --input: 240 10% 16%;
   --ring: 51 100% 48%;
 }
