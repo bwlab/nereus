@@ -2,7 +2,15 @@ import type { Project, ProjectSession, SessionProvider } from '../../../types/ap
 import type { Dashboard, WorkspaceAssignment } from '../../dashboard/types/dashboard';
 
 /** Unified node union used by the sidebar tree and content list. */
-export type UnifiedNode = DashboardNode | FolderNode | ProjectNode | SessionNode;
+export type UnifiedNode = DashboardNode | FolderNode | ProjectNode | SessionNode | AgentNode;
+
+export interface AgentNode {
+  kind: 'agent';
+  scope: 'global' | 'project';
+  agentName: string;
+  description?: string | null;
+  projectName?: string;
+}
 
 export interface DashboardNode {
   kind: 'dashboard';
@@ -39,6 +47,7 @@ export interface ProjectNode {
   /** assignment id + raccoglitore_id if this node is rendered inside a folder; null when unassigned */
   assignment: WorkspaceAssignment | null;
   sessions: SessionNode[];
+  agents: AgentNode[];
 }
 
 export interface SessionNode {

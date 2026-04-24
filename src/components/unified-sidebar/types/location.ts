@@ -1,11 +1,13 @@
 import type { SessionProvider } from '../../../types/app';
 
-export type PresetKind = 'all' | 'recent' | 'unassigned' | 'favorites';
+export type PresetKind = 'all' | 'recent' | 'unassigned' | 'favorites' | 'global-agents';
 
 export interface FolderContext {
   dashboardId: number;
   folderIds: number[];
 }
+
+export type AgentScope = 'global' | 'project';
 
 export type Location =
   | { kind: 'preset'; preset: PresetKind }
@@ -17,7 +19,8 @@ export type Location =
       sessionId: string;
       provider: SessionProvider;
       folderContext?: FolderContext;
-    };
+    }
+  | { kind: 'agent'; scope: AgentScope; agentName: string; projectName?: string };
 
 export const DEFAULT_LOCATION: Location = { kind: 'preset', preset: 'all' };
 
@@ -26,9 +29,10 @@ export const PRESET_LABELS: Record<PresetKind, string> = {
   recent: 'Sessioni recenti',
   unassigned: 'Senza cartella',
   favorites: 'Preferiti',
+  'global-agents': 'Agenti globali',
 };
 
-export const PRESET_VALUES: PresetKind[] = ['all', 'recent', 'unassigned', 'favorites'];
+export const PRESET_VALUES: PresetKind[] = ['all', 'recent', 'unassigned', 'favorites', 'global-agents'];
 
 export const isPresetKind = (v: unknown): v is PresetKind =>
   typeof v === 'string' && (PRESET_VALUES as string[]).includes(v);
@@ -43,6 +47,8 @@ export const locationKey = (loc: Location): string => {
       return `project:${loc.projectName}`;
     case 'session':
       return `session:${loc.provider}:${loc.sessionId}`;
+    case 'agent':
+      return `agent:${loc.scope}:${loc.projectName ?? ''}:${loc.agentName}`;
   }
 };
 
@@ -61,5 +67,9 @@ export const toPath = (loc: Location): string => {
       return `/p/${encodeURIComponent(loc.projectName)}`;
     case 'session':
       return `/p/${encodeURIComponent(loc.projectName)}/s/${loc.provider}/${encodeURIComponent(loc.sessionId)}`;
+    case 'agent':
+      return loc.scope === 'global'
+        ? `/agents/global/${encodeURIComponent(loc.agentName)}`
+        : `/p/${encodeURIComponent(loc.projectName ?? '')}/agents/${encodeURIComponent(loc.agentName)}`;
   }
 };

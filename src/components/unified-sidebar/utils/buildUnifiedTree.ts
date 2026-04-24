@@ -48,6 +48,7 @@ function makeProjectNode(
     isFavorite: assignedFavorite || favorites.has(project.name),
     assignment,
     sessions: collectSessions(project),
+    agents: [],
   };
 }
 
