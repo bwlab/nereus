@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Folder, FolderOpen, LayoutDashboard, FileCode2, MessageSquare, Plus, Pencil, Trash2, Terminal } from 'lucide-react';
+import { Folder, FolderOpen, LayoutDashboard, FileCode2, FileText, MessageSquare, Plus, Pencil, Trash2, Terminal } from 'lucide-react';
 import type { Project, SessionProvider } from '../../../../types/app';
 import type { FullWorkspace } from '../../../dashboard/types/dashboard';
 import type { Location } from '../../types/location';
 import type { DashboardNode, FolderNode, ProjectNode, SessionNode } from '../../types/tree';
 import { buildUnifiedTree } from '../../utils/buildUnifiedTree';
 import TreeRow from '../tree/TreeRow';
+import ClaudeMdViewerDialog from '../dialogs/ClaudeMdViewerDialog';
 
 type ExpandedSet = Set<string>;
 
@@ -525,6 +526,8 @@ function ProjectRowTree({
     (location.kind === 'project' && location.projectName === projectNode.projectName) ||
     (location.kind === 'session' && location.projectName === projectNode.projectName);
 
+  const [showClaudeMd, setShowClaudeMd] = useState(false);
+
   const handleDragStart = useCallback((e: React.DragEvent) => {
     writePayload(e, { kind: 'project', projectName: projectNode.projectName });
   }, [projectNode.projectName]);
@@ -550,6 +553,18 @@ function ProjectRowTree({
         onDragStart={handleDragStart}
         actions={
           <>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowClaudeMd(true);
+              }}
+              className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              aria-label="Mostra contesto CLAUDE.md"
+              title="Mostra contesto CLAUDE.md"
+            >
+              <FileText className="h-3 w-3" />
+            </button>
             {onRenameProject && (
               <button
                 type="button"
@@ -597,6 +612,13 @@ function ProjectRowTree({
             />
           ))}
         </div>
+      )}
+      {showClaudeMd && (
+        <ClaudeMdViewerDialog
+          projectName={projectNode.projectName}
+          projectDisplayName={projectNode.project.displayName || projectNode.projectName}
+          onClose={() => setShowClaudeMd(false)}
+        />
       )}
     </div>
   );

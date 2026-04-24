@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Folder as FolderIcon, FileCode2, Star, ChevronDown, ChevronRight, Terminal, TerminalSquare, Wrench, Plug, Pencil, Trash2, FolderInput } from 'lucide-react';
+import { Folder as FolderIcon, FileCode2, FileText, Star, ChevronDown, ChevronRight, Terminal, TerminalSquare, Wrench, Plug, Pencil, Trash2, FolderInput } from 'lucide-react';
 import type { Project, SessionProvider } from '../../../../types/app';
 import type { FullWorkspace } from '../../../dashboard/types/dashboard';
 import type { Location, PresetKind } from '../../types/location';
@@ -11,6 +11,7 @@ import {
 } from '../../utils/buildUnifiedTree';
 import ProjectSettingsPanel, { type ProjectSettingsTab } from '../../../project-settings/view/ProjectSettingsPanel';
 import FolderPickerDialog from '../dialogs/FolderPickerDialog';
+import ClaudeMdViewerDialog from '../dialogs/ClaudeMdViewerDialog';
 import ContentToolbar, { type SortMode } from './ContentToolbar';
 import SessionInlineList from './rows/SessionInlineList';
 
@@ -480,6 +481,7 @@ function ProjectRow({
     (project.codexSessions?.length ?? 0) +
     (project.cursorSessions?.length ?? 0) +
     (project.geminiSessions?.length ?? 0);
+  const [showClaudeMd, setShowClaudeMd] = useState(false);
   const handleDragStart = (e: React.DragEvent) => {
     try {
       e.dataTransfer.setData('application/x-bwlab-node', JSON.stringify({ kind: 'project', projectName: project.name }));
@@ -597,6 +599,18 @@ function ProjectRow({
               <FolderInput className="h-3.5 w-3.5" />
             </button>
           )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowClaudeMd(true);
+            }}
+            className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground opacity-0 transition hover:bg-muted hover:text-foreground group-hover:opacity-100"
+            aria-label="Mostra contesto CLAUDE.md"
+            title="Mostra contesto CLAUDE.md"
+          >
+            <FileText className="h-3.5 w-3.5" />
+          </button>
           {onRenameProject && (
             <button
               type="button"
@@ -653,6 +667,13 @@ function ProjectRow({
           project={project}
           onSelectSession={(pr, sid, prov) => onSelectSession(pr, sid, prov)}
           onDeleteSession={onDeleteSession}
+        />
+      )}
+      {showClaudeMd && (
+        <ClaudeMdViewerDialog
+          projectName={project.name}
+          projectDisplayName={project.displayName || project.name}
+          onClose={() => setShowClaudeMd(false)}
         />
       )}
     </div>

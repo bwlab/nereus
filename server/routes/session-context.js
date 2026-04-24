@@ -25,6 +25,82 @@ function safeReadFile(filePath) {
   }
 }
 
+/**
+ * Walk della gerarchia CLAUDE.md dal più generale al più specifico:
+ *   user (~/.claude/CLAUDE.md) → ancestors intermedi sotto home → project → project/.claude
+ * Sono incluse solo le voci il cui file esiste davvero.
+ */
+export function loadClaudeMdHierarchy(projectPath) {
+  const result = [];
+
+  const userPath = path.join(CLAUDE_DIR, 'CLAUDE.md');
+  const userFile = safeReadFile(userPath);
+  if (userFile) {
+    result.push({
+      scope: 'user',
+      path: userPath,
+      size: userFile.size,
+      content: userFile.content,
+      modifiedAt: userFile.modifiedAt,
+    });
+  }
+
+  if (!projectPath) return result;
+
+  const projectResolved = path.resolve(projectPath);
+  const home = path.resolve(os.homedir());
+
+  // Walk ancestors solo se projectPath è sotto home
+  const rel = path.relative(home, projectResolved);
+  const underHome = rel && !rel.startsWith('..') && !path.isAbsolute(rel);
+
+  if (underHome) {
+    const segments = rel.split(path.sep).filter(Boolean);
+    // Costruisce ogni ancestor intermedio (home escluso, projectPath escluso)
+    let current = home;
+    for (let i = 0; i < segments.length - 1; i++) {
+      current = path.join(current, segments[i]);
+      const candidate = path.join(current, 'CLAUDE.md');
+      const file = safeReadFile(candidate);
+      if (file) {
+        result.push({
+          scope: 'ancestor',
+          path: candidate,
+          size: file.size,
+          content: file.content,
+          modifiedAt: file.modifiedAt,
+        });
+      }
+    }
+  }
+
+  const projPath = path.join(projectResolved, 'CLAUDE.md');
+  const projFile = safeReadFile(projPath);
+  if (projFile) {
+    result.push({
+      scope: 'project',
+      path: projPath,
+      size: projFile.size,
+      content: projFile.content,
+      modifiedAt: projFile.modifiedAt,
+    });
+  }
+
+  const localPath = path.join(projectResolved, '.claude', 'CLAUDE.md');
+  const localFile = safeReadFile(localPath);
+  if (localFile) {
+    result.push({
+      scope: 'local',
+      path: localPath,
+      size: localFile.size,
+      content: localFile.content,
+      modifiedAt: localFile.modifiedAt,
+    });
+  }
+
+  return result;
+}
+
 function loadClaudeMdFiles(projectPath) {
   const result = [];
 

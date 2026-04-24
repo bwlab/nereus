@@ -3,8 +3,9 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 import os from 'os';
-import { addProjectManually } from '../projects.js';
+import { addProjectManually, extractProjectDirectory } from '../projects.js';
 import { dashboardDb } from '../database/db.js';
+import { loadClaudeMdHierarchy } from './session-context.js';
 
 const router = express.Router();
 
@@ -556,6 +557,22 @@ router.patch('/:projectName/favorite', (req, res) => {
   } catch (error) {
     console.error('Error toggling project favorite:', error);
     res.status(500).json({ error: 'Failed to toggle favorite' });
+  }
+});
+
+// GET gerarchia CLAUDE.md per un progetto (user → ancestors → project → local)
+router.get('/:projectName/claude-md', async (req, res) => {
+  try {
+    const { projectName } = req.params;
+    const projectPath = await extractProjectDirectory(projectName);
+    if (!projectPath) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    const files = loadClaudeMdHierarchy(projectPath);
+    res.json({ projectPath, files });
+  } catch (error) {
+    console.error('Error loading CLAUDE.md hierarchy:', error);
+    res.status(500).json({ error: 'Failed to load CLAUDE.md hierarchy' });
   }
 });
 
