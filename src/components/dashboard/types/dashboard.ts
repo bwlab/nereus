@@ -11,8 +11,6 @@ export interface Dashboard {
   view_mode: DashboardViewMode;
 }
 
-export const MAX_RACCOGLITORE_DEPTH = 2;
-
 export interface Raccoglitore {
   id: number;
   dashboard_id: number;
@@ -38,10 +36,22 @@ export interface DashboardProjectAssignment {
   raccoglitore_id: number;
   project_name: string;
   position: number;
+  is_favorite: number; // SQLite boolean: 0 | 1
 }
 
 export interface FullDashboard {
   dashboard: Dashboard;
   raccoglitori: Raccoglitore[];
   assignments: DashboardProjectAssignment[];
+}
+
+export interface WorkspaceAssignment extends DashboardProjectAssignment {
+  dashboard_id: number;
+}
+
+export interface FullWorkspace {
+  dashboards: Dashboard[];
+  raccoglitori: Raccoglitore[];
+  assignments: WorkspaceAssignment[];
+  favoriteProjectNames: string[];
 }

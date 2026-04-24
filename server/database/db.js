@@ -241,10 +241,30 @@ const runMigrations = () => {
       raccoglitore_id INTEGER NOT NULL,
       project_name TEXT NOT NULL,
       position INTEGER NOT NULL DEFAULT 0,
+      is_favorite INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY (raccoglitore_id) REFERENCES dashboard_raccoglitori(id) ON DELETE CASCADE
     )`);
     db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_dpa_unique ON dashboard_project_assignments(raccoglitore_id, project_name)');
     db.exec('CREATE INDEX IF NOT EXISTS idx_dpa_raccoglitore ON dashboard_project_assignments(raccoglitore_id)');
+
+    // Migration: add is_favorite column to existing dashboard_project_assignments tables
+    const dpaInfo = db.prepare("PRAGMA table_info(dashboard_project_assignments)").all();
+    const dpaCols = dpaInfo.map(col => col.name);
+    if (!dpaCols.includes('is_favorite')) {
+      console.log('Running migration: Adding is_favorite column to dashboard_project_assignments');
+      db.exec('ALTER TABLE dashboard_project_assignments ADD COLUMN is_favorite INTEGER NOT NULL DEFAULT 0');
+    }
+    db.exec('CREATE INDEX IF NOT EXISTS idx_dpa_favorite ON dashboard_project_assignments(is_favorite) WHERE is_favorite = 1');
+
+    // Favorites for orphan (unassigned) projects
+    db.exec(`CREATE TABLE IF NOT EXISTS user_favorite_projects (
+      user_id INTEGER NOT NULL,
+      project_name TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (user_id, project_name),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )`);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_user_fav_projects_user ON user_favorite_projects(user_id)');
 
     // Session archives
     db.exec(`CREATE TABLE IF NOT EXISTS session_archives (
@@ -929,7 +949,6 @@ const dashboardDb = {
   },
 
   // --- Raccoglitori CRUD ---
-  MAX_RACCOGLITORE_DEPTH: 2,
 
   getRaccoglitori: (dashboardId) => {
     return db.prepare(
@@ -979,7 +998,6 @@ const dashboardDb = {
       const parent = dashboardDb.getRaccoglitore(normalizedParentId);
       if (!parent) throw new Error('Parent raccoglitore not found');
       if (parent.dashboard_id !== dashboardId) throw new Error('Parent belongs to a different dashboard');
-      if (parent.depth >= dashboardDb.MAX_RACCOGLITORE_DEPTH) throw new Error('Max nesting depth reached');
       depth = parent.depth + 1;
     }
     const maxPos = db.prepare(
@@ -1018,11 +1036,7 @@ const dashboardDb = {
       if (dashboardDb.isDescendant(newParentId, id)) throw new Error('Cannot move a raccoglitore under its own descendant');
       newParentDepth = parent.depth;
     }
-    const subtreeDepth = dashboardDb.getSubtreeDepth(id);
     const newNodeDepth = newParentDepth + 1;
-    if (newNodeDepth + subtreeDepth > dashboardDb.MAX_RACCOGLITORE_DEPTH) {
-      throw new Error('Move would exceed max nesting depth');
-    }
     const depthDelta = newNodeDepth - node.depth;
     const transaction = db.transaction(() => {
       let finalPosition = position;
@@ -1072,12 +1086,30 @@ const dashboardDb = {
   // --- Project assignments ---
   getAssignments: (dashboardId) => {
     return db.prepare(`
-      SELECT dpa.id, dpa.raccoglitore_id, dpa.project_name, dpa.position
+      SELECT dpa.id, dpa.raccoglitore_id, dpa.project_name, dpa.position, dpa.is_favorite
       FROM dashboard_project_assignments dpa
       JOIN dashboard_raccoglitori dr ON dpa.raccoglitore_id = dr.id
       WHERE dr.dashboard_id = ?
       ORDER BY dpa.position
     `).all(dashboardId);
+  },
+
+  getAllAssignmentsForUser: (userId) => {
+    return db.prepare(`
+      SELECT dpa.id, dpa.raccoglitore_id, dpa.project_name, dpa.position, dpa.is_favorite, dr.dashboard_id
+      FROM dashboard_project_assignments dpa
+      JOIN dashboard_raccoglitori dr ON dpa.raccoglitore_id = dr.id
+      JOIN dashboards d ON dr.dashboard_id = d.id
+      WHERE d.user_id = ?
+      ORDER BY dpa.position
+    `).all(userId);
+  },
+
+  setAssignmentFavorite: (raccoglitoreId, projectName, isFavorite) => {
+    const result = db.prepare(
+      'UPDATE dashboard_project_assignments SET is_favorite = ? WHERE raccoglitore_id = ? AND project_name = ?'
+    ).run(isFavorite ? 1 : 0, raccoglitoreId, projectName);
+    return result.changes > 0;
   },
 
   assignProject: (raccoglitoreId, projectName, position = 0) => {
@@ -1127,6 +1159,51 @@ const dashboardDb = {
     const raccoglitori = dashboardDb.getRaccoglitori(dashboardId);
     const assignments = dashboardDb.getAssignments(dashboardId);
     return { dashboard, raccoglitori, assignments };
+  },
+
+  // --- Workspace (all dashboards + folders + assignments + orphan favorites) ---
+  getAllRaccoglitoriForUser: (userId) => {
+    return db.prepare(`
+      SELECT dr.id, dr.dashboard_id, dr.parent_id, dr.depth, dr.name, dr.color, dr.icon, dr.notes, dr.position
+      FROM dashboard_raccoglitori dr
+      JOIN dashboards d ON dr.dashboard_id = d.id
+      WHERE d.user_id = ?
+      ORDER BY dr.dashboard_id, dr.position
+    `).all(userId);
+  },
+
+  getWorkspace: (userId) => {
+    const dashboards = dashboardDb.getDashboards(userId);
+    const raccoglitori = dashboardDb.getAllRaccoglitoriForUser(userId);
+    const assignments = dashboardDb.getAllAssignmentsForUser(userId);
+    const favoriteProjectNames = dashboardDb.getFavoriteProjectNames(userId);
+    return { dashboards, raccoglitori, assignments, favoriteProjectNames };
+  },
+
+  // --- Orphan project favorites ---
+  setProjectFavorite: (userId, projectName, isFavorite) => {
+    if (isFavorite) {
+      db.prepare(
+        'INSERT OR IGNORE INTO user_favorite_projects (user_id, project_name) VALUES (?, ?)'
+      ).run(userId, projectName);
+    } else {
+      db.prepare(
+        'DELETE FROM user_favorite_projects WHERE user_id = ? AND project_name = ?'
+      ).run(userId, projectName);
+    }
+  },
+
+  getFavoriteProjectNames: (userId) => {
+    return db.prepare(
+      'SELECT project_name FROM user_favorite_projects WHERE user_id = ?'
+    ).all(userId).map(r => r.project_name);
+  },
+
+  isProjectFavorite: (userId, projectName) => {
+    const row = db.prepare(
+      'SELECT 1 FROM user_favorite_projects WHERE user_id = ? AND project_name = ?'
+    ).get(userId, projectName);
+    return !!row;
   },
 };
 

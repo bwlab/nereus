@@ -25,6 +25,17 @@ router.get('/default', (req, res) => {
   }
 });
 
+// GET workspace — all dashboards + all raccoglitori + all assignments + orphan favorites
+router.get('/workspace', (req, res) => {
+  try {
+    const workspace = dashboardDb.getWorkspace(req.user.id);
+    res.json({ success: true, ...workspace });
+  } catch (error) {
+    console.error('Error getting workspace:', error);
+    res.status(500).json({ error: 'Failed to get workspace' });
+  }
+});
+
 // GET full dashboard (raccoglitori + assignments)
 router.get('/:id/full', (req, res) => {
   try {
@@ -148,7 +159,7 @@ router.post('/:id/raccoglitori', requireDashboardOwnership, (req, res) => {
   } catch (error) {
     console.error('Error creating raccoglitore:', error);
     const msg = error?.message || 'Failed to create raccoglitore';
-    const code = /not found|different dashboard|depth/i.test(msg) ? 400 : 500;
+    const code = /not found|different dashboard/i.test(msg) ? 400 : 500;
     res.status(code).json({ error: msg });
   }
 });
@@ -171,7 +182,7 @@ router.patch('/:id/raccoglitori/:rid/move', requireRaccoglitoreOwnership, (req, 
   } catch (error) {
     console.error('Error moving raccoglitore:', error);
     const msg = error?.message || 'Failed to move raccoglitore';
-    const code = /not found|descendant|dashboards|depth/i.test(msg) ? 400 : 500;
+    const code = /not found|descendant|dashboards/i.test(msg) ? 400 : 500;
     res.status(code).json({ error: msg });
   }
 });
@@ -261,6 +272,26 @@ router.put('/:id/raccoglitori/:rid/projects/reorder', requireRaccoglitoreOwnersh
   } catch (error) {
     console.error('Error reordering projects:', error);
     res.status(500).json({ error: 'Failed to reorder projects' });
+  }
+});
+
+// PATCH toggle favorite on a single assignment
+router.patch('/:id/raccoglitori/:rid/projects/:projectName/favorite', requireRaccoglitoreOwnership, (req, res) => {
+  try {
+    const { is_favorite } = req.body ?? {};
+    const flag = is_favorite === true || is_favorite === 1;
+    const changed = dashboardDb.setAssignmentFavorite(
+      req.raccoglitoreId,
+      req.params.projectName,
+      flag,
+    );
+    if (!changed) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+    res.json({ success: true, is_favorite: flag ? 1 : 0 });
+  } catch (error) {
+    console.error('Error toggling assignment favorite:', error);
+    res.status(500).json({ error: 'Failed to toggle favorite' });
   }
 });
 

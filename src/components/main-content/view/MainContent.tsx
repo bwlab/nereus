@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import ChatInterface from '../../chat/view/ChatInterface';
 import SessionKanban from '../../session-kanban/view/SessionKanban';
-import DashboardView from '../../dashboard/view/DashboardView';
 import ClaudeTasksPanel from '../../claude-tasks/view/ClaudeTasksPanel';
 import FileTree from '../../file-tree/view/FileTree';
 import StandaloneShell from '../../standalone-shell/view/StandaloneShell';
@@ -56,14 +55,8 @@ function MainContent({
   onSessionDeleted,
   onShowSettings,
   externalMessageUpdate,
-  activeDashboardId,
-  effectiveDashboardId,
-  dashboardChecked,
-  onDashboardSelect,
-  onNavigateToDashboardPath,
   projects,
-  onProjectSelect,
-  hideDashboardSelector,
+  onRenameProject,
 }: MainContentProps) {
   const { preferences } = useUiPreferences();
   const { autoExpandTools, showRawParameters, showThinking, autoScrollToBottom, sendByCtrlEnter } = preferences;
@@ -103,11 +96,11 @@ function MainContent({
     }
   }, [shouldShowTasksTab, activeTab, setActiveTab]);
 
-  if (isLoading || !dashboardChecked) {
+  if (isLoading) {
     return <MainContentStateView mode="loading" isMobile={isMobile} onMenuClick={onMenuClick} />;
   }
 
-  if (!selectedProject && !activeDashboardId) {
+  if (!selectedProject) {
     return <MainContentStateView mode="empty" isMobile={isMobile} onMenuClick={onMenuClick} />;
   }
 
@@ -122,23 +115,10 @@ function MainContent({
         isMobile={isMobile}
         onMenuClick={onMenuClick}
         onBackToKanban={(selectedSession || isNewSession) ? onBackToKanban : undefined}
-        activeDashboardId={activeDashboardId}
-        effectiveDashboardId={effectiveDashboardId}
-        onDashboardSelect={onDashboardSelect}
-        onNavigateToDashboardPath={onNavigateToDashboardPath}
-        hideDashboardSelector={hideDashboardSelector}
+        onRenameProject={onRenameProject}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        {activeDashboardId ? (
-          <div className="flex-1 overflow-hidden">
-            <DashboardView
-              dashboardId={activeDashboardId}
-              projects={projects}
-              onProjectClick={onProjectSelect}
-            />
-          </div>
-        ) : (
         <>
         <div className={`flex min-h-0 min-w-[200px] flex-col overflow-hidden ${editorExpanded ? 'hidden' : ''} flex-1`}>
           <div className={`h-full ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
@@ -242,7 +222,6 @@ function MainContent({
           />
         )}
         </>
-        )}
       </div>
 
     </div>

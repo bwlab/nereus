@@ -7,7 +7,7 @@ import KanbanBoard from './subcomponents/KanbanBoard';
 import KanbanAccordionView from './subcomponents/KanbanAccordionView';
 import KanbanTabsView from './subcomponents/KanbanTabsView';
 import KanbanGridView from './subcomponents/KanbanGridView';
-import ViewModeSwitcher, { type ViewMode } from '../../dashboard/view/subcomponents/ViewModeSwitcher';
+import ViewModeSwitcher, { type ViewMode } from './subcomponents/ViewModeSwitcher';
 import ArchivedSessionsDrawer from './ArchivedSessionsDrawer';
 
 type SessionKanbanProps = {

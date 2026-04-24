@@ -58,14 +58,8 @@ export type MainContentProps = {
   onSessionDeleted: (sessionId: string) => void;
   onShowSettings: () => void;
   externalMessageUpdate: number;
-  activeDashboardId: number | null;
-  effectiveDashboardId: number | null;
-  dashboardChecked: boolean;
-  onDashboardSelect: (id: number | null) => void;
-  onNavigateToDashboardPath?: (dashboardId: number, path: number[]) => void;
   projects: Project[];
-  onProjectSelect: (project: Project) => void;
-  hideDashboardSelector?: boolean;
+  onRenameProject?: (projectName: string, currentDisplayName?: string) => void;
 };
 
 export type MainContentHeaderProps = {
@@ -77,11 +71,7 @@ export type MainContentHeaderProps = {
   isMobile: boolean;
   onMenuClick: () => void;
   onBackToKanban?: () => void;
-  activeDashboardId: number | null;
-  effectiveDashboardId?: number | null;
-  onDashboardSelect: (id: number | null) => void;
-  onNavigateToDashboardPath?: (dashboardId: number, path: number[]) => void;
-  hideDashboardSelector?: boolean;
+  onRenameProject?: (projectName: string, currentDisplayName?: string) => void;
 };
 
 export type MainContentStateViewProps = {

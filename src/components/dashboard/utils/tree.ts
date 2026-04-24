@@ -3,7 +3,6 @@ import type {
   Raccoglitore,
   RaccoglitoreNode,
 } from '../types/dashboard';
-import { MAX_RACCOGLITORE_DEPTH } from '../types/dashboard';
 
 export function buildTree(
   raccoglitori: Raccoglitore[],
@@ -120,29 +119,21 @@ export function getAvailableMoveTargets(
 ): MoveTarget[] {
   const node = findNode(roots, nodeId);
   if (!node) return [];
-  const subtreeDepth = getSubtreeDepth(node);
   const forbidden = new Set<number>();
   collectIds(node, forbidden);
 
-  const targets: MoveTarget[] = [];
-  if (subtreeDepth <= MAX_RACCOGLITORE_DEPTH && node.parent_id !== null) {
-    targets.push({ id: null, label: 'Livello principale', depth: -1 });
-  } else if (node.parent_id === null) {
-    // already root - still offer root move for reorder at root (no-op parent)
-    targets.push({ id: null, label: 'Livello principale', depth: -1 });
-  }
+  const targets: MoveTarget[] = [
+    { id: null, label: 'Livello principale', depth: -1 },
+  ];
 
   const walk = (nodes: RaccoglitoreNode[], prefix: string) => {
     for (const n of nodes) {
       if (forbidden.has(n.id)) continue;
-      const newParentDepth = n.depth;
-      if (newParentDepth + 1 + subtreeDepth <= MAX_RACCOGLITORE_DEPTH) {
-        targets.push({
-          id: n.id,
-          label: prefix ? `${prefix} / ${n.name}` : n.name,
-          depth: n.depth,
-        });
-      }
+      targets.push({
+        id: n.id,
+        label: prefix ? `${prefix} / ${n.name}` : n.name,
+        depth: n.depth,
+      });
       walk(n.children, prefix ? `${prefix} / ${n.name}` : n.name);
     }
   };
@@ -157,16 +148,6 @@ function findNode(roots: RaccoglitoreNode[], id: number): RaccoglitoreNode | nul
     if (found) return found;
   }
   return null;
-}
-
-function getSubtreeDepth(node: RaccoglitoreNode): number {
-  if (node.children.length === 0) return 0;
-  let max = 0;
-  for (const c of node.children) {
-    const d = 1 + getSubtreeDepth(c);
-    if (d > max) max = d;
-  }
-  return max;
 }
 
 function collectIds(node: RaccoglitoreNode, set: Set<number>): void {

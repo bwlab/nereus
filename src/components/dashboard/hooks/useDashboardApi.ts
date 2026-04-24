@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { authenticatedFetch } from '../../../utils/api';
-import type { Dashboard, Raccoglitore, DashboardViewMode, DashboardSortMode } from '../types/dashboard';
+import type { Dashboard, Raccoglitore, DashboardViewMode, DashboardSortMode, FullWorkspace } from '../types/dashboard';
 
 export function useDashboardApi() {
   const getDashboards = useCallback(async (): Promise<Dashboard[]> => {
@@ -20,6 +20,18 @@ export function useDashboardApi() {
     if (!res.ok) return null;
     const data = await res.json();
     return { dashboard: data.dashboard, raccoglitori: data.raccoglitori, assignments: data.assignments };
+  }, []);
+
+  const getWorkspace = useCallback(async (): Promise<FullWorkspace | null> => {
+    const res = await authenticatedFetch('/api/dashboards/workspace');
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      dashboards: data.dashboards ?? [],
+      raccoglitori: data.raccoglitori ?? [],
+      assignments: data.assignments ?? [],
+      favoriteProjectNames: data.favoriteProjectNames ?? [],
+    };
   }, []);
 
   const createDashboard = useCallback(async (name: string): Promise<Dashboard> => {
@@ -114,10 +126,33 @@ export function useDashboardApi() {
     });
   }, []);
 
+  const setAssignmentFavorite = useCallback(async (dashboardId: number, rid: number, projectName: string, isFavorite: boolean) => {
+    const res = await authenticatedFetch(
+      `/api/dashboards/${dashboardId}/raccoglitori/${rid}/projects/${encodeURIComponent(projectName)}/favorite`,
+      { method: 'PATCH', body: JSON.stringify({ is_favorite: isFavorite }) },
+    );
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.error || 'Failed to toggle favorite');
+    }
+  }, []);
+
+  const setProjectFavorite = useCallback(async (projectName: string, isFavorite: boolean) => {
+    const res = await authenticatedFetch(
+      `/api/projects/${encodeURIComponent(projectName)}/favorite`,
+      { method: 'PATCH', body: JSON.stringify({ is_favorite: isFavorite }) },
+    );
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.error || 'Failed to toggle favorite');
+    }
+  }, []);
+
   return useMemo(() => ({
     getDashboards,
     getDefaultDashboardId,
     getFullDashboard,
+    getWorkspace,
     createDashboard,
     updateDashboard,
     deleteDashboard,
@@ -131,11 +166,14 @@ export function useDashboardApi() {
     assignProject,
     removeProject,
     reorderProjects,
+    setAssignmentFavorite,
+    setProjectFavorite,
   }), [
-    getDashboards, getDefaultDashboardId, getFullDashboard,
+    getDashboards, getDefaultDashboardId, getFullDashboard, getWorkspace,
     createDashboard, updateDashboard, deleteDashboard,
     reorderDashboards, setDefaultDashboard,
     createRaccoglitore, updateRaccoglitore, moveRaccoglitore, deleteRaccoglitore, reorderRaccoglitori,
     assignProject, removeProject, reorderProjects,
+    setAssignmentFavorite, setProjectFavorite,
   ]);
 }

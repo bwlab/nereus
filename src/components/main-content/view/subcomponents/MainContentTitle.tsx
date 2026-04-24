@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Pencil } from 'lucide-react';
 import SessionProviderLogo from '../../../llm-logo-provider/SessionProviderLogo';
 import type { AppTab, Project, ProjectSession } from '../../../../types/app';
 import { usePlugins } from '../../../../contexts/PluginsContext';
@@ -8,6 +9,7 @@ type MainContentTitleProps = {
   selectedProject: Project;
   selectedSession: ProjectSession | null;
   shouldShowTasksTab: boolean;
+  onRenameProject?: (projectName: string, currentDisplayName?: string) => void;
 };
 
 function getTabTitle(activeTab: AppTab, shouldShowTasksTab: boolean, t: (key: string) => string, pluginDisplayName?: string) {
@@ -43,7 +45,19 @@ export default function MainContentTitle({
   selectedProject,
   selectedSession,
   shouldShowTasksTab,
+  onRenameProject,
 }: MainContentTitleProps) {
+  const renamePencil = onRenameProject ? (
+    <button
+      type="button"
+      onClick={() => onRenameProject(selectedProject.name, selectedProject.displayName)}
+      className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
+      aria-label="Rinomina progetto"
+      title="Rinomina progetto"
+    >
+      <Pencil className="h-3 w-3" />
+    </button>
+  ) : null;
   const { t } = useTranslation();
   const { plugins } = usePlugins();
 
@@ -65,15 +79,19 @@ export default function MainContentTitle({
       <div className="min-w-0 flex-1">
         {activeTab === 'chat' && selectedSession ? (
           <div className="min-w-0">
-            <h2 className="scrollbar-hide overflow-x-auto whitespace-nowrap text-sm font-semibold leading-tight text-foreground">
-              {getSessionTitle(selectedSession)}
+            <h2 className="scrollbar-hide flex items-center overflow-x-auto whitespace-nowrap text-sm font-semibold leading-tight text-foreground">
+              <span>{selectedProject.displayName}</span>
+              {renamePencil}
             </h2>
-            <div className="truncate text-[11px] leading-tight text-muted-foreground">{selectedProject.displayName}</div>
+            <div className="truncate text-[11px] leading-tight text-muted-foreground">{getSessionTitle(selectedSession)}</div>
           </div>
         ) : showChatNewSession ? (
           <div className="min-w-0">
-            <h2 className="text-base font-semibold leading-tight text-foreground">{t('mainContent.newSession')}</h2>
-            <div className="truncate text-xs leading-tight text-muted-foreground">{selectedProject.displayName}</div>
+            <h2 className="flex items-center text-base font-semibold leading-tight text-foreground">
+              <span>{selectedProject.displayName}</span>
+              {renamePencil}
+            </h2>
+            <div className="truncate text-xs leading-tight text-muted-foreground">{t('mainContent.newSession')}</div>
           </div>
         ) : (
           <div className="min-w-0">

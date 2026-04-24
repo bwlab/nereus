@@ -4,6 +4,7 @@ import path from 'path';
 import { spawn } from 'child_process';
 import os from 'os';
 import { addProjectManually } from '../projects.js';
+import { dashboardDb } from '../database/db.js';
 
 const router = express.Router();
 
@@ -544,5 +545,18 @@ function cloneGitHubRepository(githubUrl, destinationPath, githubToken = null) {
     });
   });
 }
+
+// PATCH toggle favorite on an orphan (unassigned) project
+router.patch('/:projectName/favorite', (req, res) => {
+  try {
+    const { is_favorite } = req.body ?? {};
+    const flag = is_favorite === true || is_favorite === 1;
+    dashboardDb.setProjectFavorite(req.user.id, req.params.projectName, flag);
+    res.json({ success: true, is_favorite: flag ? 1 : 0 });
+  } catch (error) {
+    console.error('Error toggling project favorite:', error);
+    res.status(500).json({ error: 'Failed to toggle favorite' });
+  }
+});
 
 export default router;

@@ -22,6 +22,11 @@ export default function App() {
                   <Router basename={window.__ROUTER_BASENAME__ || ''}>
                     <Routes>
                       <Route path="/" element={<AppContent />} />
+                      <Route path="/preset/:preset" element={<AppContent />} />
+                      <Route path="/d/:dashboardId" element={<AppContent />} />
+                      <Route path="/d/:dashboardId/f/:folderIds" element={<AppContent />} />
+                      <Route path="/p/:projectName" element={<AppContent />} />
+                      <Route path="/p/:projectName/s/:provider/:sessionId" element={<AppContent />} />
                       <Route path="/session/:sessionId" element={<AppContent />} />
                     </Routes>
                   </Router>

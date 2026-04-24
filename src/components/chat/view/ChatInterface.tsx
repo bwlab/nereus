@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Terminal, Wrench, Plug, FolderOpen, Code } from 'lucide-react';
+import { Terminal, Wrench, Plug, Code } from 'lucide-react';
 import { useTasksSettings } from '../../../contexts/TasksSettingsContext';
 import { QuickSettingsPanel } from '../../quick-settings-panel';
 import type { ChatInterfaceProps, Provider  } from '../types/types';
@@ -301,34 +301,7 @@ function ChatInterface({
   return (
     <>
       <div className="flex h-full flex-col">
-        <div className="flex items-center justify-between border-b border-border px-4 py-2">
-          <div className="min-w-0 flex-1">
-            <h2 className="truncate text-sm font-semibold text-foreground">
-              {selectedSession?.summary || selectedSession?.name || selectedSession?.id || t('projectSelection.newSession', { defaultValue: 'Nuova sessione' })}
-              <span className="ml-2 text-xs font-normal text-muted-foreground">— {selectedProject.displayName || selectedProject.name}</span>
-            </h2>
-            {(selectedProject.fullPath || selectedProject.path) && (
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    const res = await authenticatedFetch(`/api/project-open/${encodeURIComponent(selectedProject.name)}/in-file-manager`, { method: 'POST' });
-                    if (!res.ok) {
-                      const data = await res.json().catch(() => ({}));
-                      alert(data.error || 'Impossibile aprire il file manager');
-                    }
-                  } catch (err) {
-                    alert((err as Error).message);
-                  }
-                }}
-                className="mt-0.5 flex items-center gap-1 truncate font-mono text-[10px] text-muted-foreground transition-colors hover:text-primary"
-                title="Apri nel file manager"
-              >
-                <FolderOpen className="h-3 w-3 shrink-0" />
-                <span className="truncate">{selectedProject.fullPath || selectedProject.path}</span>
-              </button>
-            )}
-          </div>
+        <div className="flex items-center justify-end gap-1 border-b border-border px-4 py-2">
           <div className="flex items-center gap-1">
             <button
               type="button"
