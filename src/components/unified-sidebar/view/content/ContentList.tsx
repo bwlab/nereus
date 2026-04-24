@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Folder as FolderIcon, FileCode2, FileText, Star, ChevronDown, ChevronRight, Terminal, TerminalSquare, Wrench, Plug, Pencil, Trash2, FolderInput } from 'lucide-react';
+import { Folder as FolderIcon, FileCode2, FileText, FolderOpen, Star, ChevronDown, ChevronRight, Terminal, TerminalSquare, Wrench, Plug, Pencil, Trash2, FolderInput } from 'lucide-react';
+import { authenticatedFetch } from '../../../../utils/api';
 import type { Project, SessionProvider } from '../../../../types/app';
 import type { FullWorkspace } from '../../../dashboard/types/dashboard';
 import type { Location, PresetKind } from '../../types/location';
@@ -516,20 +517,45 @@ function ProjectRow({
         >
           <FileCode2 className="h-5 w-5 text-muted-foreground" />
         </button>
-        <button
-          type="button"
-          onClick={onOpen}
-          className="flex min-w-0 flex-col items-start text-left"
-        >
-          <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-col items-start text-left">
+          <button
+            type="button"
+            onClick={onOpen}
+            className="flex items-center gap-2"
+          >
             <span className="truncate text-sm font-medium">
               {highlightQuery ? highlightMatches(title, highlightQuery) : title}
             </span>
+          </button>
+          <div className="flex min-w-0 items-center gap-1 truncate text-xs text-muted-foreground">
+            <span className="shrink-0">{sessionCount} sessioni ·</span>
+            {project.fullPath ? (
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  try {
+                    const res = await authenticatedFetch(
+                      `/api/project-open/${encodeURIComponent(project.name)}/in-file-manager`,
+                      { method: 'POST' },
+                    );
+                    if (!res.ok) {
+                      const data = await res.json().catch(() => ({}));
+                      alert(data.error || 'Impossibile aprire il file manager');
+                    }
+                  } catch (err) {
+                    alert((err as Error).message);
+                  }
+                }}
+                className="flex min-w-0 items-center gap-1 truncate transition-colors hover:text-primary hover:underline"
+                title="Apri nel file manager"
+              >
+                <FolderOpen className="h-3 w-3 shrink-0" />
+                <span className="truncate">{project.fullPath}</span>
+              </button>
+            ) : null}
           </div>
-          <div className="truncate text-xs text-muted-foreground">
-            {sessionCount} sessioni · {project.fullPath}
-          </div>
-        </button>
+        </div>
         <div className="flex items-center gap-1">
           {onOpenSettings && (
             <div className="flex items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
