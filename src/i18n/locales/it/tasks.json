@@ -1,0 +1,142 @@
+{
+  "notConfigured": {
+    "title": "TaskMaster AI non è configurato",
+    "description": "TaskMaster aiuta a suddividere progetti complessi in task gestibili con assistenza AI",
+    "whatIsTitle": "🎯 Cos'è TaskMaster?",
+    "features": {
+      "aiPowered": "Gestione task con AI: suddivide progetti complessi in sotto-task gestibili",
+      "prdTemplates": "Template PRD: genera task da Product Requirements Documents",
+      "dependencyTracking": "Tracciamento dipendenze: comprende relazioni e ordine di esecuzione",
+      "progressVisualization": "Visualizzazione avanzamento: board kanban e analisi dettagliate dei task",
+      "cliIntegration": "Integrazione CLI: usa i comandi taskmaster per workflow avanzati"
+    },
+    "initializeButton": "Inizializza TaskMaster AI"
+  },
+  "gettingStarted": {
+    "title": "Inizia con TaskMaster",
+    "subtitle": "TaskMaster è inizializzato! Ecco cosa fare ora:",
+    "steps": {
+      "createPRD": {
+        "title": "Crea un Product Requirements Document (PRD)",
+        "description": "Discuti l'idea del progetto e crea un PRD che descriva cosa vuoi costruire.",
+        "addButton": "Aggiungi PRD",
+        "existingPRDs": "PRD esistenti:"
+      },
+      "generateTasks": {
+        "title": "Genera task dal PRD",
+        "description": "Una volta creato il PRD, chiedi al tuo assistente AI di parsarlo e TaskMaster lo suddividerà automaticamente in task gestibili con dettagli implementativi."
+      },
+      "analyzeTasks": {
+        "title": "Analizza ed espandi i task",
+        "description": "Chiedi al tuo assistente AI di analizzare la complessità dei task ed espanderli in sotto-task dettagliati per facilitare l'implementazione."
+      },
+      "startBuilding": {
+        "title": "Inizia a costruire",
+        "description": "Chiedi al tuo assistente AI di iniziare a lavorare sui task, aggiornarne lo stato e aggiungerne di nuovi mentre il progetto evolve."
+      }
+    },
+    "tip": "💡 Suggerimento: inizia da un PRD per sfruttare al meglio la generazione task AI di TaskMaster"
+  },
+  "setupModal": {
+    "title": "Setup TaskMaster",
+    "subtitle": "CLI interattiva per {{projectName}}",
+    "willStart": "L'inizializzazione di TaskMaster partirà automaticamente",
+    "completed": "Setup TaskMaster completato! Ora puoi chiudere questa finestra.",
+    "closeButton": "Chiudi",
+    "closeContinueButton": "Chiudi e continua"
+  },
+  "helpGuide": {
+    "title": "Inizia con TaskMaster",
+    "subtitle": "La tua guida alla gestione task produttiva",
+    "examples": {
+      "parsePRD": "💬 Esempio:\n\"Ho appena inizializzato un nuovo progetto con Claude Task Master. Ho un PRD in .taskmaster/docs/prd.txt. Puoi aiutarmi a parsarlo e impostare i task iniziali?\"",
+      "expandTask": "💬 Esempio:\n\"Il task 5 sembra complesso. Puoi suddividerlo in sotto-task?\"",
+      "addTask": "💬 Esempio:\n\"Aggiungi un nuovo task per implementare l'upload immagine profilo utente con Cloudinary, ricerca l'approccio migliore.\""
+    },
+    "moreExamples": "Visualizza altri esempi e pattern d'uso →",
+    "proTips": {
+      "title": "💡 Pro Tips",
+      "search": "Usa la barra di ricerca per trovare rapidamente task specifici",
+      "views": "Cambia tra vista Kanban, List e Grid usando i toggle delle viste",
+      "filters": "Usa i filtri per concentrarti su stato o priorità specifici",
+      "details": "Clicca su un task per vedere informazioni dettagliate e gestire i sotto-task"
+    },
+    "learnMore": {
+      "title": "📚 Scopri di più",
+      "description": "TaskMaster AI è un sistema avanzato di gestione task per sviluppatori. Documentazione, esempi e contributi al progetto.",
+      "githubButton": "Vedi su GitHub"
+    }
+  },
+  "search": {
+    "placeholder": "Cerca task..."
+  },
+  "filters": {
+    "button": "Filtri",
+    "status": "Stato",
+    "priority": "Priorità",
+    "sortBy": "Ordina per",
+    "allStatuses": "Tutti gli stati",
+    "allPriorities": "Tutte le priorità",
+    "showing": "Mostrati {{filtered}} di {{total}} task",
+    "clearFilters": "Pulisci filtri"
+  },
+  "sort": {
+    "id": "ID",
+    "status": "Stato",
+    "priority": "Priorità",
+    "idAsc": "ID (crescente)",
+    "idDesc": "ID (decrescente)",
+    "titleAsc": "Titolo (A-Z)",
+    "titleDesc": "Titolo (Z-A)",
+    "statusAsc": "Stato (in attesa prima)",
+    "statusDesc": "Stato (completati prima)",
+    "priorityAsc": "Priorità (alta prima)",
+    "priorityDesc": "Priorità (bassa prima)"
+  },
+  "views": {
+    "kanban": "Vista Kanban",
+    "list": "Vista Lista",
+    "grid": "Vista Griglia"
+  },
+  "kanban": {
+    "pending": "📋 Da fare",
+    "inProgress": "🚀 In corso",
+    "done": "✅ Completati",
+    "blocked": "🚫 Bloccati",
+    "deferred": "⏳ Rinviati",
+    "cancelled": "❌ Annullati",
+    "noTasksYet": "Nessun task",
+    "tasksWillAppear": "I task appariranno qui",
+    "moveTasksHere": "Sposta i task qui quando iniziati",
+    "completedTasksHere": "I task completati appaiono qui",
+    "statusTasksHere": "I task con questo stato appariranno qui"
+  },
+  "buttons": {
+    "help": "Guida introduttiva TaskMaster",
+    "prds": "PRD",
+    "addPRD": "Aggiungi PRD",
+    "addTask": "Aggiungi task",
+    "createNewPRD": "Crea nuovo PRD",
+    "prdsAvailable": "{{count}} PRD disponibili"
+  },
+  "prd": {
+    "modified": "Modificato: {{date}}"
+  },
+  "statuses": {
+    "pending": "In attesa",
+    "in-progress": "In corso",
+    "done": "Completato",
+    "blocked": "Bloccato",
+    "deferred": "Rinviato",
+    "cancelled": "Annullato"
+  },
+  "priorities": {
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Bassa"
+  },
+  "noMatchingTasks": {
+    "title": "Nessun task corrisponde ai filtri",
+    "description": "Prova a modificare la ricerca o i criteri di filtro."
+  }
+}

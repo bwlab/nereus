@@ -1,7 +1,8 @@
 import { Layers, Clock, Inbox, Star, Bot, Activity } from 'lucide-react';
 import type { ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Location, PresetKind } from '../../types/location';
-import { PRESET_LABELS } from '../../types/location';
+import { PRESET_I18N_KEY } from '../../types/location';
 
 interface PresetsSectionProps {
   location: Location;
@@ -21,11 +22,12 @@ const PRESET_ICONS: Record<PresetKind, ComponentType<{ className?: string }>> = 
 const PRESET_ORDER: PresetKind[] = ['all', 'recent', 'unassigned', 'favorites', 'global-agents', 'open-tabs'];
 
 export default function PresetsSection({ location, onSelect, counts }: PresetsSectionProps) {
+  const { t } = useTranslation('sidebar');
   const activePreset = location.kind === 'preset' ? location.preset : null;
   return (
     <div className="px-3 pt-3">
       <div className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        Viste
+        {t('presets.title')}
       </div>
       <ul className="flex flex-col gap-0.5">
         {PRESET_ORDER.map((preset) => {
@@ -44,7 +46,7 @@ export default function PresetsSection({ location, onSelect, counts }: PresetsSe
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                <span className="flex-1 truncate text-left">{PRESET_LABELS[preset]}</span>
+                <span className="flex-1 truncate text-left">{t(`presets.${PRESET_I18N_KEY[preset]}`)}</span>
                 {typeof count === 'number' && (
                   <span
                     className={`text-[11px] tabular-nums ${

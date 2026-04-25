@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { Activity, MessageSquare, TerminalSquare, X, ArrowRight, FolderOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   useTabsStore,
   closeTab,
@@ -26,9 +27,9 @@ interface RowData {
 
 function formatRelative(iso: string | null): string {
   if (!iso) return '—';
-  const t = new Date(iso).getTime();
-  if (!Number.isFinite(t)) return '—';
-  const diff = Date.now() - t;
+  const ts = new Date(iso).getTime();
+  if (!Number.isFinite(ts)) return '—';
+  const diff = Date.now() - ts;
   if (diff < 60_000) return 'adesso';
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} min fa`;
   if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)} h fa`;
@@ -45,6 +46,7 @@ function findSession(project: Project, sessionId: string, provider: SessionProvi
 }
 
 export default function OpenTabsView({ projects, processingTabIds, onActivate }: OpenTabsViewProps) {
+  const { t } = useTranslation('sidebar');
   const { tabs, activeTabId } = useTabsStore();
 
   const rows: RowData[] = useMemo(() => {
@@ -73,10 +75,9 @@ export default function OpenTabsView({ projects, processingTabIds, onActivate }:
     return (
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 py-12 text-center">
         <Activity className="mb-4 h-10 w-10 text-muted-foreground/40" />
-        <p className="text-sm font-medium text-foreground">Nessuna sessione aperta</p>
+        <p className="text-sm font-medium text-foreground">{t('openTabs.empty')}</p>
         <p className="mt-1 max-w-sm text-xs text-muted-foreground">
-          Apri un progetto o una sessione dalla barra laterale: comparirà qui finché non chiudi
-          la scheda.
+          {t('openTabs.emptyHint')}
         </p>
       </div>
     );
@@ -88,22 +89,22 @@ export default function OpenTabsView({ projects, processingTabIds, onActivate }:
         <div className="flex items-center gap-2 text-sm">
           <Activity className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium">
-            {tabs.length} sessione{tabs.length === 1 ? '' : 'i'} aperte
+            {t('openTabs.count', { count: tabs.length })}
           </span>
           {processingCount > 0 && (
             <span className="rounded-full bg-[color:var(--heritage-a,#F5D000)]/20 px-2 py-0.5 text-[11px] font-semibold text-[color:var(--heritage-a,#F5D000)]">
-              {processingCount} in esecuzione
+              {t('openTabs.runningCount', { count: processingCount })}
             </span>
           )}
         </div>
         <button
           type="button"
           onClick={() => {
-            if (window.confirm('Chiudere tutte le schede aperte?')) closeAllTabs();
+            if (window.confirm(t('openTabs.closeAllConfirm'))) closeAllTabs();
           }}
           className="rounded px-2 py-1 text-xs text-muted-foreground transition hover:bg-muted hover:text-foreground"
         >
-          Chiudi tutte
+          {t('openTabs.closeAll')}
         </button>
       </div>
 
@@ -114,7 +115,7 @@ export default function OpenTabsView({ projects, processingTabIds, onActivate }:
           const projectTitle = project?.displayName || project?.name || tab.projectName;
           const sessionLabel = tab.sessionId
             ? tab.title.split(' • ').slice(1).join(' • ') || tab.sessionId.slice(0, 8)
-            : 'nuova sessione';
+            : t('openTabs.newSession');
 
           return (
             <li key={tab.id}>
@@ -130,7 +131,7 @@ export default function OpenTabsView({ projects, processingTabIds, onActivate }:
                   {isProcessing && (
                     <span
                       className="absolute -right-1 -top-1 h-2.5 w-2.5 animate-pulse rounded-full bg-[color:var(--heritage-a,#F5D000)] ring-2 ring-background"
-                      aria-label="In esecuzione"
+                      aria-label={t('openTabs.running')}
                     />
                   )}
                 </span>
@@ -164,8 +165,8 @@ export default function OpenTabsView({ projects, processingTabIds, onActivate }:
                       handleClose(tab.id);
                     }}
                     className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                    aria-label="Chiudi scheda"
-                    title="Chiudi"
+                    aria-label={t('openTabs.closeTab')}
+                    title={t('openTabs.close')}
                   >
                     <X className="h-4 w-4" />
                   </button>

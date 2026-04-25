@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { X, Search, Folder, LayoutDashboard, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { FullWorkspace } from '../../../dashboard/types/dashboard';
 
 interface FolderOption {
@@ -56,7 +57,9 @@ function buildFolderOptions(workspace: FullWorkspace | null): FolderOption[] {
   return options;
 }
 
-export default function FolderPickerDialog({ title = 'Assegna a cartella', workspace, onPick, onClose, assignedIds, multi = false }: FolderPickerDialogProps) {
+export default function FolderPickerDialog({ title, workspace, onPick, onClose, assignedIds, multi = false }: FolderPickerDialogProps) {
+  const { t } = useTranslation('sidebar');
+  const dialogTitle = title ?? t('folderPicker.title');
   const [query, setQuery] = useState('');
   const options = useMemo(() => buildFolderOptions(workspace), [workspace]);
 
@@ -91,13 +94,13 @@ export default function FolderPickerDialog({ title = 'Assegna a cartella', works
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
       <button
         type="button"
-        aria-label="Chiudi"
+        aria-label={t('folderPicker.close')}
         onClick={onClose}
         className="absolute inset-0 cursor-default"
       />
       <div className="relative w-full max-w-md rounded-xl border border-border bg-card shadow-xl">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h3 className="text-sm font-semibold">{title}</h3>
+          <h3 className="text-sm font-semibold">{dialogTitle}</h3>
           <button type="button" onClick={onClose} className="rounded p-1 hover:bg-accent">
             <X className="h-4 w-4 text-muted-foreground" />
           </button>
@@ -110,7 +113,7 @@ export default function FolderPickerDialog({ title = 'Assegna a cartella', works
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Cerca cartella..."
+              placeholder={t('folderPicker.search')}
               className="flex-1 bg-transparent text-sm outline-none"
             />
           </div>
@@ -118,12 +121,12 @@ export default function FolderPickerDialog({ title = 'Assegna a cartella', works
 
         {multi && (
           <p className="border-b border-border px-4 py-1.5 text-[11px] text-muted-foreground">
-            Tocca una cartella per aggiungere/rimuovere l'assegnazione. Multiple cartelle supportate.
+            {t('folderPicker.multiHint')}
           </p>
         )}
         <div className="max-h-96 overflow-y-auto p-2">
           {groups.length === 0 ? (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">Nessuna cartella</p>
+            <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t('folderPicker.empty')}</p>
           ) : (
             groups.map(([dashName, items]) => (
               <div key={dashName} className="mb-2">
@@ -163,7 +166,7 @@ export default function FolderPickerDialog({ title = 'Assegna a cartella', works
               onClick={onClose}
               className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Fatto
+              {t('folderPicker.done')}
             </button>
           </div>
         )}

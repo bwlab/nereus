@@ -129,5 +129,111 @@
     "sessionCount_other": "This project contains {{count}} conversations.",
     "allConversationsDeleted": "All conversations will be permanently deleted.",
     "cannotUndo": "This action cannot be undone."
+  },
+  "presets": {
+    "title": "Views",
+    "all": "All projects",
+    "recent": "Recent sessions",
+    "unassigned": "Unassigned",
+    "favorites": "Favorites",
+    "globalAgents": "Global agents",
+    "openTabs": "Open sessions"
+  },
+  "header": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "searchPlaceholder": "Search projects and sessions (press /)",
+    "settings": "Settings",
+    "themeLight": "Switch to light theme",
+    "themeDark": "Switch to dark theme",
+    "stats": "{{projects}} projects · {{folders}} folders"
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "resultsFor": "Results for",
+    "globalAgents": "Global agents",
+    "projectAgents": "Agents · {{project}}"
+  },
+  "openTabs": {
+    "empty": "No open sessions",
+    "emptyHint": "Open a project or a session from the sidebar: it will appear here until you close the tab.",
+    "newSession": "new session",
+    "running": "Running",
+    "count_one": "{{count}} open session",
+    "count_other": "{{count}} open sessions",
+    "runningCount": "{{count}} running",
+    "closeAllConfirm": "Close all open tabs?",
+    "closeAll": "Close all",
+    "closeTab": "Close tab",
+    "close": "Close"
+  },
+  "folders": {
+    "title": "Folders",
+    "newDashboard": "New dashboard",
+    "newDashboardShort": "new",
+    "loading": "Loading…",
+    "empty": "No dashboard",
+    "newFolder": "New folder",
+    "newSubFolder": "New sub-folder",
+    "renameFolder": "Rename folder",
+    "deleteFolder": "Delete folder",
+    "renameProject": "Rename project",
+    "deleteProject": "Delete project",
+    "deleteSession": "Delete session",
+    "openTerminal": "Open terminal",
+    "showClaudeMd": "Show CLAUDE.md context",
+    "openSession": "Open session"
+  },
+  "session": {
+    "noSessions": "No sessions",
+    "deleteSession": "Delete session"
+  },
+  "toolbar": {
+    "order": "Order",
+    "manual": "Manual",
+    "alpha": "Title",
+    "recent": "Recent first",
+    "old": "Older first",
+    "projectsCount": "{{count}} projects",
+    "foldersAndProjects": "{{folders}} folders · {{projects}} projects"
+  },
+  "content": {
+    "openProject": "Open project",
+    "openShell": "Open system shell",
+    "shell": "Shell",
+    "commands": "Project commands",
+    "skillsLabel": "Skills",
+    "mcpTools": "MCP Tools",
+    "assignToFolder": "Assign to folder",
+    "showClaudeMd": "Show CLAUDE.md context",
+    "openInFileManager": "Open in file manager",
+    "openInFileManagerError": "Unable to open file manager",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "favoriteShort": "Favorite",
+    "removeFavoriteShort": "Remove favorite",
+    "expand": "Expand sessions",
+    "collapse": "Collapse sessions",
+    "noProjects": "No projects",
+    "noResultsFor": "No results for \"{{query}}\"",
+    "emptyDashboard": "Empty dashboard",
+    "emptyFolder": "Empty folder",
+    "folderNotFound": "Folder not found",
+    "selectItem": "Select an item",
+    "sessionsCount": "{{count}} sessions ·",
+    "subProjectsCount": "{{projects}} projects · {{subfolders}} sub-folders",
+    "agentsCount": "{{count}} global agents",
+    "noGlobalAgents": "No global agents in ~/.claude/agents/",
+    "errorPrefix": "Error: {{message}}",
+    "loading": "Loading…"
+  },
+  "folderPicker": {
+    "title": "Assign to folder",
+    "search": "Search folder...",
+    "multiHint": "Tap a folder to add/remove the assignment. Multiple folders supported.",
+    "empty": "No folders",
+    "done": "Done",
+    "close": "Close",
+    "assignToProject": "Assign \"{{project}}\" to folder"
   }
 }

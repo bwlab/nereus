@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Moon, Sun, Search, Menu, Settings as SettingsIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../contexts/ThemeContext';
 import type { FullWorkspace } from '../../dashboard/types/dashboard';
 import type { Project } from '../../../types/app';
@@ -15,6 +16,7 @@ interface UnifiedHeaderProps {
 }
 
 export default function UnifiedHeader({ projects, workspace, searchQuery, onSearchChange, isMobile, onMenuClick, onOpenSettings }: UnifiedHeaderProps) {
+  const { t } = useTranslation('sidebar');
   const { isDarkMode, toggleDarkMode } = useTheme();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -49,7 +51,7 @@ export default function UnifiedHeader({ projects, workspace, searchQuery, onSear
             type="button"
             onClick={onMenuClick}
             className="flex h-9 w-9 items-center justify-center rounded-md border border-border/60 text-muted-foreground transition hover:bg-muted"
-            aria-label="Apri menu"
+            aria-label={t('header.openMenu')}
           >
             <Menu className="h-4 w-4" />
           </button>
@@ -75,7 +77,7 @@ export default function UnifiedHeader({ projects, workspace, searchQuery, onSear
           ref={inputRef}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Cerca tra progetti e sessioni (premi /)"
+          placeholder={t('header.searchPlaceholder')}
           className="focus:ring-[color:var(--heritage-a,#F5D000)]/25 h-10 w-full rounded-md border border-border/70 bg-muted/30 pl-9 pr-3 text-sm outline-none transition focus:border-[color:var(--heritage-a,#F5D000)] focus:bg-background focus:ring-2"
           spellCheck={false}
         />
@@ -83,15 +85,15 @@ export default function UnifiedHeader({ projects, workspace, searchQuery, onSear
 
       <div className="flex items-center gap-2">
         <span className="hidden text-xs tabular-nums text-muted-foreground sm:inline">
-          {projectCount} progetti · {folderCount} cartelle
+          {t('header.stats', { projects: projectCount, folders: folderCount })}
         </span>
         {onOpenSettings && (
           <button
             type="button"
             onClick={onOpenSettings}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition hover:scale-105 hover:border-[color:var(--heritage-a,#F5D000)] hover:text-[color:var(--heritage-a,#F5D000)]"
-            aria-label="Impostazioni"
-            title="Impostazioni"
+            aria-label={t('header.settings')}
+            title={t('header.settings')}
           >
             <SettingsIcon className="h-4 w-4" />
           </button>
@@ -100,7 +102,7 @@ export default function UnifiedHeader({ projects, workspace, searchQuery, onSear
           type="button"
           onClick={toggleDarkMode}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition hover:scale-105 hover:border-[color:var(--heritage-a,#F5D000)] hover:text-[color:var(--heritage-a,#F5D000)]"
-          aria-label={isDarkMode ? 'Attiva tema chiaro' : 'Attiva tema scuro'}
+          aria-label={isDarkMode ? t('header.themeLight') : t('header.themeDark')}
         >
           {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </button>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Project, SessionProvider } from '../../../types/app';
 import type { FullWorkspace } from '../../dashboard/types/dashboard';
 import { useDeviceSettings } from '../../../hooks/useDeviceSettings';
@@ -45,6 +46,7 @@ interface UnifiedShellProps {
 }
 
 export default function UnifiedShell(props: UnifiedShellProps) {
+  const { t } = useTranslation('sidebar');
   const { workspace, projects, projectContent, tabBarNode } = props;
   const { location, setLocation, goToPreset, goHome } = useUnifiedLocation();
   const [searchQuery, setSearchQuery] = useState('');
@@ -203,7 +205,7 @@ export default function UnifiedShell(props: UnifiedShellProps) {
               type="button"
               onClick={closeMobileSidebar}
               className="absolute inset-0 bg-background/60 backdrop-blur-sm"
-              aria-label="Chiudi menu"
+              aria-label={t('header.closeMenu')}
             />
             <div
               className={`relative h-full w-[85vw] max-w-sm transform border-r border-border/40 bg-card transition-transform duration-150 ease-out ${

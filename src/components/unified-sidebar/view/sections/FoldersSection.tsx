@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Folder, FolderOpen, LayoutDashboard, FileCode2, FileText, MessageSquare, Plus, Pencil, Trash2, Terminal, Bot } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Project, SessionProvider } from '../../../../types/app';
 import type { FullWorkspace } from '../../../dashboard/types/dashboard';
 import type { Location } from '../../types/location';
@@ -83,6 +84,7 @@ function nodeKey(prefix: string, id: number | string): string {
 }
 
 export default function FoldersSection(props: FoldersSectionProps) {
+  const { t } = useTranslation('sidebar');
   const { workspace, projects, location, expanded, onToggleExpanded, onCreateDashboard, searchQuery } = props;
   const [dropTargetKey, setDropTargetKey] = useState<string | null>(null);
 
@@ -112,22 +114,22 @@ export default function FoldersSection(props: FoldersSectionProps) {
     <div className="flex-1 overflow-y-auto px-2 pb-3 pt-3">
       <div className="mb-2 flex items-center justify-between px-2">
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Cartelle
+          {t('folders.title')}
         </span>
         <button
           type="button"
           onClick={onCreateDashboard}
           className="flex h-6 items-center gap-1 rounded px-1.5 text-[11px] text-muted-foreground transition hover:bg-muted hover:text-foreground"
-          aria-label="Nuova dashboard"
+          aria-label={t('folders.newDashboard')}
         >
-          <Plus className="h-3 w-3" /> nuova
+          <Plus className="h-3 w-3" /> {t('folders.newDashboardShort')}
         </button>
       </div>
 
       {!workspace ? (
-        <div className="px-3 py-2 text-xs text-muted-foreground">Caricamento…</div>
+        <div className="px-3 py-2 text-xs text-muted-foreground">{t('folders.loading')}</div>
       ) : filteredDashboards.length === 0 ? (
-        <div className="px-3 py-2 text-xs text-muted-foreground">Nessuna dashboard</div>
+        <div className="px-3 py-2 text-xs text-muted-foreground">{t('folders.empty')}</div>
       ) : (
         <div role="tree" className="flex flex-col gap-0.5">
           {filteredDashboards.map((d) => (
@@ -202,6 +204,7 @@ function DashboardRow({
   onSelectAgent?: FoldersSectionProps['onSelectAgent'];
   dnd: DndHandlers;
 }) {
+  const { t } = useTranslation('sidebar');
   const key = nodeKey('d', dashboard.id);
   const isExpanded = expanded.has(key);
   const isSelected =
@@ -259,8 +262,8 @@ function DashboardRow({
                 onCreateFolder(dashboard.id, null);
               }}
               className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              aria-label="Nuova cartella"
-              title="Nuova cartella"
+              aria-label={t('folders.newFolder')}
+              title={t('folders.newFolder')}
             >
               <Plus className="h-3 w-3" />
             </button>
@@ -337,6 +340,7 @@ function FolderRowTree({
   onSelectAgent?: FoldersSectionProps['onSelectAgent'];
   dnd: DndHandlers;
 }) {
+  const { t } = useTranslation('sidebar');
   const key = nodeKey('f', folder.id);
   const isExpanded = expanded.has(key);
   const pathIds = [...pathPrefix, folder.id];
@@ -415,8 +419,8 @@ function FolderRowTree({
                   onCreateFolder(dashboardId, folder.id);
                 }}
                 className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                aria-label="Nuova sotto-cartella"
-                title="Nuova sotto-cartella"
+                aria-label={t('folders.newSubFolder')}
+                title={t('folders.newSubFolder')}
               >
                 <Plus className="h-3 w-3" />
               </button>
@@ -429,8 +433,8 @@ function FolderRowTree({
                   onRenameFolder(folder.id, folder.name);
                 }}
                 className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                aria-label="Rinomina cartella"
-                title="Rinomina cartella"
+                aria-label={t('folders.renameFolder')}
+                title={t('folders.renameFolder')}
               >
                 <Pencil className="h-3 w-3" />
               </button>
@@ -443,8 +447,8 @@ function FolderRowTree({
                   onDeleteFolder(folder.id, folder.name);
                 }}
                 className="hover:bg-[color:var(--heritage-b,#E30613)]/10 flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:text-[color:var(--heritage-b,#E30613)]"
-                aria-label="Elimina cartella"
-                title="Elimina cartella"
+                aria-label={t('folders.deleteFolder')}
+                title={t('folders.deleteFolder')}
               >
                 <Trash2 className="h-3 w-3" />
               </button>
@@ -538,6 +542,7 @@ function ProjectRowTree({
   onSelectAgent?: FoldersSectionProps['onSelectAgent'];
   dnd: DndHandlers;
 }) {
+  const { t } = useTranslation('sidebar');
   const key = nodeKey('p', projectNode.projectName);
   const isExpanded = expanded.has(key);
   const isSelected =
@@ -587,8 +592,8 @@ function ProjectRowTree({
             {hasOpenTab && (
               <span
                 className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 align-middle"
-                title="Sessione aperta"
-                aria-label="Sessione aperta"
+                title={t('folders.openSession')}
+                aria-label={t('folders.openSession')}
               />
             )}
             {projectNode.project.displayName || projectNode.projectName}
@@ -607,8 +612,8 @@ function ProjectRowTree({
                 setShowClaudeMd(true);
               }}
               className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              aria-label="Mostra contesto CLAUDE.md"
-              title="Mostra contesto CLAUDE.md"
+              aria-label={t('folders.showClaudeMd')}
+              title={t('folders.showClaudeMd')}
             >
               <FileText className="h-3 w-3" />
             </button>
@@ -620,8 +625,8 @@ function ProjectRowTree({
                   onRenameProject(projectNode.projectName, projectNode.project.displayName);
                 }}
                 className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                aria-label="Rinomina progetto"
-                title="Rinomina progetto"
+                aria-label={t('folders.renameProject')}
+                title={t('folders.renameProject')}
               >
                 <Pencil className="h-3 w-3" />
               </button>
@@ -634,8 +639,8 @@ function ProjectRowTree({
                   onDeleteProject(projectNode.projectName, projectNode.project.displayName);
                 }}
                 className="hover:bg-[color:var(--heritage-b,#E30613)]/10 flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:text-[color:var(--heritage-b,#E30613)]"
-                aria-label="Elimina progetto"
-                title="Elimina progetto"
+                aria-label={t('folders.deleteProject')}
+                title={t('folders.deleteProject')}
               >
                 <Trash2 className="h-3 w-3" />
               </button>
@@ -717,6 +722,7 @@ function SessionRowTree({
   onDeleteSession?: FoldersSectionProps['onDeleteSession'];
   onOpenTerminal?: FoldersSectionProps['onOpenTerminal'];
 }) {
+  const { t } = useTranslation('sidebar');
   const isSelected =
     location.kind === 'session' &&
     location.projectName === project.name &&
@@ -762,8 +768,8 @@ function SessionRowTree({
                 onOpenTerminal(project, session.sessionId, session.provider);
               }}
               className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              aria-label="Apri terminale"
-              title="Apri terminale"
+              aria-label={t('folders.openTerminal')}
+              title={t('folders.openTerminal')}
             >
               <Terminal className="h-3 w-3" />
             </button>
@@ -776,8 +782,8 @@ function SessionRowTree({
                 onDeleteSession(project, session.sessionId, session.provider);
               }}
               className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition hover:bg-[color:var(--heritage-b,#E30613)]/10 hover:text-[color:var(--heritage-b,#E30613)]"
-              aria-label="Elimina sessione"
-              title="Elimina sessione"
+              aria-label={t('folders.deleteSession')}
+              title={t('folders.deleteSession')}
             >
               <Trash2 className="h-3 w-3" />
             </button>

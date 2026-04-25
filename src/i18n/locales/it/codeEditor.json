@@ -1,0 +1,36 @@
+{
+  "toolbar": {
+    "changes": "modifiche",
+    "previousChange": "Modifica precedente",
+    "nextChange": "Modifica successiva",
+    "hideDiff": "Nascondi evidenziazione diff",
+    "showDiff": "Mostra evidenziazione diff",
+    "settings": "Impostazioni editor",
+    "collapse": "Riduci editor",
+    "expand": "Espandi editor a tutta larghezza"
+  },
+  "loading": "Caricamento {{fileName}}...",
+  "header": {
+    "showingChanges": "Mostra modifiche"
+  },
+  "actions": {
+    "download": "Scarica file",
+    "save": "Salva",
+    "saving": "Salvataggio...",
+    "saved": "Salvato!",
+    "exitFullscreen": "Esci da schermo intero",
+    "fullscreen": "Schermo intero",
+    "close": "Chiudi",
+    "previewMarkdown": "Anteprima markdown",
+    "editMarkdown": "Modifica markdown"
+  },
+  "footer": {
+    "lines": "Righe:",
+    "characters": "Caratteri:",
+    "shortcuts": "Premi Ctrl+S per salvare • Esc per chiudere"
+  },
+  "binaryFile": {
+    "title": "File binario",
+    "message": "Il file \"{{fileName}}\" non può essere mostrato nell'editor di testo perché è un file binario."
+  }
+}
