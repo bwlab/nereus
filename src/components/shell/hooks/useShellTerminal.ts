@@ -24,6 +24,7 @@ type UseShellTerminalOptions = {
   selectedProject: Project | null | undefined;
   minimal: boolean;
   isRestarting: boolean;
+  isActive: boolean;
   initialCommandRef: MutableRefObject<string | null | undefined>;
   isPlainShellRef: MutableRefObject<boolean>;
   authUrlRef: MutableRefObject<string>;
@@ -45,6 +46,7 @@ export function useShellTerminal({
   selectedProject,
   minimal,
   isRestarting,
+  isActive,
   initialCommandRef,
   isPlainShellRef,
   authUrlRef,
@@ -52,9 +54,18 @@ export function useShellTerminal({
   closeSocket,
 }: UseShellTerminalOptions): UseShellTerminalResult {
   const [isInitialized, setIsInitialized] = useState(false);
+  const [hasBeenActive, setHasBeenActive] = useState(isActive);
   const resizeTimeoutRef = useRef<number | null>(null);
   const selectedProjectKey = selectedProject?.fullPath || selectedProject?.path || '';
   const hasSelectedProject = Boolean(selectedProject);
+
+  // Latch: once activated, keep terminal alive even when tab is hidden
+  // so PTY scrollback persists across tab switches.
+  useEffect(() => {
+    if (isActive && !hasBeenActive) {
+      setHasBeenActive(true);
+    }
+  }, [isActive, hasBeenActive]);
 
   useEffect(() => {
     ensureXtermFocusStyles();
@@ -80,7 +91,13 @@ export function useShellTerminal({
   }, [fitAddonRef, terminalRef]);
 
   useEffect(() => {
-    if (!terminalContainerRef.current || !hasSelectedProject || isRestarting || terminalRef.current) {
+    if (
+      !terminalContainerRef.current ||
+      !hasSelectedProject ||
+      isRestarting ||
+      terminalRef.current ||
+      !hasBeenActive
+    ) {
       return;
     }
 
@@ -264,6 +281,7 @@ export function useShellTerminal({
     isRestarting,
     minimal,
     hasSelectedProject,
+    hasBeenActive,
     selectedProjectKey,
     terminalContainerRef,
     terminalRef,
