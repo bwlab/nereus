@@ -342,6 +342,16 @@ export default function AppContent() {
     handleTabClose();
   }, [activeTabId, handleTabClose]);
 
+  // ── Shell fullscreen ──────────────────────────────────────────────────────
+  const [shellFullscreen, setShellFullscreen] = useState(false);
+  const activeViewTab = activeTabContent?.tab.viewTab;
+  useEffect(() => {
+    if (activeViewTab !== 'shell' && shellFullscreen) setShellFullscreen(false);
+  }, [activeViewTab, shellFullscreen]);
+  const toggleShellFullscreen = useCallback(() => {
+    setShellFullscreen((v) => !v);
+  }, []);
+
   // ── Project creation wizard ───────────────────────────────────────────────
   const [showProjectWizard, setShowProjectWizard] = useState(false);
 
@@ -762,6 +772,8 @@ export default function AppContent() {
                     isNewSession={isNewSession}
                     activeTab={tab.viewTab}
                     shellCommand={tab.initialCommand ?? null}
+                    shellFullscreen={isActive && shellFullscreen}
+                    onToggleShellFullscreen={toggleShellFullscreen}
                     setActiveTab={makeSetActiveTab(tab.id)}
                     ws={ws}
                     sendMessage={sendMessage}
@@ -801,6 +813,7 @@ export default function AppContent() {
       wrapReplaceTemporary, navigate, handleNewSession, handleBackToKanban,
       refreshProjectsSilently, handleSessionDelete, setShowSettings,
       externalMessageUpdate, projects, handleRenameProject,
+      shellFullscreen, toggleShellFullscreen,
     ],
   );
 
@@ -835,6 +848,7 @@ export default function AppContent() {
         openTabsCount={tabs.length}
         processingTabIds={processingTabIds}
         onActivateTab={handleTabActivate}
+        hideContentChrome={shellFullscreen && activeViewTab === 'shell'}
       />
       <Settings
         isOpen={showSettings}

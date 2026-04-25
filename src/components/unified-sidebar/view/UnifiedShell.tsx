@@ -44,6 +44,8 @@ interface UnifiedShellProps {
   processingTabIds?: Set<string>;
   /** Activate a tab from OpenTabsView (parent navigates to its URL). */
   onActivateTab?: (tab: import('../../../stores/tabsStore').Tab) => void;
+  /** When true, hide tabbar+breadcrumb to give the active content (shell) more room. Topbar stays. */
+  hideContentChrome?: boolean;
 }
 
 export default function UnifiedShell(props: UnifiedShellProps) {
@@ -220,17 +222,19 @@ export default function UnifiedShell(props: UnifiedShellProps) {
         )}
 
         <div className="flex min-w-0 flex-1 flex-col">
-          {tabBarNode}
-          <UnifiedBreadcrumb
-            location={location}
-            workspace={workspace}
-            projects={projects}
-            searchQuery={searchQuery}
-            selectedSessionTitle={props.selectedSessionTitle}
-            onGoHome={goHome}
-            onGoToFolder={handleSelectFolder}
-            onGoToProject={handleGoToProject}
-          />
+          {!props.hideContentChrome && tabBarNode}
+          {!props.hideContentChrome && (
+            <UnifiedBreadcrumb
+              location={location}
+              workspace={workspace}
+              projects={projects}
+              searchQuery={searchQuery}
+              selectedSessionTitle={props.selectedSessionTitle}
+              onGoHome={goHome}
+              onGoToFolder={handleSelectFolder}
+              onGoToProject={handleGoToProject}
+            />
+          )}
 
           <div className="flex min-h-0 flex-1 flex-col">
             {/* Tabs area is always mounted (display:none when sidebar location is folder/preset)

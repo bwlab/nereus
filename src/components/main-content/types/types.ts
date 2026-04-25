@@ -62,6 +62,9 @@ export type MainContentProps = {
   onRenameProject?: (projectName: string, currentDisplayName?: string) => void;
   /** Shell tab: command auto-launched on first connect (e.g., `claude`, `gemini`). */
   shellCommand?: string | null;
+  /** When true (and activeTab='shell'), hide the project header to maximize the terminal. */
+  shellFullscreen?: boolean;
+  onToggleShellFullscreen?: () => void;
 };
 
 export type MainContentHeaderProps = {
