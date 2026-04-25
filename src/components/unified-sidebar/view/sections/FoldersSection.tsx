@@ -8,6 +8,7 @@ import { buildUnifiedTree } from '../../utils/buildUnifiedTree';
 import TreeRow from '../tree/TreeRow';
 import ClaudeMdViewerDialog from '../dialogs/ClaudeMdViewerDialog';
 import { authenticatedFetch } from '../../../../utils/api';
+import { useTabsStore } from '../../../../stores/tabsStore';
 
 type ExpandedSet = Set<string>;
 
@@ -544,6 +545,9 @@ function ProjectRowTree({
     (location.kind === 'session' && location.projectName === projectNode.projectName) ||
     (location.kind === 'agent' && location.scope === 'project' && location.projectName === projectNode.projectName);
 
+  const tabsState = useTabsStore();
+  const hasOpenTab = tabsState.tabs.some((t) => t.projectName === projectNode.projectName);
+
   const [showClaudeMd, setShowClaudeMd] = useState(false);
   const [agents, setAgents] = useState<AgentListEntry[] | null>(null);
 
@@ -577,9 +581,16 @@ function ProjectRowTree({
         isExpanded={isExpanded}
         onToggleExpand={() => onToggleExpanded(key)}
         onClick={() => onSelectProject(projectNode.project, folderContext)}
-        icon={<FileCode2 className="h-4 w-4 text-muted-foreground" />}
+        icon={<FileCode2 className={`h-4 w-4 ${hasOpenTab ? 'text-emerald-500' : 'text-muted-foreground'}`} />}
         label={
-          <span className="truncate">
+          <span className={`truncate ${hasOpenTab ? 'font-medium text-emerald-500' : ''}`}>
+            {hasOpenTab && (
+              <span
+                className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 align-middle"
+                title="Sessione aperta"
+                aria-label="Sessione aperta"
+              />
+            )}
             {projectNode.project.displayName || projectNode.projectName}
             {projectNode.isFavorite && <span className="ml-1 text-[color:var(--heritage-a,#F5D000)]">★</span>}
           </span>
@@ -710,6 +721,13 @@ function SessionRowTree({
     location.kind === 'session' &&
     location.projectName === project.name &&
     location.sessionId === session.sessionId;
+  const tabsState = useTabsStore();
+  const isOpenInTab = tabsState.tabs.some(
+    (t) =>
+      t.projectName === project.name &&
+      t.sessionId === session.sessionId &&
+      t.provider === session.provider,
+  );
   const title =
     (session.session.title as string | undefined) ||
     session.session.summary ||
@@ -721,8 +739,19 @@ function SessionRowTree({
       depth={depth}
       isSelected={isSelected}
       onClick={() => onSelectSession(project, session.sessionId, session.provider, folderContext)}
-      icon={<MessageSquare className="h-3.5 w-3.5 text-muted-foreground/70" />}
-      label={<span className="truncate text-[13px]">{title}</span>}
+      icon={<MessageSquare className={`h-3.5 w-3.5 ${isOpenInTab ? 'text-emerald-500' : 'text-muted-foreground/70'}`} />}
+      label={
+        <span className={`truncate text-[13px] ${isOpenInTab ? 'font-medium text-emerald-500' : ''}`}>
+          {isOpenInTab && (
+            <span
+              className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 align-middle"
+              title="Sessione aperta"
+              aria-label="Sessione aperta"
+            />
+          )}
+          {title}
+        </span>
+      }
       actions={
         <>
           {onOpenTerminal && (
