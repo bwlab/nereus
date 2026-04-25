@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import ChatInterface from '../../chat/view/ChatInterface';
 import SessionKanban from '../../session-kanban/view/SessionKanban';
 import ClaudeTasksPanel from '../../claude-tasks/view/ClaudeTasksPanel';
@@ -58,6 +59,8 @@ function MainContent({
   projects,
   onRenameProject,
   shellCommand,
+  shellFullscreen = false,
+  onToggleShellFullscreen,
 }: MainContentProps) {
   const { preferences } = useUiPreferences();
   const { autoExpandTools, showRawParameters, showThinking, autoScrollToBottom, sendByCtrlEnter } = preferences;
@@ -105,19 +108,23 @@ function MainContent({
     return <MainContentStateView mode="empty" isMobile={isMobile} onMenuClick={onMenuClick} />;
   }
 
+  const isShellFullscreen = shellFullscreen && activeTab === 'shell';
+
   return (
     <div className="flex h-full flex-col">
-      <MainContentHeader
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        selectedProject={selectedProject}
-        selectedSession={selectedSession}
-        shouldShowTasksTab={shouldShowTasksTab}
-        isMobile={isMobile}
-        onMenuClick={onMenuClick}
-        onBackToKanban={(selectedSession || isNewSession) ? onBackToKanban : undefined}
-        onRenameProject={onRenameProject}
-      />
+      {!isShellFullscreen && (
+        <MainContentHeader
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          selectedProject={selectedProject}
+          selectedSession={selectedSession}
+          shouldShowTasksTab={shouldShowTasksTab}
+          isMobile={isMobile}
+          onMenuClick={onMenuClick}
+          onBackToKanban={(selectedSession || isNewSession) ? onBackToKanban : undefined}
+          onRenameProject={onRenameProject}
+        />
+      )}
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <>
@@ -170,7 +177,7 @@ function MainContent({
           )}
 
           {activeTab === 'shell' && (
-            <div className="h-full w-full overflow-hidden">
+            <div className="relative h-full w-full overflow-hidden">
               <StandaloneShell
                 project={selectedProject}
                 session={selectedSession}
@@ -178,6 +185,17 @@ function MainContent({
                 showHeader={false}
                 isActive={activeTab === 'shell'}
               />
+              {onToggleShellFullscreen && (
+                <button
+                  type="button"
+                  onClick={onToggleShellFullscreen}
+                  title={isShellFullscreen ? 'Esci dal pieno schermo' : 'Pieno schermo'}
+                  aria-label={isShellFullscreen ? 'Esci dal pieno schermo' : 'Pieno schermo'}
+                  className="absolute right-2 top-2 z-10 rounded-md border border-border/40 bg-background/70 p-1.5 text-muted-foreground shadow-sm backdrop-blur-sm transition hover:bg-background hover:text-foreground"
+                >
+                  {isShellFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                </button>
+              )}
             </div>
           )}
 
