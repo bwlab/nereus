@@ -1,0 +1,41 @@
+{
+  "controls": {
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip",
+    "last": "Done",
+    "close": "Close"
+  },
+  "welcome": {
+    "title": "Welcome to Claude Code UI",
+    "body": "A quick 6-step tour of the main features. You can skip anytime and restart it from Quick Settings."
+  },
+  "sidebar": {
+    "title": "Projects sidebar",
+    "body": "Your projects, sessions and folders live here. Drag to reorder, right-click for quick actions."
+  },
+  "presets": {
+    "title": "Quick presets",
+    "body": "Pre-built filters: all, recent, favorites, global agents, open tabs. One click to jump."
+  },
+  "tabbar": {
+    "title": "Multi-tab",
+    "body": "Each project/session in its own tab, browser-style. Up to 8 tabs. Ctrl+Tab to cycle."
+  },
+  "breadcrumb": {
+    "title": "Breadcrumb",
+    "body": "Shows where you are and lets you jump back through the workspace quickly."
+  },
+  "composer": {
+    "title": "Chat with the LLM",
+    "body": "Talk to Claude/Codex/Gemini/Cursor from here. Slash commands, file mentions, image attachments, thinking modes."
+  },
+  "shell": {
+    "title": "Embedded shell",
+    "body": "Per-project terminal. Persists across tab switches, detects numbered CLI prompts."
+  },
+  "restart": {
+    "label": "Show intro tour",
+    "description": "Replay the onboarding walkthrough"
+  }
+}

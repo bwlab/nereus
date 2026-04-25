@@ -1,8 +1,9 @@
 import { ChevronRight, Home, Search, Flag, Bot } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { FullWorkspace } from '../../../dashboard/types/dashboard';
 import type { Project } from '../../../../types/app';
 import type { Location } from '../../types/location';
-import { PRESET_LABELS } from '../../types/location';
+import { PRESET_I18N_KEY } from '../../types/location';
 import { resolveFolderPath, buildUnifiedTree } from '../../utils/buildUnifiedTree';
 
 interface UnifiedBreadcrumbProps {
@@ -26,14 +27,15 @@ export default function UnifiedBreadcrumb({
   onGoToFolder,
   onGoToProject,
 }: UnifiedBreadcrumbProps) {
+  const { t } = useTranslation('sidebar');
   const items: Array<{ label: string; onClick?: () => void; bold?: boolean }> = [];
 
   // Search state overrides everything
   if (searchQuery && searchQuery.trim().length > 0) {
     return (
-      <div className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
+      <div data-tour="breadcrumb" className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
         <Search className="h-4 w-4 text-muted-foreground" />
-        <span className="text-muted-foreground">Risultati per</span>
+        <span className="text-muted-foreground">{t('breadcrumb.resultsFor')}</span>
         <span className="font-semibold">"{searchQuery.trim()}"</span>
       </div>
     );
@@ -41,24 +43,26 @@ export default function UnifiedBreadcrumb({
 
   if (location.kind === 'preset') {
     return (
-      <div className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
+      <div data-tour="breadcrumb" className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
         <Flag className="h-4 w-4 text-[color:var(--heritage-a,#F5D000)]" />
-        <span className="font-semibold">{PRESET_LABELS[location.preset]}</span>
+        <span className="font-semibold">{t(`presets.${PRESET_I18N_KEY[location.preset]}`)}</span>
       </div>
     );
   }
 
   if (location.kind === 'agent') {
-    const scopeLabel = location.scope === 'global' ? 'Agenti globali' : `Agenti · ${location.projectName ?? ''}`;
+    const scopeLabel = location.scope === 'global'
+      ? t('breadcrumb.globalAgents')
+      : t('breadcrumb.projectAgents', { project: location.projectName ?? '' });
     return (
-      <div className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
+      <div data-tour="breadcrumb" className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
         <button
           type="button"
           onClick={onGoHome}
           className="flex items-center gap-1 rounded px-1 text-muted-foreground transition hover:bg-muted hover:text-foreground"
         >
           <Home className="h-3.5 w-3.5" />
-          <span>Home</span>
+          <span>{t('breadcrumb.home')}</span>
         </button>
         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" />
         <Bot className="h-3.5 w-3.5 text-[color:var(--heritage-a,#F5D000)]" />
@@ -69,7 +73,7 @@ export default function UnifiedBreadcrumb({
     );
   }
 
-  items.push({ label: 'Home', onClick: onGoHome });
+  items.push({ label: t('breadcrumb.home'), onClick: onGoHome });
 
   const tree = workspace ? buildUnifiedTree(workspace, projects).dashboards : [];
 
@@ -124,7 +128,7 @@ export default function UnifiedBreadcrumb({
   }
 
   return (
-    <div className="flex h-[42px] items-center gap-1 overflow-x-auto whitespace-nowrap border-b border-border/60 px-4 text-sm">
+    <div data-tour="breadcrumb" className="flex h-[42px] items-center gap-1 overflow-x-auto whitespace-nowrap border-b border-border/60 px-4 text-sm">
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-1">
           {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" />}

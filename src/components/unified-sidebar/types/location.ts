@@ -1,6 +1,6 @@
 import type { SessionProvider } from '../../../types/app';
 
-export type PresetKind = 'all' | 'recent' | 'unassigned' | 'favorites' | 'global-agents';
+export type PresetKind = 'all' | 'recent' | 'unassigned' | 'favorites' | 'global-agents' | 'open-tabs';
 
 export interface FolderContext {
   dashboardId: number;
@@ -24,15 +24,17 @@ export type Location =
 
 export const DEFAULT_LOCATION: Location = { kind: 'preset', preset: 'all' };
 
-export const PRESET_LABELS: Record<PresetKind, string> = {
-  all: 'Tutti i progetti',
-  recent: 'Sessioni recenti',
-  unassigned: 'Senza cartella',
-  favorites: 'Preferiti',
-  'global-agents': 'Agenti globali',
+/** Maps PresetKind to i18n key under sidebar:presets.* */
+export const PRESET_I18N_KEY: Record<PresetKind, string> = {
+  all: 'all',
+  recent: 'recent',
+  unassigned: 'unassigned',
+  favorites: 'favorites',
+  'global-agents': 'globalAgents',
+  'open-tabs': 'openTabs',
 };
 
-export const PRESET_VALUES: PresetKind[] = ['all', 'recent', 'unassigned', 'favorites', 'global-agents'];
+export const PRESET_VALUES: PresetKind[] = ['all', 'recent', 'unassigned', 'favorites', 'global-agents', 'open-tabs'];
 
 export const isPresetKind = (v: unknown): v is PresetKind =>
   typeof v === 'string' && (PRESET_VALUES as string[]).includes(v);

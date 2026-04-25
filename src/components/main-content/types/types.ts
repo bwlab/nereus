@@ -60,6 +60,8 @@ export type MainContentProps = {
   externalMessageUpdate: number;
   projects: Project[];
   onRenameProject?: (projectName: string, currentDisplayName?: string) => void;
+  /** Shell tab: command auto-launched on first connect (e.g., `claude`, `gemini`). */
+  shellCommand?: string | null;
 };
 
 export type MainContentHeaderProps = {

@@ -57,6 +57,7 @@ function MainContent({
   externalMessageUpdate,
   projects,
   onRenameProject,
+  shellCommand,
 }: MainContentProps) {
   const { preferences } = useUiPreferences();
   const { autoExpandTools, showRawParameters, showThinking, autoScrollToBottom, sendByCtrlEnter } = preferences;
@@ -173,6 +174,7 @@ function MainContent({
               <StandaloneShell
                 project={selectedProject}
                 session={selectedSession}
+                command={shellCommand ?? null}
                 showHeader={false}
                 isActive={activeTab === 'shell'}
               />

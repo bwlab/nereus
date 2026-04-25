@@ -1,4 +1,5 @@
 import { MessageSquare, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Project, ProjectSession, SessionProvider } from '../../../../../types/app';
 
 interface SessionInlineListProps {
@@ -53,9 +54,10 @@ function formatRelative(iso?: string): string {
 }
 
 export default function SessionInlineList({ project, onSelectSession, onDeleteSession }: SessionInlineListProps) {
+  const { t } = useTranslation('sidebar');
   const sessions = collect(project);
   if (sessions.length === 0) {
-    return <div className="px-14 py-2 text-xs text-muted-foreground">Nessuna sessione</div>;
+    return <div className="px-14 py-2 text-xs text-muted-foreground">{t('session.noSessions')}</div>;
   }
   sessions.sort((a, b) => {
     const ta = Date.parse(a.session.updated_at || a.session.createdAt || '') || 0;
@@ -93,8 +95,8 @@ export default function SessionInlineList({ project, onSelectSession, onDeleteSe
                   onDeleteSession(project, row.sessionId, row.provider);
                 }}
                 className="hover:bg-[color:var(--heritage-b,#E30613)]/10 flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted-foreground opacity-0 transition hover:text-[color:var(--heritage-b,#E30613)] group-hover:opacity-100"
-                aria-label="Elimina sessione"
-                title="Elimina sessione"
+                aria-label={t('session.deleteSession')}
+                title={t('session.deleteSession')}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>

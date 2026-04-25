@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Project, SessionProvider } from '../../../types/app';
 import type { FullWorkspace } from '../../dashboard/types/dashboard';
 import { useDeviceSettings } from '../../../hooks/useDeviceSettings';
@@ -32,12 +33,22 @@ interface UnifiedShellProps {
   onOpenTerminal?: (project: Project, sessionId: string, provider: SessionProvider) => void;
   onOpenProjectShell?: (project: Project) => void;
   onOpenSettings?: () => void;
+  onCreateProject?: () => void;
   /** When Location is project|session, the parent passes MainContent here. Otherwise ignored. */
   projectContent?: ReactNode;
+  /** Tab bar rendered above the breadcrumb so tabs stay visible across folder/preset views. */
+  tabBarNode?: ReactNode;
+  /** Number of open tabs (drives the "Sessioni aperte" preset badge). */
+  openTabsCount?: number;
+  /** Tabs whose underlying session is currently processing (forwarded to OpenTabsView). */
+  processingTabIds?: Set<string>;
+  /** Activate a tab from OpenTabsView (parent navigates to its URL). */
+  onActivateTab?: (tab: import('../../../stores/tabsStore').Tab) => void;
 }
 
 export default function UnifiedShell(props: UnifiedShellProps) {
-  const { workspace, projects, projectContent } = props;
+  const { t } = useTranslation('sidebar');
+  const { workspace, projects, projectContent, tabBarNode } = props;
   const { location, setLocation, goToPreset, goHome } = useUnifiedLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const { isMobile } = useDeviceSettings({ trackPWA: false });
@@ -85,6 +96,14 @@ export default function UnifiedShell(props: UnifiedShellProps) {
     [setLocation],
   );
 
+  const handleOpenProjectShellFromTree = useCallback(
+    (project: Project) => {
+      setLocation({ kind: 'project', projectName: project.name });
+      props.onOpenProjectShell?.(project);
+    },
+    [setLocation, props],
+  );
+
   const handleGoToProject = useCallback(
     (projectName: string, folderContext?: { dashboardId: number; folderIds: number[] }) => {
       const project = projects.find((p) => p.name === projectName);
@@ -94,7 +113,7 @@ export default function UnifiedShell(props: UnifiedShellProps) {
   );
 
   const presetCounts = useMemo<Partial<Record<PresetKind, number>>>(() => {
-    if (!workspace) return {};
+    if (!workspace) return { 'open-tabs': props.openTabsCount };
     const built = buildUnifiedTree(workspace, projects);
     const nodes = flattenAllProjects(built.dashboards);
     const favoriteCount = nodes.reduce((acc, n) => acc + (n.isFavorite ? 1 : 0), 0);
@@ -103,8 +122,9 @@ export default function UnifiedShell(props: UnifiedShellProps) {
       all: projects.length,
       unassigned: unassignedCount,
       favorites: favoriteCount,
+      'open-tabs': props.openTabsCount,
     };
-  }, [workspace, projects]);
+  }, [workspace, projects, props.openTabsCount]);
 
   const showProjectContent =
     (location.kind === 'project' || location.kind === 'session') && !!projectContent;
@@ -172,6 +192,7 @@ export default function UnifiedShell(props: UnifiedShellProps) {
         isMobile={isMobile}
         onMenuClick={openMobileSidebar}
         onOpenSettings={props.onOpenSettings}
+        onCreateProject={props.onCreateProject}
       />
 
       <div className="relative flex min-h-0 flex-1">
@@ -186,7 +207,7 @@ export default function UnifiedShell(props: UnifiedShellProps) {
               type="button"
               onClick={closeMobileSidebar}
               className="absolute inset-0 bg-background/60 backdrop-blur-sm"
-              aria-label="Chiudi menu"
+              aria-label={t('header.closeMenu')}
             />
             <div
               className={`relative h-full w-[85vw] max-w-sm transform border-r border-border/40 bg-card transition-transform duration-150 ease-out ${
@@ -199,6 +220,7 @@ export default function UnifiedShell(props: UnifiedShellProps) {
         )}
 
         <div className="flex min-w-0 flex-1 flex-col">
+          {tabBarNode}
           <UnifiedBreadcrumb
             location={location}
             workspace={workspace}
@@ -211,9 +233,14 @@ export default function UnifiedShell(props: UnifiedShellProps) {
           />
 
           <div className="flex min-h-0 flex-1 flex-col">
-            {showProjectContent ? (
-              projectContent
-            ) : (
+            {/* Tabs area is always mounted (display:none when sidebar location is folder/preset)
+                so per-tab MainContent state — chat scroll, shell PTY — survives across navigations. */}
+            {projectContent && (
+              <div className={`min-h-0 flex-1 flex-col ${showProjectContent ? 'flex' : 'hidden'}`}>
+                {projectContent}
+              </div>
+            )}
+            {!showProjectContent && (
               <ContentList
                 location={location}
                 workspace={workspace}
@@ -226,11 +253,13 @@ export default function UnifiedShell(props: UnifiedShellProps) {
                 onRenameProject={props.onRenameProject}
                 onDeleteProject={props.onDeleteProject}
                 onDeleteSession={props.onDeleteSession}
-                onOpenProjectShell={props.onOpenProjectShell}
+                onOpenProjectShell={handleOpenProjectShellFromTree}
                 onMoveProject={props.onMoveProject}
                 onAssignProjectToFolder={props.onAssignProjectToFolder}
                 onSelectAgent={handleSelectAgent}
                 assignments={workspace?.assignments}
+                processingTabIds={props.processingTabIds}
+                onActivateTab={props.onActivateTab}
               />
             )}
           </div>

@@ -14,8 +14,14 @@ function sanitizeGitError(message, token) {
   return message.replace(new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '***');
 }
 
-// Configure allowed workspace root (defaults to user's home directory)
-export const WORKSPACES_ROOT = process.env.WORKSPACES_ROOT || os.homedir();
+// Configure allowed workspace roots. Accepts a single path or a comma-separated
+// list (e.g. "/home/user,/media/extra/Progetti"). Defaults to the user's home.
+export const WORKSPACES_ROOTS = (process.env.WORKSPACES_ROOT || os.homedir())
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+// Primary root kept for back-compat (used for `~` expansion etc.).
+export const WORKSPACES_ROOT = WORKSPACES_ROOTS[0] || os.homedir();
 
 // System-critical paths that should never be used as workspace directories
 export const FORBIDDEN_PATHS = [
@@ -112,15 +118,25 @@ export async function validateWorkspacePath(requestedPath) {
       }
     }
 
-    // Resolve the workspace root to its real path
-    const resolvedWorkspaceRoot = await fs.realpath(WORKSPACES_ROOT);
+    // Resolve every configured workspace root (skip ones that don't exist).
+    const resolvedRoots = [];
+    for (const root of WORKSPACES_ROOTS) {
+      try {
+        resolvedRoots.push(await fs.realpath(root));
+      } catch {
+        // Ignore unresolvable roots (e.g., not yet mounted) but keep the rest.
+      }
+    }
 
-    // Ensure the resolved path is contained within the allowed workspace root
-    if (!realPath.startsWith(resolvedWorkspaceRoot + path.sep) &&
-        realPath !== resolvedWorkspaceRoot) {
+    const isWithinAnyRoot = (candidate) =>
+      resolvedRoots.some(
+        (root) => candidate === root || candidate.startsWith(root + path.sep),
+      );
+
+    if (!isWithinAnyRoot(realPath)) {
       return {
         valid: false,
-        error: `Workspace path must be within the allowed workspace root: ${WORKSPACES_ROOT}`
+        error: `Workspace path must be within an allowed workspace root: ${WORKSPACES_ROOTS.join(', ')}`,
       };
     }
 
@@ -130,16 +146,14 @@ export async function validateWorkspacePath(requestedPath) {
       const stats = await fs.lstat(absolutePath);
 
       if (stats.isSymbolicLink()) {
-        // Verify symlink target is also within allowed root
         const linkTarget = await fs.readlink(absolutePath);
         const resolvedTarget = path.resolve(path.dirname(absolutePath), linkTarget);
         const realTarget = await fs.realpath(resolvedTarget);
 
-        if (!realTarget.startsWith(resolvedWorkspaceRoot + path.sep) &&
-            realTarget !== resolvedWorkspaceRoot) {
+        if (!isWithinAnyRoot(realTarget)) {
           return {
             valid: false,
-            error: 'Symlink target is outside the allowed workspace root'
+            error: 'Symlink target is outside the allowed workspace roots',
           };
         }
       }

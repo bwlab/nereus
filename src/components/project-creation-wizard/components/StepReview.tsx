@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isSshGitUrl } from '../utils/pathUtils';
+import { providerLabel, providerLaunchCommand } from '../utils/providerLaunch';
 import type { WizardFormState } from '../types';
 
 type StepReviewProps = {
@@ -57,6 +58,18 @@ export default function StepReview({
             <span className="text-gray-600 dark:text-gray-400">{t('projectWizard.step3.path')}</span>
             <span className="break-all font-mono text-xs text-gray-900 dark:text-white">
               {formState.workspacePath}
+            </span>
+          </div>
+
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600 dark:text-gray-400">
+              {t('projectWizard.step3.llm', { defaultValue: 'LLM:' })}
+            </span>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {providerLabel(formState.provider)}{' '}
+              <code className="ml-1 rounded bg-muted px-1 font-mono text-[11px]">
+                {providerLaunchCommand(formState.provider)}
+              </code>
             </span>
           </div>
 

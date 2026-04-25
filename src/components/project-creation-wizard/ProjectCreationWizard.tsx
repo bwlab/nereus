@@ -3,6 +3,7 @@ import { FolderPlus, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ErrorBanner from './components/ErrorBanner';
 import StepConfiguration from './components/StepConfiguration';
+import StepProviderSelection from './components/StepProviderSelection';
 import StepReview from './components/StepReview';
 import StepTypeSelection from './components/StepTypeSelection';
 import WizardFooter from './components/WizardFooter';
@@ -11,10 +12,14 @@ import { useGithubTokens } from './hooks/useGithubTokens';
 import { cloneWorkspaceWithProgress, createWorkspaceRequest } from './data/workspaceApi';
 import { isCloneWorkflow, shouldShowGithubAuthentication } from './utils/pathUtils';
 import type { TokenMode, WizardFormState, WizardStep, WorkspaceType } from './types';
+import type { SessionProvider } from '../../types/app';
 
 type ProjectCreationWizardProps = {
   onClose: () => void;
-  onProjectCreated?: (project?: Record<string, unknown>) => void;
+  onProjectCreated?: (
+    project: Record<string, unknown> | undefined,
+    provider: SessionProvider,
+  ) => void;
 };
 
 const initialFormState: WizardFormState = {
@@ -24,6 +29,7 @@ const initialFormState: WizardFormState = {
   tokenMode: 'stored',
   selectedGithubToken: '',
   newGithubToken: '',
+  provider: 'claude',
 };
 
 export default function ProjectCreationWizard({
@@ -88,8 +94,19 @@ export default function ProjectCreationWizard({
         return;
       }
       setStep(3);
+      return;
     }
-  }, [formState.workspacePath, formState.workspaceType, step, t]);
+
+    if (step === 3) {
+      if (!formState.provider) {
+        setError(
+          t('projectWizard.errors.selectProvider', { defaultValue: 'Seleziona un LLM' }),
+        );
+        return;
+      }
+      setStep(4);
+    }
+  }, [formState.provider, formState.workspacePath, formState.workspaceType, step, t]);
 
   const handleBack = useCallback(() => {
     setError(null);
@@ -118,7 +135,7 @@ export default function ProjectCreationWizard({
           },
         );
 
-        onProjectCreated?.(project);
+        onProjectCreated?.(project, formState.provider);
         onClose();
         return;
       }
@@ -128,7 +145,7 @@ export default function ProjectCreationWizard({
         path: formState.workspacePath.trim(),
       });
 
-      onProjectCreated?.(project);
+      onProjectCreated?.(project, formState.provider);
       onClose();
     } catch (createError) {
       const errorMessage =
@@ -205,6 +222,13 @@ export default function ProjectCreationWizard({
           )}
 
           {step === 3 && (
+            <StepProviderSelection
+              provider={formState.provider}
+              onProviderChange={(provider) => updateField('provider', provider)}
+            />
+          )}
+
+          {step === 4 && (
             <StepReview
               formState={formState}
               selectedTokenName={selectedTokenName}

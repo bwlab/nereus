@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Folder as FolderIcon, FileCode2, FileText, FolderOpen, Star, ChevronDown, ChevronRight, Terminal, TerminalSquare, Wrench, Plug, Pencil, Trash2, FolderInput, Bot } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { authenticatedFetch } from '../../../../utils/api';
 import type { Project, SessionProvider } from '../../../../types/app';
 import type { FullWorkspace } from '../../../dashboard/types/dashboard';
@@ -16,6 +17,8 @@ import ClaudeMdViewerDialog from '../dialogs/ClaudeMdViewerDialog';
 import ContentToolbar, { type SortMode } from './ContentToolbar';
 import SessionInlineList from './rows/SessionInlineList';
 import AgentViewer from '../../../agents/view/AgentViewer';
+import OpenTabsView from './OpenTabsView';
+import type { Tab } from '../../../../stores/tabsStore';
 
 interface ContentListProps {
   location: Location;
@@ -34,6 +37,10 @@ interface ContentListProps {
   onOpenProjectShell?: (project: Project) => void;
   onSelectAgent?: (scope: 'global' | 'project', agentName: string, projectName?: string) => void;
   assignments?: FullWorkspace['assignments'];
+  /** Tabs whose underlying session is currently processing (used by OpenTabsView). */
+  processingTabIds?: Set<string>;
+  /** Activate a tab from OpenTabsView (parent navigates to its URL). */
+  onActivateTab?: (tab: Tab) => void;
 }
 
 const RECENT_LIMIT = 100;
@@ -51,6 +58,7 @@ function persistSort(s: SortMode) {
 }
 
 export default function ContentList(props: ContentListProps) {
+  const { t } = useTranslation('sidebar');
   const { location, workspace, projects, searchQuery } = props;
   const [sort, setSort] = useState<SortMode>(() => loadSort());
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(() => new Set());
@@ -85,7 +93,7 @@ export default function ContentList(props: ContentListProps) {
       )}
       {pickerProjectName && props.onAssignProjectToFolder && (
         <FolderPickerDialog
-          title={`Assegna "${pickerProjectName}" a cartella`}
+          title={t('folderPicker.assignToProject', { project: pickerProjectName })}
           workspace={workspace}
           assignedIds={
             new Set(
@@ -144,10 +152,10 @@ export default function ContentList(props: ContentListProps) {
     return (
       <>
         <div className="flex min-h-0 flex-1 flex-col">
-          <ContentToolbar sort={sort} onSortChange={setSort} counter={`${matches.length} progetti`} />
+          <ContentToolbar sort={sort} onSortChange={setSort} counter={t('toolbar.projectsCount', { count: matches.length })} />
           <div className="flex-1 overflow-y-auto">
             {sorted.length === 0 ? (
-              <EmptyState label={`Nessun risultato per "${searchQuery.trim()}"`} />
+              <EmptyState label={t('content.noResultsFor', { query: searchQuery.trim() })} />
             ) : (
               sorted.map((p) => (
                 <ProjectRow
@@ -179,7 +187,7 @@ export default function ContentList(props: ContentListProps) {
   if (!built) {
     return (
       <div className="flex min-h-0 flex-1 flex-col">
-        <EmptyState label="Caricamento…" />
+        <EmptyState label={t('content.loading')} />
       </div>
     );
   }
@@ -198,6 +206,16 @@ export default function ContentList(props: ContentListProps) {
     return (
       <GlobalAgentsView
         onSelectAgent={(name) => props.onSelectAgent?.('global', name)}
+      />
+    );
+  }
+
+  if (location.kind === 'preset' && location.preset === 'open-tabs') {
+    return (
+      <OpenTabsView
+        projects={props.projects}
+        processingTabIds={props.processingTabIds}
+        onActivate={(tab) => props.onActivateTab?.(tab)}
       />
     );
   }
@@ -232,14 +250,14 @@ export default function ContentList(props: ContentListProps) {
     const { folder, dashboard } = resolveFolderPath(built.dashboards, location.dashboardId, location.folderIds);
 
     if (!folder && dashboard) {
-      const counter = `${dashboard.folders.length} cartelle · ${dashboard.totalProjectsCount} progetti`;
+      const counter = t('toolbar.foldersAndProjects', { folders: dashboard.folders.length, projects: dashboard.totalProjectsCount });
       return (
         <>
           <div className="flex min-h-0 flex-1 flex-col">
             <ContentToolbar sort={sort} onSortChange={setSort} counter={counter} />
             <div className="flex-1 overflow-y-auto">
               {dashboard.folders.length === 0 ? (
-                <EmptyState label="Dashboard vuota" />
+                <EmptyState label={t('content.emptyDashboard')} />
               ) : (
                 dashboard.folders.map((f) => (
                   <FolderRow key={f.id} folder={f} onClick={() => props.onSelectFolder(dashboard.id, [f.id])} />
@@ -253,7 +271,7 @@ export default function ContentList(props: ContentListProps) {
     }
 
     if (folder) {
-      const counter = `${folder.children.length} cartelle · ${folder.projects.length} progetti`;
+      const counter = t('toolbar.foldersAndProjects', { folders: folder.children.length, projects: folder.projects.length });
       const projNodes = folder.projects;
       const sortedProjNodes = sortProjectNodes(projNodes, sort);
       return (
@@ -262,7 +280,7 @@ export default function ContentList(props: ContentListProps) {
           <ContentToolbar sort={sort} onSortChange={setSort} counter={counter} />
           <div className="flex-1 overflow-y-auto">
             {folder.children.length === 0 && folder.projects.length === 0 ? (
-              <EmptyState label="Cartella vuota" />
+              <EmptyState label={t('content.emptyFolder')} />
             ) : (
               <>
                 {folder.children.map((c) => (
@@ -309,10 +327,10 @@ export default function ContentList(props: ContentListProps) {
       );
     }
 
-    return <EmptyState label="Cartella non trovata" />;
+    return <EmptyState label={t('content.folderNotFound')} />;
   }
 
-  return <EmptyState label="Seleziona un elemento" />;
+  return <EmptyState label={t('content.selectItem')} />;
 }
 
 function PresetView({
@@ -350,6 +368,7 @@ function PresetView({
   onAssignClick?: (projectName: string) => void;
   onOpenProjectShell?: ContentListProps['onOpenProjectShell'];
 }) {
+  const { t } = useTranslation('sidebar');
   const allProjects = [...built.projectsByName.values()];
   const favoriteSet = new Set<string>();
   for (const n of flattenAllProjects(built.dashboards)) if (n.isFavorite) favoriteSet.add(n.projectName);
@@ -368,10 +387,10 @@ function PresetView({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <ContentToolbar sort={sort} onSortChange={onSortChange} counter={`${list.length} progetti`} />
+      <ContentToolbar sort={sort} onSortChange={onSortChange} counter={t('toolbar.projectsCount', { count: list.length })} />
       <div className="flex-1 overflow-y-auto">
         {sorted.length === 0 ? (
-          <EmptyState label="Nessun progetto" />
+          <EmptyState label={t('content.noProjects')} />
         ) : (
           sorted.map((p) => (
             <ProjectRow
@@ -442,6 +461,7 @@ function parseTs(v: string | undefined): number {
 }
 
 function FolderRow({ folder, onClick }: { folder: FolderNode; onClick: () => void }) {
+  const { t } = useTranslation('sidebar');
   return (
     <button
       type="button"
@@ -456,7 +476,7 @@ function FolderRow({ folder, onClick }: { folder: FolderNode; onClick: () => voi
           {folder.name}
         </div>
         <div className="text-xs text-muted-foreground">
-          {folder.totalProjectsCount} progetti · {folder.children.length} sotto-cartelle
+          {t('content.subProjectsCount', { projects: folder.totalProjectsCount, subfolders: folder.children.length })}
         </div>
       </div>
     </button>
@@ -496,6 +516,7 @@ function ProjectRow({
   onOpenProjectShell,
   highlightQuery,
 }: ProjectRowProps) {
+  const { t } = useTranslation('sidebar');
   const title = project.displayName || project.name;
   const sessionCount =
     (project.sessions?.length ?? 0) +
@@ -524,7 +545,7 @@ function ProjectRow({
             onToggle();
           }}
           className="flex h-8 w-8 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-          aria-label={expanded ? 'Collassa sessioni' : 'Espandi sessioni'}
+          aria-label={expanded ? t('content.collapse') : t('content.expand')}
           disabled={sessionCount === 0}
         >
           {sessionCount === 0 ? null : expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -533,7 +554,7 @@ function ProjectRow({
           type="button"
           onClick={onOpen}
           className="flex h-12 w-12 items-center justify-center rounded-lg border border-border/60 bg-muted/40"
-          aria-label="Apri progetto"
+          aria-label={t('content.openProject')}
         >
           <FileCode2 className="h-5 w-5 text-muted-foreground" />
         </button>
@@ -548,7 +569,7 @@ function ProjectRow({
             </span>
           </button>
           <div className="flex min-w-0 items-center gap-1 truncate text-xs text-muted-foreground">
-            <span className="shrink-0">{sessionCount} sessioni ·</span>
+            <span className="shrink-0">{t('content.sessionsCount', { count: sessionCount })}</span>
             {project.fullPath ? (
               <button
                 type="button"
@@ -561,14 +582,14 @@ function ProjectRow({
                     );
                     if (!res.ok) {
                       const data = await res.json().catch(() => ({}));
-                      alert(data.error || 'Impossibile aprire il file manager');
+                      alert(data.error || t('content.openInFileManagerError'));
                     }
                   } catch (err) {
                     alert((err as Error).message);
                   }
                 }}
                 className="flex min-w-0 items-center gap-1 truncate transition-colors hover:text-primary hover:underline"
-                title="Apri nel file manager"
+                title={t('content.openInFileManager')}
               >
                 <FolderOpen className="h-3 w-3 shrink-0" />
                 <span className="truncate">{project.fullPath}</span>
@@ -587,8 +608,8 @@ function ProjectRow({
                     onOpenProjectShell(project);
                   }}
                   className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                  aria-label="Apri shell di sistema"
-                  title="Shell"
+                  aria-label={t('content.openShell')}
+                  title={t('content.shell')}
                 >
                   <TerminalSquare className="h-3.5 w-3.5" />
                 </button>
@@ -600,8 +621,8 @@ function ProjectRow({
                   onOpenSettings(project, 'commands');
                 }}
                 className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                aria-label="Comandi di progetto"
-                title="Comandi di progetto"
+                aria-label={t('content.commands')}
+                title={t('content.commands')}
               >
                 <Terminal className="h-3.5 w-3.5" />
               </button>
@@ -612,8 +633,8 @@ function ProjectRow({
                   onOpenSettings(project, 'skills');
                 }}
                 className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                aria-label="Skills"
-                title="Skills"
+                aria-label={t('content.skillsLabel')}
+                title={t('content.skillsLabel')}
               >
                 <Wrench className="h-3.5 w-3.5" />
               </button>
@@ -624,8 +645,8 @@ function ProjectRow({
                   onOpenSettings(project, 'mcp');
                 }}
                 className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                aria-label="MCP Tools"
-                title="MCP Tools"
+                aria-label={t('content.mcpTools')}
+                title={t('content.mcpTools')}
               >
                 <Plug className="h-3.5 w-3.5" />
               </button>
@@ -639,8 +660,8 @@ function ProjectRow({
                 onAssignClick(project.name);
               }}
               className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground opacity-0 transition hover:bg-muted hover:text-foreground group-hover:opacity-100"
-              aria-label="Assegna a cartella"
-              title="Assegna a cartella"
+              aria-label={t('content.assignToFolder')}
+              title={t('content.assignToFolder')}
             >
               <FolderInput className="h-3.5 w-3.5" />
             </button>
@@ -652,8 +673,8 @@ function ProjectRow({
               setShowClaudeMd(true);
             }}
             className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground opacity-0 transition hover:bg-muted hover:text-foreground group-hover:opacity-100"
-            aria-label="Mostra contesto CLAUDE.md"
-            title="Mostra contesto CLAUDE.md"
+            aria-label={t('content.showClaudeMd')}
+            title={t('content.showClaudeMd')}
           >
             <FileText className="h-3.5 w-3.5" />
           </button>
@@ -665,8 +686,8 @@ function ProjectRow({
                 onRenameProject(project.name, project.displayName);
               }}
               className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground opacity-0 transition hover:bg-muted hover:text-foreground group-hover:opacity-100"
-              aria-label="Rinomina progetto"
-              title="Rinomina progetto"
+              aria-label={t('folders.renameProject')}
+              title={t('folders.renameProject')}
             >
               <Pencil className="h-3.5 w-3.5" />
             </button>
@@ -679,8 +700,8 @@ function ProjectRow({
                 onDeleteProject(project.name, project.displayName);
               }}
               className="hover:bg-[color:var(--heritage-b,#E30613)]/10 flex h-7 w-7 items-center justify-center rounded text-muted-foreground opacity-0 transition hover:text-[color:var(--heritage-b,#E30613)] group-hover:opacity-100"
-              aria-label="Elimina progetto"
-              title="Elimina progetto"
+              aria-label={t('folders.deleteProject')}
+              title={t('folders.deleteProject')}
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -697,8 +718,8 @@ function ProjectRow({
                   ? 'text-[color:var(--heritage-a,#F5D000)]'
                   : 'text-muted-foreground opacity-0 hover:text-[color:var(--heritage-a,#F5D000)] group-hover:opacity-100'
               }`}
-              aria-label={isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'}
-              title={isFavorite ? 'Rimuovi preferito' : 'Preferito'}
+              aria-label={isFavorite ? t('content.removeFromFavorites') : t('content.addToFavorites')}
+              title={isFavorite ? t('content.removeFavoriteShort') : t('content.favoriteShort')}
             >
               <Star className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
             </button>
@@ -742,6 +763,7 @@ interface GlobalAgentEntry {
 }
 
 function GlobalAgentsView({ onSelectAgent }: { onSelectAgent: (agentName: string) => void }) {
+  const { t } = useTranslation('sidebar');
   const [agents, setAgents] = useState<GlobalAgentEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -767,19 +789,19 @@ function GlobalAgentsView({ onSelectAgent }: { onSelectAgent: (agentName: string
   }, []);
 
   if (error) {
-    return <EmptyState label={`Errore: ${error}`} />;
+    return <EmptyState label={t('content.errorPrefix', { message: error })} />;
   }
   if (!agents) {
-    return <EmptyState label="Caricamento…" />;
+    return <EmptyState label={t('content.loading')} />;
   }
   if (agents.length === 0) {
-    return <EmptyState label="Nessun agente globale in ~/.claude/agents/" />;
+    return <EmptyState label={t('content.noGlobalAgents')} />;
   }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="border-b border-border/40 bg-muted/20 px-6 py-2 text-xs text-muted-foreground">
-        {agents.length} agenti globali
+        {t('content.agentsCount', { count: agents.length })}
       </div>
       <div className="flex-1 overflow-y-auto">
         {agents.map((a) => (

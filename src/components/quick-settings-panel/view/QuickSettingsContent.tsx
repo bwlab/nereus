@@ -1,4 +1,4 @@
-import { Moon, Sun } from 'lucide-react';
+import { Compass, Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DarkModeToggle } from '../../../shared/view/ui';
 import LanguageSelector from '../../../shared/view/ui/LanguageSelector';
@@ -13,6 +13,7 @@ import type {
   PreferenceToggleKey,
   QuickSettingsPreferences,
 } from '../types';
+import { triggerTourRestart } from '../../tour/tourSteps';
 import QuickSettingsSection from './QuickSettingsSection';
 import QuickSettingsToggleRow from './QuickSettingsToggleRow';
 
@@ -28,6 +29,7 @@ export default function QuickSettingsContent({
   onPreferenceChange,
 }: QuickSettingsContentProps) {
   const { t } = useTranslation('settings');
+  const { t: tTour } = useTranslation('tour');
 
   const renderToggleRows = (items: PreferenceToggleItem[]) => (
     items.map(({ key, labelKey, icon }) => (
@@ -71,6 +73,17 @@ export default function QuickSettingsContent({
         <p className="ml-3 text-xs text-gray-500 dark:text-gray-400">
           {t('quickSettings.sendByCtrlEnterDescription')}
         </p>
+      </QuickSettingsSection>
+
+      <QuickSettingsSection title={tTour('restart.description')}>
+        <button
+          type="button"
+          onClick={triggerTourRestart}
+          className="flex w-full items-center gap-2 rounded-md border border-border/60 bg-background px-3 py-2 text-sm text-foreground transition hover:bg-muted"
+        >
+          <Compass className="h-4 w-4 text-[color:var(--heritage-a,#F5D000)]" />
+          <span>{tTour('restart.label')}</span>
+        </button>
       </QuickSettingsSection>
     </div>
   );

@@ -1,4 +1,6 @@
-export type WizardStep = 1 | 2 | 3;
+import type { SessionProvider } from '../../types/app';
+
+export type WizardStep = 1 | 2 | 3 | 4;
 
 export type WorkspaceType = 'existing' | 'new';
 
@@ -59,4 +61,6 @@ export type WizardFormState = {
   tokenMode: TokenMode;
   selectedGithubToken: string;
   newGithubToken: string;
+  /** LLM provider chosen for the auto-launched shell. */
+  provider: SessionProvider;
 };

@@ -34,10 +34,16 @@
 - `src/components/unified-sidebar/state/useWorkspace.ts` — fetch aggregato `/api/dashboards/workspace` (dashboards + raccoglitori + assignments + favoriteProjectNames).
 - `useProjectsState` espone setters diretti (setSelectedProject/Session/IsNewSession); evitare handleProjectSelect legacy che naviga a `/session/:id`.
 
+## Multi-tab (browser-like)
+- Singleton `src/stores/tabsStore.ts` (useSyncExternalStore + sessionStorage `bwlab.tabs.v1`). Cap 8 tab.
+- Dedup: shell = 1 per `(projectName,sessionId,provider)`; chat con sessionId = 1 per `(projectName,sessionId,provider)`; chat senza sessionId = sempre nuovo tab.
+- Tab attivo ↔ URL in lockstep: `activateTab` → `navigate(tabToUrl(tab))`. Non aggiungere stato selezione altrove.
+- Quando una "nuova sessione" riceve sessionId reale: `updateTabSession(id, {sessionId, provider})` per dedup futuri.
+
 ## Routing & navigation
 - Routes React Router in `src/App.tsx` `<Routes>`. Aggiungendo una nuova URL la *Route va registrata qui*, altrimenti `<Routes>` rende null → pagina bianca senza errori.
 - URL non-`/api/` servono `index.html` (catch-all Express in `server/index.js`).
-- `src/components/unified-sidebar/state/useUnifiedLocation.ts` parsea URL → `Location` union. Per nuove URL: estendere `parsePath` + `toPath` + Route in `App.tsx` insieme.
+- `parsePath` in `unified-sidebar/state/useUnifiedLocation.ts`, `toPath` in `unified-sidebar/types/location.ts`. Per nuove URL: estendere entrambi + Route in `App.tsx` insieme.
 
 ## Auth & API
 - Tutte le `/api/*` dietro `authenticateToken` (eccetto `/api/auth` e `/api/agent` su API-key). Curl senza token → 401.
@@ -51,6 +57,6 @@
 - `public/sw.js` registrato in prod e dev. Network-first; mai intercetta `/api/` o `/ws`. Hashed assets (`/assets/`) cache-first.
 
 ## Gotchas
-- `MainContent` ha `key={project?.name ?? 'none'}::${session?.id ?? 'none'}` per forzare unmount/remount ad ogni cambio → evita stale chat state.
+- `MainContent` è multi-mount per-tab in `AppContent.tsx`: `key={tab.id}` + `display:none/flex` mantiene PTY shell, scroll chat e `viewTab` vivi al cambio tab. Non rimettere logica unmount-on-change.
 - Lucide icons colorate via `text-[color:...]` (stroke) + `fill-[color:...]/20` per fill soft. Senza fill, icone outline-only.
 - DnD nativo HTML5 MIME: `application/x-bwlab-node`. Payload: `{kind:'project',projectName}` o `{kind:'folder',folderId,dashboardId}`.

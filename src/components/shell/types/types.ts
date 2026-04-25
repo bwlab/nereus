@@ -44,6 +44,7 @@ export type UseShellRuntimeOptions = {
   minimal: boolean;
   autoConnect: boolean;
   isRestarting: boolean;
+  isActive: boolean;
   onProcessComplete?: ((exitCode: number) => void) | null;
   onOutputRef?: MutableRefObject<(() => void) | null>;
 };

@@ -181,7 +181,7 @@ export default function ChatComposer({
     : '';
 
   return (
-    <div className={`flex-shrink-0 p-2 pb-2 sm:p-4 sm:pb-4 md:p-4 md:pb-6 ${mobileFloatingClass}`}>
+    <div data-tour="chat-composer" className={`flex-shrink-0 p-2 pb-2 sm:p-4 sm:pb-4 md:p-4 md:pb-6 ${mobileFloatingClass}`}>
       {!hasQuestionPanel && (
         <div className="flex-1">
           <ClaudeStatus
