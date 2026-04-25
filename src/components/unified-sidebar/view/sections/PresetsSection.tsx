@@ -25,7 +25,7 @@ export default function PresetsSection({ location, onSelect, counts }: PresetsSe
   const { t } = useTranslation('sidebar');
   const activePreset = location.kind === 'preset' ? location.preset : null;
   return (
-    <div className="px-3 pt-3">
+    <div data-tour="presets" className="px-3 pt-3">
       <div className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {t('presets.title')}
       </div>

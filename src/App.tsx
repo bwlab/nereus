@@ -7,6 +7,7 @@ import { TasksSettingsProvider } from './contexts/TasksSettingsContext';
 import { WebSocketProvider } from './contexts/WebSocketContext';
 import { PluginsProvider } from './contexts/PluginsContext';
 import AppContent from './components/app/AppContent';
+import AppTour from './components/tour/AppTour';
 import i18n from './i18n/config.js';
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
                       <Route path="/agents/global/:agentName" element={<AppContent />} />
                       <Route path="/session/:sessionId" element={<AppContent />} />
                     </Routes>
+                    <AppTour />
                   </Router>
                 </ProtectedRoute>
                 </TaskMasterProvider>

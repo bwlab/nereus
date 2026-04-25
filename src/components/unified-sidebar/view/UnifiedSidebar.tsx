@@ -69,7 +69,7 @@ export default function UnifiedSidebar(props: UnifiedSidebarProps) {
   }, [props.location]);
 
   return (
-    <aside className="flex h-full w-[300px] shrink-0 flex-col border-r border-border/60 bg-background/60">
+    <aside data-tour="sidebar" className="flex h-full w-[300px] shrink-0 flex-col border-r border-border/60 bg-background/60">
       <PresetsSection
         location={props.location}
         onSelect={props.onSelectPreset}

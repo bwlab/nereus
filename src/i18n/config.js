@@ -23,6 +23,8 @@ import enChat from './locales/en/chat.json';
 import enCodeEditor from './locales/en/codeEditor.json';
 // eslint-disable-next-line import-x/order
 import enTasks from './locales/en/tasks.json';
+// eslint-disable-next-line import-x/order
+import enTour from './locales/en/tour.json';
 
 import koCommon from './locales/ko/common.json';
 import koSettings from './locales/ko/settings.json';
@@ -75,6 +77,8 @@ import itChat from './locales/it/chat.json';
 import itCodeEditor from './locales/it/codeEditor.json';
 // eslint-disable-next-line import-x/order
 import itTasks from './locales/it/tasks.json';
+// eslint-disable-next-line import-x/order
+import itTour from './locales/it/tour.json';
 
 // Import supported languages configuration
 import { languages } from './languages.js';
@@ -108,6 +112,7 @@ i18n
         chat: enChat,
         codeEditor: enCodeEditor,
         tasks: enTasks,
+        tour: enTour,
       },
       ko: {
         common: koCommon,
@@ -160,6 +165,7 @@ i18n
         chat: itChat,
         codeEditor: itCodeEditor,
         tasks: itTasks,
+        tour: itTour,
       },
     },
 
@@ -173,7 +179,7 @@ i18n
     debug: import.meta.env.DEV,
 
     // Namespaces - load only what's needed
-    ns: ['common', 'settings', 'auth', 'sidebar', 'chat', 'codeEditor', 'tasks'],
+    ns: ['common', 'settings', 'auth', 'sidebar', 'chat', 'codeEditor', 'tasks', 'tour'],
     defaultNS: 'common',
 
     // Key separator for nested keys (default: '.')

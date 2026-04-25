@@ -33,7 +33,7 @@ export default function UnifiedBreadcrumb({
   // Search state overrides everything
   if (searchQuery && searchQuery.trim().length > 0) {
     return (
-      <div className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
+      <div data-tour="breadcrumb" className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
         <Search className="h-4 w-4 text-muted-foreground" />
         <span className="text-muted-foreground">{t('breadcrumb.resultsFor')}</span>
         <span className="font-semibold">"{searchQuery.trim()}"</span>
@@ -43,7 +43,7 @@ export default function UnifiedBreadcrumb({
 
   if (location.kind === 'preset') {
     return (
-      <div className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
+      <div data-tour="breadcrumb" className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
         <Flag className="h-4 w-4 text-[color:var(--heritage-a,#F5D000)]" />
         <span className="font-semibold">{t(`presets.${PRESET_I18N_KEY[location.preset]}`)}</span>
       </div>
@@ -55,7 +55,7 @@ export default function UnifiedBreadcrumb({
       ? t('breadcrumb.globalAgents')
       : t('breadcrumb.projectAgents', { project: location.projectName ?? '' });
     return (
-      <div className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
+      <div data-tour="breadcrumb" className="flex h-[42px] items-center gap-2 border-b border-border/60 px-4 text-sm">
         <button
           type="button"
           onClick={onGoHome}
@@ -128,7 +128,7 @@ export default function UnifiedBreadcrumb({
   }
 
   return (
-    <div className="flex h-[42px] items-center gap-1 overflow-x-auto whitespace-nowrap border-b border-border/60 px-4 text-sm">
+    <div data-tour="breadcrumb" className="flex h-[42px] items-center gap-1 overflow-x-auto whitespace-nowrap border-b border-border/60 px-4 text-sm">
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-1">
           {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" />}

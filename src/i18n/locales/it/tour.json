@@ -1,0 +1,41 @@
+{
+  "controls": {
+    "next": "Avanti",
+    "back": "Indietro",
+    "skip": "Salta",
+    "last": "Fine",
+    "close": "Chiudi"
+  },
+  "welcome": {
+    "title": "Benvenuto in Claude Code UI",
+    "body": "Ti mostro in 6 passaggi le funzionalità principali. Puoi saltare il tour in qualsiasi momento e riavviarlo dalle impostazioni rapide."
+  },
+  "sidebar": {
+    "title": "Sidebar progetti",
+    "body": "Qui trovi i tuoi progetti, le sessioni e i raccoglitori. Trascina per riordinare, clic destro per le azioni rapide."
+  },
+  "presets": {
+    "title": "Raccoglitori rapidi",
+    "body": "Filtri preimpostati: tutti, recenti, preferiti, agenti globali, tab aperti. Un clic per saltare al gruppo."
+  },
+  "tabbar": {
+    "title": "Tab multipli",
+    "body": "Ogni progetto/sessione vive in un tab indipendente, come nel browser. Massimo 8 tab. Ctrl+Tab per ciclare."
+  },
+  "breadcrumb": {
+    "title": "Breadcrumb di navigazione",
+    "body": "Mostra dove sei nel workspace e ti permette di tornare indietro velocemente."
+  },
+  "composer": {
+    "title": "Chat con l'LLM",
+    "body": "Da qui scrivi all'LLM (Claude/Codex/Gemini/Cursor). Slash command, mention file, allegati immagine, modalità thinking."
+  },
+  "shell": {
+    "title": "Shell integrata",
+    "body": "Terminale embedded per ogni progetto. Persistente al cambio tab, riconosce i prompt CLI numerati."
+  },
+  "restart": {
+    "label": "Mostra tour intro",
+    "description": "Riavvia la guida iniziale"
+  }
+}

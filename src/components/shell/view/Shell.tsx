@@ -248,7 +248,7 @@ export default function Shell({
   const overlayDescription = overlayMode === 'connecting' ? connectingDescription : readyDescription;
 
   return (
-    <div className="flex h-full w-full flex-col bg-gray-900">
+    <div data-tour="shell" className="flex h-full w-full flex-col bg-gray-900">
       <ShellHeader
         isConnected={isConnected}
         isInitialized={isInitialized}

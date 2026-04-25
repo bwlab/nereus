@@ -139,6 +139,7 @@ export default function TabBar({ onActivate, onClose, processingTabIds }: TabBar
   return (
     <>
       <div
+        data-tour="tabbar"
         className="flex h-9 min-h-9 w-full items-stretch overflow-x-auto border-b border-border/40 bg-muted/20"
         role="tablist"
       >
