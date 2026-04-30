@@ -20,7 +20,7 @@
     "runClaudeCli": "Esegui Claude CLI in una directory di progetto per iniziare"
   },
   "app": {
-    "title": "CloudCLI",
+    "title": "Nereus",
     "subtitle": "Interfaccia assistente di codice AI"
   },
   "sessions": {
@@ -137,6 +137,7 @@
     "unassigned": "Senza cartella",
     "favorites": "Preferiti",
     "globalAgents": "Agenti globali",
+    "skills": "Skills",
     "openTabs": "Sessioni aperte"
   },
   "header": {
@@ -209,6 +210,7 @@
     "showClaudeMd": "Mostra contesto CLAUDE.md",
     "openInFileManager": "Apri nel file manager",
     "openInFileManagerError": "Impossibile aprire il file manager",
+    "openInIde": "Apri nell'IDE",
     "addToFavorites": "Aggiungi ai preferiti",
     "removeFromFavorites": "Rimuovi dai preferiti",
     "favoriteShort": "Preferito",

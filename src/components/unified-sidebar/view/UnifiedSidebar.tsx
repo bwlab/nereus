@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Project, SessionProvider } from '../../../types/app';
 import type { FullWorkspace } from '../../dashboard/types/dashboard';
 import type { Location, PresetKind } from '../types/location';
@@ -29,8 +29,49 @@ interface UnifiedSidebarProps {
   searchQuery?: string;
 }
 
+const PRESETS_HEIGHT_KEY = 'bwlab.sidebar.presetsHeightPx';
+const PRESETS_HEIGHT_MIN = 80;
+const PRESETS_HEIGHT_MAX_MARGIN = 120; // leave at least this much for folders
+const PRESETS_HEIGHT_DEFAULT = 280;
+
+function loadPresetsHeight(): number {
+  try {
+    const raw = localStorage.getItem(PRESETS_HEIGHT_KEY);
+    const n = raw ? parseInt(raw, 10) : NaN;
+    return Number.isFinite(n) && n > 0 ? n : PRESETS_HEIGHT_DEFAULT;
+  } catch {
+    return PRESETS_HEIGHT_DEFAULT;
+  }
+}
+
 export default function UnifiedSidebar(props: UnifiedSidebarProps) {
   const [expanded, setExpanded] = useState<Set<string>>(() => loadExpanded());
+  const [presetsHeight, setPresetsHeight] = useState<number>(() => loadPresetsHeight());
+  const asideRef = useRef<HTMLElement>(null);
+  const dragStateRef = useRef<{ startY: number; startH: number } | null>(null);
+
+  useEffect(() => {
+    try { localStorage.setItem(PRESETS_HEIGHT_KEY, String(presetsHeight)); } catch { /* ignore */ }
+  }, [presetsHeight]);
+
+  const handleResizerPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragStateRef.current = { startY: e.clientY, startH: presetsHeight };
+  }, [presetsHeight]);
+
+  const handleResizerPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStateRef.current) return;
+    const aside = asideRef.current;
+    const maxH = aside ? aside.clientHeight - PRESETS_HEIGHT_MAX_MARGIN : 1000;
+    const next = Math.min(maxH, Math.max(PRESETS_HEIGHT_MIN, dragStateRef.current.startH + (e.clientY - dragStateRef.current.startY)));
+    setPresetsHeight(next);
+  }, []);
+
+  const handleResizerPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    dragStateRef.current = null;
+    try { (e.target as HTMLElement).releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+  }, []);
 
   useEffect(() => {
     persistExpanded(expanded);
@@ -69,14 +110,27 @@ export default function UnifiedSidebar(props: UnifiedSidebarProps) {
   }, [props.location]);
 
   return (
-    <aside data-tour="sidebar" className="flex h-full w-[300px] shrink-0 flex-col border-r border-border/60 bg-background/60">
-      <PresetsSection
-        location={props.location}
-        onSelect={props.onSelectPreset}
-        counts={props.presetCounts}
-      />
-      <div className="mt-3 border-t border-border/40" />
-      <FoldersSection
+    <aside ref={asideRef} data-tour="sidebar" className="flex h-full w-[300px] shrink-0 flex-col border-r border-border/60 bg-background/60">
+      <div style={{ height: presetsHeight }} className="shrink-0 overflow-y-auto">
+        <PresetsSection
+          location={props.location}
+          onSelect={props.onSelectPreset}
+          counts={props.presetCounts}
+        />
+      </div>
+      <div
+        role="separator"
+        aria-orientation="horizontal"
+        onPointerDown={handleResizerPointerDown}
+        onPointerMove={handleResizerPointerMove}
+        onPointerUp={handleResizerPointerUp}
+        onPointerCancel={handleResizerPointerUp}
+        className="group relative h-1.5 shrink-0 cursor-row-resize border-y border-border/40 bg-border/20 transition hover:bg-[color:var(--heritage-a,#F5D000)]/40"
+        title="Trascina per ridimensionare"
+      >
+        <div className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-0.5 w-10 -translate-y-1/2 rounded bg-border/60 group-hover:bg-foreground/40" />
+      </div>
+        <FoldersSection
         workspace={props.workspace}
         projects={props.projects}
         location={props.location}

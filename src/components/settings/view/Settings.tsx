@@ -12,6 +12,7 @@ import GitSettingsTab from '../view/tabs/git-settings/GitSettingsTab';
 import NotificationsSettingsTab from '../view/tabs/NotificationsSettingsTab';
 import TasksSettingsTab from '../view/tabs/tasks-settings/TasksSettingsTab';
 import PluginSettingsTab from '../../plugins/view/PluginSettingsTab';
+import SkillsSettingsTab from '../view/tabs/SkillsSettingsTab';
 import AboutTab from '../view/tabs/AboutTab';
 import DashboardSettingsTab from '../view/tabs/DashboardSettingsTab';
 import { useSettingsController } from '../hooks/useSettingsController';
@@ -210,6 +211,8 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }: Set
               {activeTab === 'dashboards' && <DashboardSettingsTab />}
 
               {activeTab === 'plugins' && <PluginSettingsTab />}
+
+              {activeTab === 'skills' && <SkillsSettingsTab />}
 
               {activeTab === 'about' && <AboutTab />}
             </div>

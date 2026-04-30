@@ -65,9 +65,8 @@ export default function UnifiedHeader({ projects, workspace, searchQuery, onSear
           aria-hidden
         />
         <div className="hidden min-w-0 leading-tight sm:block">
-          <span className="text-sm font-bold tracking-tight">bwlab</span>
-          <span className="ml-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Claude Code UI
+          <span className="text-sm font-bold uppercase tracking-[0.18em]">
+            Nereus
           </span>
         </div>
       </div>

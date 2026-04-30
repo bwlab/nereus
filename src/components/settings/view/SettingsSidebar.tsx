@@ -1,4 +1,4 @@
-import { Bell, Bot, GitBranch, Info, Key, LayoutDashboard, ListChecks, Palette, Puzzle } from 'lucide-react';
+import { Bell, Bot, GitBranch, Info, Key, LayoutDashboard, ListChecks, Palette, Puzzle, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../lib/utils';
 import { PillBar, Pill } from '../../../shared/view/ui';
@@ -23,6 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'tasks', labelKey: 'mainTabs.tasks', icon: ListChecks },
   { id: 'dashboards', labelKey: 'mainTabs.dashboards', icon: LayoutDashboard },
   { id: 'plugins', labelKey: 'mainTabs.plugins', icon: Puzzle },
+  { id: 'skills', labelKey: 'mainTabs.skills', icon: Sparkles },
   { id: 'notifications', labelKey: 'mainTabs.notifications', icon: Bell },
   { id: 'about', labelKey: 'mainTabs.about', icon: Info },
 ];

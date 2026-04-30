@@ -26,6 +26,17 @@ export type GlobalSkill = {
   enabled: boolean;
 };
 
+export type CatalogSkill = {
+  name: string;
+  fullPath: string;
+  description: string | null;
+};
+
+export type SkillsCatalog = {
+  global: { dir: string; exists: boolean; skills: CatalogSkill[] };
+  project: { dir: string; exists: boolean; skills: CatalogSkill[] };
+};
+
 export type ProjectMcpServer = {
   name: string;
   scope: 'user' | 'project';
@@ -106,6 +117,28 @@ export function useProjectSettingsApi() {
     });
   }, []);
 
+  const getSkillsGlobalMasterDir = useCallback(async (): Promise<{ path: string; defaultPath: string }> => {
+    const res = await authenticatedFetch('/api/project-skills/config/skills-global-master-dir');
+    const data = await res.json();
+    return { path: data.path, defaultPath: data.defaultPath };
+  }, []);
+
+  const setSkillsGlobalMasterDir = useCallback(async (path: string) => {
+    await authenticatedFetch('/api/project-skills/config/skills-global-master-dir', {
+      method: 'PUT',
+      body: JSON.stringify({ path }),
+    });
+  }, []);
+
+  const getSkillsCatalog = useCallback(async (): Promise<SkillsCatalog> => {
+    const res = await authenticatedFetch('/api/project-skills/catalog');
+    const data = await res.json();
+    return {
+      global: data.global ?? { dir: '', exists: false, skills: [] },
+      project: data.project ?? { dir: '', exists: false, skills: [] },
+    };
+  }, []);
+
   // --- Global skills (user scope, ~/.claude/skills) ---
   const listGlobalSkills = useCallback(async (): Promise<{ dir: string; skills: GlobalSkill[] }> => {
     const res = await authenticatedFetch('/api/project-skills/global/list');
@@ -145,11 +178,13 @@ export function useProjectSettingsApi() {
   return useMemo(() => ({
     listCommands, createCommand, updateCommand, deleteCommand, generateClaudeMd,
     listSkills, toggleSkill, getSkillsMasterDir, setSkillsMasterDir,
+    getSkillsGlobalMasterDir, setSkillsGlobalMasterDir, getSkillsCatalog,
     listGlobalSkills, toggleGlobalSkill,
     listMcpServers, toggleMcpServer,
   }), [
     listCommands, createCommand, updateCommand, deleteCommand, generateClaudeMd,
     listSkills, toggleSkill, getSkillsMasterDir, setSkillsMasterDir,
+    getSkillsGlobalMasterDir, setSkillsGlobalMasterDir, getSkillsCatalog,
     listGlobalSkills, toggleGlobalSkill,
     listMcpServers, toggleMcpServer,
   ]);

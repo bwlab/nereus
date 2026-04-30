@@ -18,6 +18,7 @@ import ContentToolbar, { type SortMode } from './ContentToolbar';
 import SessionInlineList from './rows/SessionInlineList';
 import AgentViewer from '../../../agents/view/AgentViewer';
 import OpenTabsView from './OpenTabsView';
+import SkillsView from './SkillsView';
 import type { Tab } from '../../../../stores/tabsStore';
 
 interface ContentListProps {
@@ -208,6 +209,10 @@ export default function ContentList(props: ContentListProps) {
         onSelectAgent={(name) => props.onSelectAgent?.('global', name)}
       />
     );
+  }
+
+  if (location.kind === 'preset' && location.preset === 'skills') {
+    return <SkillsView />;
   }
 
   if (location.kind === 'preset' && location.preset === 'open-tabs') {
@@ -600,29 +605,53 @@ function ProjectRow({
         <div className="flex items-center gap-1">
           {onOpenSettings && (
             <div className="flex items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
-              {onOpenProjectShell && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenProjectShell(project);
-                  }}
-                  className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                  aria-label={t('content.openShell')}
-                  title={t('content.shell')}
-                >
-                  <TerminalSquare className="h-3.5 w-3.5" />
-                </button>
-              )}
               <button
                 type="button"
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  onOpenSettings(project, 'commands');
+                  try {
+                    const res = await authenticatedFetch(
+                      `/api/project-open/${encodeURIComponent(project.name)}/in-terminal-with-claude`,
+                      {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ permissionMode: 'bypassPermissions' }),
+                      },
+                    );
+                    if (!res.ok) {
+                      const data = await res.json().catch(() => ({}));
+                      alert(data.error || t('content.openShell'));
+                    }
+                  } catch (err) {
+                    alert((err as Error).message);
+                  }
                 }}
                 className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                aria-label={t('content.commands')}
-                title={t('content.commands')}
+                aria-label={t('content.openShell')}
+                title={t('content.shell')}
+              >
+                <TerminalSquare className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  try {
+                    const res = await authenticatedFetch(
+                      `/api/project-open/${encodeURIComponent(project.name)}/in-ide`,
+                      { method: 'POST' },
+                    );
+                    if (!res.ok) {
+                      const data = await res.json().catch(() => ({}));
+                      alert(data.error || t('content.openInIde'));
+                    }
+                  } catch (err) {
+                    alert((err as Error).message);
+                  }
+                }}
+                className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                aria-label={t('content.openInIde')}
+                title={t('content.openInIde')}
               >
                 <Terminal className="h-3.5 w-3.5" />
               </button>

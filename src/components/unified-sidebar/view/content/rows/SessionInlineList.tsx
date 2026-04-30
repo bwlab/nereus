@@ -1,6 +1,8 @@
 import { MessageSquare, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Project, ProjectSession, SessionProvider } from '../../../../../types/app';
+import { CLAUDE_MODELS } from '../../../../../../shared/modelConstants';
+import TerminalLauncher from '../../../../chat/view/subcomponents/TerminalLauncher';
 
 interface SessionInlineListProps {
   project: Project;
@@ -87,6 +89,16 @@ export default function SessionInlineList({ project, onSelectSession, onDeleteSe
               </span>
               {when && <span className="shrink-0 text-[11px] text-muted-foreground">{when}</span>}
             </button>
+            {row.provider === 'claude' && (
+              <div className="opacity-0 transition group-hover:opacity-100">
+                <TerminalLauncher
+                  projectName={project.name}
+                  currentSessionId={row.sessionId}
+                  currentModel={CLAUDE_MODELS.DEFAULT}
+                  currentPermissionMode="default"
+                />
+              </div>
+            )}
             {onDeleteSession && row.provider !== 'cursor' && (
               <button
                 type="button"

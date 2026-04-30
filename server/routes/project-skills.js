@@ -8,12 +8,33 @@ import { appConfigDb } from '../database/db.js';
 const router = express.Router();
 
 const DEFAULT_MASTER_DIR = path.join(os.homedir(), 'Google Drive', 'ai-global', 'per-progetto', 'skills');
+const DEFAULT_GLOBAL_MASTER_DIR = path.join(os.homedir(), 'Google Drive', 'ai-global', 'globale', 'skills');
 const USER_SKILLS_DIR = path.join(os.homedir(), '.claude', 'skills');
 const DISABLED_SUFFIX = '.disabled';
 
 function getMasterDir() {
   const stored = appConfigDb.get('skills_master_dir');
   return stored || process.env.CLAUDECODEUI_SKILLS_MASTER_DIR || DEFAULT_MASTER_DIR;
+}
+
+function getGlobalMasterDir() {
+  const stored = appConfigDb.get('skills_global_master_dir');
+  return stored || process.env.CLAUDECODEUI_SKILLS_GLOBAL_MASTER_DIR || DEFAULT_GLOBAL_MASTER_DIR;
+}
+
+function listSkillsInDir(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const fullPath = path.join(dir, entry.name);
+    out.push({
+      name: entry.name,
+      fullPath,
+      description: readSkillDescription(fullPath),
+    });
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function resolveCwd(projectName) {
@@ -53,6 +74,50 @@ router.put('/config/skills-master-dir', (req, res) => {
   } catch (error) {
     console.error('Error setting skills master dir:', error);
     res.status(500).json({ error: 'Failed to set skills master dir' });
+  }
+});
+
+// GET /api/project-skills/config/skills-global-master-dir
+router.get('/config/skills-global-master-dir', (req, res) => {
+  res.json({ success: true, path: getGlobalMasterDir(), defaultPath: DEFAULT_GLOBAL_MASTER_DIR });
+});
+
+// PUT /api/project-skills/config/skills-global-master-dir
+router.put('/config/skills-global-master-dir', (req, res) => {
+  try {
+    const { path: newPath } = req.body || {};
+    if (typeof newPath !== 'string' || !newPath.trim()) {
+      return res.status(400).json({ error: 'path is required' });
+    }
+    appConfigDb.set('skills_global_master_dir', newPath.trim());
+    res.json({ success: true, path: newPath.trim() });
+  } catch (error) {
+    console.error('Error setting skills global master dir:', error);
+    res.status(500).json({ error: 'Failed to set skills global master dir' });
+  }
+});
+
+// GET /api/project-skills/catalog — read-only catalog of all skills (global master + per-project master)
+router.get('/catalog', (req, res) => {
+  try {
+    const globalMasterDir = getGlobalMasterDir();
+    const projectMasterDir = getMasterDir();
+    res.json({
+      success: true,
+      global: {
+        dir: globalMasterDir,
+        exists: fs.existsSync(globalMasterDir),
+        skills: listSkillsInDir(globalMasterDir),
+      },
+      project: {
+        dir: projectMasterDir,
+        exists: fs.existsSync(projectMasterDir),
+        skills: listSkillsInDir(projectMasterDir),
+      },
+    });
+  } catch (error) {
+    console.error('Error building skills catalog:', error);
+    res.status(500).json({ error: 'Failed to build skills catalog' });
   }
 });
 

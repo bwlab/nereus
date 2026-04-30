@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-export type SettingsMainTab = 'agents' | 'appearance' | 'git' | 'api' | 'tasks' | 'dashboards' | 'notifications' | 'plugins' | 'about';
+export type SettingsMainTab = 'agents' | 'appearance' | 'git' | 'api' | 'tasks' | 'dashboards' | 'notifications' | 'plugins' | 'skills' | 'about';
 export type AgentProvider = 'claude' | 'cursor' | 'codex' | 'gemini';
 export type AgentCategory = 'account' | 'permissions' | 'mcp';
 export type ProjectSortOrder = 'name' | 'date';

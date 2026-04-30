@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { Terminal, X, Play } from 'lucide-react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { TerminalSquare, X, Play } from 'lucide-react';
 import { CLAUDE_MODELS } from '../../../../../shared/modelConstants';
 import { authenticatedFetch } from '../../../../utils/api';
 
@@ -27,16 +28,43 @@ export default function TerminalLauncher({
   const [debug, setDebug] = useState(false);
   const [launching, setLaunching] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
+      const target = e.target as Node;
+      if (dropdownRef.current?.contains(target)) return;
+      if (popoverRef.current?.contains(target)) return;
+      setIsOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !buttonRef.current) return;
+    const computePos = () => {
+      const r = buttonRef.current!.getBoundingClientRect();
+      const width = 320;
+      const popHeight = popoverRef.current?.offsetHeight ?? 360;
+      const margin = 8;
+      let top = r.top - popHeight - margin;
+      if (top < margin) top = Math.min(r.bottom + margin, window.innerHeight - popHeight - margin);
+      let left = r.right - width;
+      if (left < margin) left = margin;
+      if (left + width > window.innerWidth - margin) left = window.innerWidth - width - margin;
+      setPopoverPos({ top, left });
+    };
+    computePos();
+    window.addEventListener('resize', computePos);
+    window.addEventListener('scroll', computePos, true);
+    return () => {
+      window.removeEventListener('resize', computePos);
+      window.removeEventListener('scroll', computePos, true);
+    };
+  }, [isOpen]);
 
   // Preview del comando (allineato al backend che wrappa ogni valore in single quotes)
   const shQuote = (v: string) => `'${v.replace(/'/g, `'\\''`)}'`;
@@ -83,16 +111,25 @@ export default function TerminalLauncher({
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground sm:h-8 sm:w-8"
         title="Apri claude nel terminale di sistema"
       >
-        <Terminal className="h-4 w-4 sm:h-5 sm:w-5" />
+        <TerminalSquare className="h-4 w-4 sm:h-5 sm:w-5" />
       </button>
 
-      {isOpen && (
-        <div className="absolute bottom-full right-0 mb-2 w-80 overflow-hidden rounded-lg border border-border bg-card shadow-xl">
+      {isOpen && createPortal(
+        <div
+          ref={popoverRef}
+          style={{
+            position: 'fixed',
+            top: popoverPos?.top ?? -9999,
+            left: popoverPos?.left ?? -9999,
+            visibility: popoverPos ? 'visible' : 'hidden',
+          }}
+          className="z-[100] w-80 overflow-hidden rounded-lg border border-border bg-card shadow-xl">
           <div className="flex items-center justify-between border-b border-border px-3 py-2">
             <h3 className="text-sm font-semibold text-foreground">Apri claude nel terminale</h3>
             <button type="button" onClick={() => setIsOpen(false)} className="rounded p-1 hover:bg-accent">
@@ -198,7 +235,8 @@ export default function TerminalLauncher({
               {launching ? 'Apertura...' : 'Apri terminale'}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
