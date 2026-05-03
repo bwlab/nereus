@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Folder as FolderIcon, FileCode2, FileText, FolderOpen, Star, ChevronDown, ChevronRight, Terminal, TerminalSquare, Wrench, Plug, Pencil, Trash2, FolderInput, Bot } from 'lucide-react';
+import { Folder as FolderIcon, FileCode2, FileText, FolderOpen, Star, ChevronDown, ChevronRight, Terminal, TerminalSquare, Wrench, Plug, Puzzle, Pencil, Trash2, FolderInput, Bot } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { authenticatedFetch } from '../../../../utils/api';
 import type { Project, SessionProvider } from '../../../../types/app';
@@ -14,11 +14,13 @@ import {
 import ProjectSettingsPanel, { type ProjectSettingsTab } from '../../../project-settings/view/ProjectSettingsPanel';
 import FolderPickerDialog from '../dialogs/FolderPickerDialog';
 import ClaudeMdViewerDialog from '../dialogs/ClaudeMdViewerDialog';
+import ProjectPluginsDialog from '../dialogs/ProjectPluginsDialog';
 import ContentToolbar, { type SortMode } from './ContentToolbar';
 import SessionInlineList from './rows/SessionInlineList';
 import AgentViewer from '../../../agents/view/AgentViewer';
 import OpenTabsView from './OpenTabsView';
 import SkillsView from './SkillsView';
+import PluginsView from './PluginsView';
 import type { Tab } from '../../../../stores/tabsStore';
 
 interface ContentListProps {
@@ -213,6 +215,10 @@ export default function ContentList(props: ContentListProps) {
 
   if (location.kind === 'preset' && location.preset === 'skills') {
     return <SkillsView />;
+  }
+
+  if (location.kind === 'preset' && location.preset === 'plugins') {
+    return <PluginsView />;
   }
 
   if (location.kind === 'preset' && location.preset === 'open-tabs') {
@@ -529,6 +535,7 @@ function ProjectRow({
     (project.cursorSessions?.length ?? 0) +
     (project.geminiSessions?.length ?? 0);
   const [showClaudeMd, setShowClaudeMd] = useState(false);
+  const [showPlugins, setShowPlugins] = useState(false);
   const handleDragStart = (e: React.DragEvent) => {
     try {
       e.dataTransfer.setData('application/x-bwlab-node', JSON.stringify({ kind: 'project', projectName: project.name }));
@@ -679,6 +686,18 @@ function ProjectRow({
               >
                 <Plug className="h-3.5 w-3.5" />
               </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowPlugins(true);
+                }}
+                className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                aria-label="Plugin progetto"
+                title="Plugin progetto"
+              >
+                <Puzzle className="h-3.5 w-3.5" />
+              </button>
             </div>
           )}
           {onAssignClick && (
@@ -770,6 +789,13 @@ function ProjectRow({
           projectName={project.name}
           projectDisplayName={project.displayName || project.name}
           onClose={() => setShowClaudeMd(false)}
+        />
+      )}
+      {showPlugins && (
+        <ProjectPluginsDialog
+          projectName={project.name}
+          projectDisplayName={project.displayName || project.name}
+          onClose={() => setShowPlugins(false)}
         />
       )}
     </div>

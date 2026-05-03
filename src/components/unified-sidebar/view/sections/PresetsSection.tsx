@@ -1,4 +1,4 @@
-import { Layers, Clock, Inbox, Star, Bot, Activity, Sparkles } from 'lucide-react';
+import { Layers, Clock, Inbox, Star, Bot, Activity, Sparkles, Puzzle } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Location, PresetKind } from '../../types/location';
@@ -17,10 +17,11 @@ const PRESET_ICONS: Record<PresetKind, ComponentType<{ className?: string }>> = 
   favorites: Star,
   'global-agents': Bot,
   skills: Sparkles,
+  plugins: Puzzle,
   'open-tabs': Activity,
 };
 
-const PRESET_ORDER: PresetKind[] = ['all', 'recent', 'unassigned', 'favorites', 'global-agents', 'skills', 'open-tabs'];
+const PRESET_ORDER: PresetKind[] = ['all', 'recent', 'unassigned', 'favorites', 'global-agents', 'skills', 'plugins', 'open-tabs'];
 
 export default function PresetsSection({ location, onSelect, counts }: PresetsSectionProps) {
   const { t } = useTranslation('sidebar');
