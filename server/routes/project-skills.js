@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import { spawn } from 'child_process';
 import { extractProjectDirectory } from '../projects.js';
 import { appConfigDb } from '../database/db.js';
 
@@ -94,6 +95,81 @@ router.put('/config/skills-global-master-dir', (req, res) => {
   } catch (error) {
     console.error('Error setting skills global master dir:', error);
     res.status(500).json({ error: 'Failed to set skills global master dir' });
+  }
+});
+
+function isInsideAllowedRoot(absPath) {
+  const roots = [getGlobalMasterDir(), getMasterDir(), USER_SKILLS_DIR];
+  const resolved = path.resolve(absPath);
+  return roots.some((r) => {
+    const root = path.resolve(r);
+    return resolved === root || resolved.startsWith(root + path.sep);
+  });
+}
+
+// POST /api/project-skills/open-in-file-manager  body: { dir }
+router.post('/open-in-file-manager', (req, res) => {
+  try {
+    const { dir } = req.body || {};
+    if (typeof dir !== 'string' || !dir) return res.status(400).json({ error: 'dir is required' });
+    if (!isInsideAllowedRoot(dir)) return res.status(403).json({ error: 'path outside allowed roots' });
+    if (!fs.existsSync(dir)) return res.status(404).json({ error: 'dir not found' });
+
+    const platform = process.platform;
+    let command, args;
+    if (platform === 'darwin') { command = 'open'; args = [dir]; }
+    else if (platform === 'win32') { command = 'explorer'; args = [dir]; }
+    else { command = 'xdg-open'; args = [dir]; }
+
+    const env = { ...process.env };
+    try {
+      const child = spawn(command, args, { detached: true, stdio: 'ignore', env });
+      child.on('error', (err) => console.error('open-in-file-manager spawn:', err));
+      child.unref();
+    } catch (err) {
+      return res.status(500).json({ error: `Failed to launch ${command}: ${err?.message || err}` });
+    }
+    res.json({ success: true, command, path: dir });
+  } catch (error) {
+    console.error('Error opening skill dir:', error);
+    res.status(500).json({ error: 'Failed to open skill dir' });
+  }
+});
+
+// GET /api/project-skills/skill-file?dir=<skillDir>  — read SKILL.md content
+router.get('/skill-file', (req, res) => {
+  try {
+    const dir = String(req.query.dir || '');
+    if (!dir) return res.status(400).json({ error: 'dir is required' });
+    if (!isInsideAllowedRoot(dir)) return res.status(403).json({ error: 'path outside allowed roots' });
+    const file = path.join(dir, 'SKILL.md');
+    if (!fs.existsSync(file)) return res.status(404).json({ error: 'SKILL.md not found' });
+    const content = fs.readFileSync(file, 'utf8');
+    const stat = fs.statSync(file);
+    res.json({ success: true, file, content, size: stat.size, modifiedAt: stat.mtime.toISOString() });
+  } catch (error) {
+    console.error('Error reading skill file:', error);
+    res.status(500).json({ error: 'Failed to read skill file' });
+  }
+});
+
+// PUT /api/project-skills/skill-file body: { dir, content }
+router.put('/skill-file', (req, res) => {
+  try {
+    const { dir, content } = req.body || {};
+    if (typeof dir !== 'string' || !dir) return res.status(400).json({ error: 'dir is required' });
+    if (typeof content !== 'string') return res.status(400).json({ error: 'content must be string' });
+    if (!isInsideAllowedRoot(dir)) return res.status(403).json({ error: 'path outside allowed roots' });
+    if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
+      return res.status(404).json({ error: 'skill dir not found' });
+    }
+    const file = path.join(dir, 'SKILL.md');
+    fs.writeFileSync(file, content);
+    const stat = fs.statSync(file);
+    res.json({ success: true, file, size: stat.size, modifiedAt: stat.mtime.toISOString() });
+  } catch (error) {
+    console.error('Error writing skill file:', error);
+    res.status(500).json({ error: 'Failed to write skill file' });
   }
 });
 
