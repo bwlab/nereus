@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Sparkles, Globe, FolderTree, Search, X, Loader2, AlertCircle } from 'lucide-react';
+import { Sparkles, Globe, FolderTree, Search, X, Loader2, AlertCircle, FolderOpen, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSettingsApi, type SkillsCatalog, type CatalogSkill } from '../../../project-settings/hooks/useProjectSettingsApi';
+import { authenticatedFetch } from '../../../../utils/api';
+import SkillEditorDialog from '../dialogs/SkillEditorDialog';
 
 type Scope = 'global' | 'project';
 
@@ -14,6 +16,23 @@ export default function SkillsView() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [scope, setScope] = useState<'all' | Scope>('all');
+  const [active, setActive] = useState<FlatSkill | null>(null);
+
+  const openInFileManager = async (dir: string) => {
+    try {
+      const r = await authenticatedFetch('/api/project-skills/open-in-file-manager', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dir }),
+      });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        alert(j.error || `HTTP ${r.status}`);
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e));
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -125,7 +144,7 @@ export default function SkillsView() {
           {filtered.map((s) => (
             <div
               key={`${s.scope}:${s.name}`}
-              className="grid w-full grid-cols-[44px_1fr_auto] items-start gap-3 border-b border-border/30 px-4 py-3 text-left sm:px-6"
+              className="group grid w-full grid-cols-[44px_1fr_auto] items-start gap-3 border-b border-border/30 px-4 py-3 text-left transition hover:bg-muted/40 sm:px-6"
             >
               <div className="border-[color:var(--heritage-a,#F5D000)]/40 bg-[color:var(--heritage-a,#F5D000)]/10 flex h-10 w-10 items-center justify-center rounded-lg border">
                 <Sparkles className="h-5 w-5 text-[color:var(--heritage-a,#F5D000)]" />
@@ -137,20 +156,48 @@ export default function SkillsView() {
                 {s.description && (
                   <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{s.description}</p>
                 )}
-                <p className="mt-0.5 truncate font-mono text-[10px] text-muted-foreground/70">{s.fullPath}</p>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); openInFileManager(s.fullPath); }}
+                  className="mt-0.5 flex min-w-0 items-center gap-1 truncate font-mono text-[10px] text-muted-foreground/70 transition-colors hover:text-primary hover:underline"
+                  title="Apri nel file manager"
+                >
+                  <FolderOpen className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{s.fullPath}</span>
+                </button>
               </div>
-              <span
-                className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] ${
-                  s.scope === 'global'
-                    ? 'border-blue-400/40 bg-blue-400/10 text-blue-600 dark:text-blue-300'
-                    : 'border-emerald-400/40 bg-emerald-400/10 text-emerald-600 dark:text-emerald-300'
-                }`}
-              >
-                {s.scope === 'global' ? 'globale' : 'per-progetto'}
-              </span>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActive(s)}
+                  className="flex h-7 items-center gap-1 rounded-md border border-border bg-background px-2 text-[11px] font-semibold text-foreground transition hover:bg-muted"
+                  title="Visualizza / Modifica SKILL.md"
+                >
+                  <Pencil className="h-3 w-3" />
+                  Apri
+                </button>
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[10px] ${
+                    s.scope === 'global'
+                      ? 'border-blue-400/40 bg-blue-400/10 text-blue-600 dark:text-blue-300'
+                      : 'border-emerald-400/40 bg-emerald-400/10 text-emerald-600 dark:text-emerald-300'
+                  }`}
+                >
+                  {s.scope === 'global' ? 'globale' : 'per-progetto'}
+                </span>
+              </div>
             </div>
           ))}
         </div>
+      )}
+
+      {active && (
+        <SkillEditorDialog
+          skillName={active.name}
+          skillDir={active.fullPath}
+          scope={active.scope}
+          onClose={() => setActive(null)}
+        />
       )}
     </div>
   );
